@@ -425,7 +425,7 @@ void loop() {
       tft.fillRect(DISP_X + 4 + xwidth, DISP_Y + 1, DISP_W - xwidth - 5, DISP_H - 2, TFT_BLACK);
 
       delay(10); // UI debouncing
-    }
+    }d
   }*/
  
 }
