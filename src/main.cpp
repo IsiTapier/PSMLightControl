@@ -436,7 +436,7 @@ void loop() {
 #define DUNKEL if(analogRead(PIN) < MIN_VALUE)
 #define AN digitalWrite(LED, 1);
 #define AUS digitalWrite(LED, 0);
-#define SONST else
+#define SONST elseS
 
 void loop() {
   DUNKEL
