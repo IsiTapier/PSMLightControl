@@ -421,7 +421,7 @@ void loop() {
       int xwidth = tft.drawString(numberBuffer, DISP_X + 4, DISP_Y + 12);
 
       // Now cover up the rest of the line up by drawing a black rectangle.  No flicker this way
-      // but it will not work with italic or oblique fonts due to character overlap.
+      // but it will not work witeh italic or oblique fonts due to character overlap.
       tft.fillRect(DISP_X + 4 + xwidth, DISP_Y + 1, DISP_W - xwidth - 5, DISP_H - 2, TFT_BLACK);
 
       delay(10); // UI debouncing
