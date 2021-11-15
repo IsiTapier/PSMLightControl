@@ -431,7 +431,7 @@ void loop() {
 }
 
 #define MIN_VALUE 50
-#define PIN 0
+#define PIN 0d
 #define LED 5
 #define DUNKEL if(analogRead(PIN) < MIN_VALUE)
 #define AN digitalWrite(LED, 1);
