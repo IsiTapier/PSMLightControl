@@ -13,11 +13,16 @@ class Button;
 
 class Button : public Container {
   public:
-    Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<void()> touchEvent);
+    Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<void()> touchEvent, std::vector<Container*> content);
 
+    void init(short x, short y) override;
     void draw() override;
-    byte checkTouch();
+
+    ButtonProperties getProperties();
+
+    byte checkTouch(TSPoint p);
     void trigger();
+    void untrigger();
 
   private:
     ButtonProperties _buttonProperties;

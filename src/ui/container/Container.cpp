@@ -32,12 +32,7 @@ void Container::init(short x, short y) {
         //set dimensions
         ContainerProperties properties = content->getPorperties();
         Spacing padding = properties.getPadding();
-        properties.getLength().setReference(_properties.getLength(), false);
-        properties.getHeight().setReference(_properties.getHeight(), false);
-        properties.getPadding().setReference(properties.getLength(), properties.getHeight(), false);
-        properties.getMargin().setReference(properties.getLength(), properties.getHeight(), false);
-        properties.getBorderThickness().setReference(properties.getLength(), false);
-        properties.getBorderRoundness().setReference(properties.getBorderThickness(), false);
+        CONTAINER_SET_REFERENCES(_properties)
         //check if available length in current line is enough
         if(_properties.getContentLength()-currentX < properties.getLength() + MAX(paddingLeft, padding.get(LEFT)) + MAX(padding.get(RIGHT), margin.get(RIGHT))) {
             //check if available length in new line is enough
@@ -116,4 +111,10 @@ ContainerProperties Container::getPorperties() {
 
 void Container::setProperties(ContainerProperties properties) {
     _properties = properties;
+}
+
+void Container::setBackground(uint32_t color) {
+    _properties.setBackgroundColor(color);
+    for(Container* content : _content)
+        content->setBackground(color);
 }

@@ -28,6 +28,7 @@ class Size {
     short getRelativeSize();
     short getReference();
     float getProportion();
+    bool getMode();
     bool operator==(int v);
     bool operator!=(int v);
     operator int();

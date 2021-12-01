@@ -167,6 +167,10 @@
   #include <User_Setups/User_Custom_Fonts.h>
 #endif // #ifdef LOAD_GFXFF
 
+#ifdef TOUCH_CS
+  #include <Extensions/TSPoint.h>
+#endif
+
 // Create a null default font in case some fonts not used (to prevent crash)
 const  uint8_t widtbl_null[1] = {0};
 PROGMEM const uint8_t chr_null[1] = {0};

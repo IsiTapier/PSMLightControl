@@ -6,6 +6,7 @@
 #define Ui_h
 
 #include "Arduino.h"
+#include "button/Button.h"
 #include "container/Container.h"
 #include "textField/Text.h"
 #include "viewManager/ViewManager.h"
@@ -18,7 +19,7 @@ class Ui {
   public:
     Ui();
 
-    void init();
+    static void init();
 
   private:
 

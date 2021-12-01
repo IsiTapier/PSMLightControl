@@ -97,7 +97,8 @@ DMX* universe3 = DMX::initUniverse(UNIVERSE_3, output, U3_IN, U3_OUT, U3_EN);
 #endif
 
 #if !SERIAL_ACTIVE || INACTIVE_UNIVERSE != 2 && false
-DMXDevice strahler(UNIVERSE_2, 20, MRGBWSE, 1, UNIVERSE_1, 20, MRGBW, 8);
+DMXDevice strahler(UNIVERSE_2, 19, MRGBWSE, 1, UNIVERSE_1, 19, MRGB, 7);
+DMXDevice strahlerNeu(UNIVERSE_2, 68, RGBW, 1, UNIVERSE_1, 68, RGBW, 2);
 DMXDevice bars(UNIVERSE_2, 150, RGB, 12, UNIVERSE_1, 149, MRGB, 9);
 DMXDevice barsSide(UNIVERSE_2, 481, RGB, 1, UNIVERSE_1, 101, MRGB);
 DMXDevice blinder[3] = {
@@ -108,8 +109,9 @@ DMXDevice blinder[3] = {
 #endif
 //DMXDevice movingHeads(UNIVERSE_3, 1, PTsZMEwcCXXXX, 1, UNIVERSE_1, 508, ZMC, 2);
 
-#if !SERIAL_ACTIVE || INACTIVE_UNIVERSE != 3
+#if !SERIAL_ACTIVE || INACTIVE_UNIVERSE != 3 && false
 #include "MovingHead.h"
+//DMXDevice strahlerNeu2(UNIVERSE_3, 68, RGBW, 1, UNIVERSE_1, 68, RGBW, 2);
 #endif
 
 /*bool activeMovingHead = 0;
@@ -268,7 +270,7 @@ void setup() {
   //universe2->write(21, 255);
   //universe2->write(27, 255);
 //  universe1->write(0, 255);
-#if !SERIAL_ACTIVE || INACTIVE_UNIVERSE != 3
+#if !SERIAL_ACTIVE || INACTIVE_UNIVERSE != 3 && false
   MovingHead::getMovingHead(0)->init();
   MovingHead::getMovingHead(1)->init();
 #endif
@@ -427,45 +429,4 @@ void loop() {
       delay(10); // UI debouncing
     }d
   }*/
- d
 }
-
-#define MIN_VALUE 50
-#define PIN 0d
-#define LED 5
-#define DUNKEL if(analogRead(PIN) < MIN_VALUE)
-#define AN digitalWrite(LED, 1);
-#define AUS digitalWrite(LED, 0);
-#define SONST else
-
-void loop() {
-  DUNKEL
-  AN
-  SONST
-  AUS
-}
-
-
-
-
-
-
-
-
-
-
-
-
-#define MACH void mach() {\
-                DUNKEL\
-                  AN\
-                SONST\
-                  AUS\
-              }
-#define MACHMACH mach();
-
-void loop() {
-  MACHMACH
-}
-
-MACH

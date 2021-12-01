@@ -28,6 +28,10 @@
   #include "Processors/TFT_eSPI_Generic.c"
 #endif
 
+#ifdef TOUCH_CS
+  #include <Extensions/TSPoint.h>
+#endif
+
 #ifndef SPI_BUSY_CHECK
   #define SPI_BUSY_CHECK
 #endif

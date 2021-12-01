@@ -11,23 +11,24 @@ void Text::init(short x, short y) {
   ContainerProperties properties = getPorperties();
   short length = properties.getContentLength(true);
   short height = properties.getContentHeight(true);
+  short size = MIN(_textProperties.getSize()==-1?MAX_TEXT_SIZE:(int)_textProperties.getSize(), SIZE(length, height, _text.length()));
+  _textProperties.setSize(size);
   x+=properties.getBorderThickness()+properties.getMargin().get(LEFT);
   y+=properties.getBorderThickness()+properties.getMargin().get(TOP);
   switch(_textProperties.getDatum()) {
       case TL_DATUM: break;
-      case TC_DATUM: x+=length/2; break;
+      case TC_DATUM: x+=(size+length)/2; break;
       case TR_DATUM: x+=length; break;
-      case CL_DATUM: y+=height/2; break;
-      case CC_DATUM: y+=height/2; x+=length/2; break;
-      case CR_DATUM: y+=height/2; x+=length; break;
+      case CL_DATUM: y+=(size+height)/2; break;
+      case CC_DATUM: y+=(size+height)/2; x+=(size+length)/2; break;
+      case CR_DATUM: y+=(size+height)/2; x+=length; break;
       case BL_DATUM: y+=height; break;
-      case BC_DATUM: y+=height; x+=length/2; break;
+      case BC_DATUM: y+=height; x+=(size+length)/2; break;
       case BR_DATUM: y+=height; x+=length; break;
   }
-  _textProperties.setSize(MIN(_textProperties.getSize()==-1?MAX_TEXT_SIZE:(int)_textProperties.getSize(), SIZE(properties.getContentLength(), properties.getContentHeight(), _text.length())));
-  if(_textProperties.getSize()*_text.length()*LETTER_LENGTH > properties.getContentLength(true) || _textProperties.getSize()*LETTER_HEIGHT > properties.getContentHeight(true)) {
+  if(size*_text.length()*LETTER_LENGTH > properties.getContentLength(true) || size*LETTER_HEIGHT > properties.getContentHeight(true)) {
     if(DEBUG) {
-      if(_textProperties.getSize() > 1)
+      if(size > 1)
         Serial.println("WARNING:\tText size miscalculated and Textfield supressed");
       else
         Serial.println("WARNING:\tTextfield supressed, because there wasn't enough space available");
@@ -42,10 +43,11 @@ void Text::init(short x, short y) {
 void Text::draw() {
     if(!getPorperties().getDraw())
       return;
-    drawBorder();
+    if(!_textProperties.getTransparent())
+      drawBorder();
     if(_textProperties.getX() == -1 || _textProperties.getY() == -1)
       return;
-    dPrint(_text, _textProperties.getX(), _textProperties.getY(), _textProperties.getSize(), _textProperties.getColor(), _textProperties.getDatum(), _textProperties.getBackgroundColor());
+    dPrint(_text, _textProperties.getX(), _textProperties.getY(), _textProperties.getSize(), _textProperties.getColor(), _textProperties.getDatum(), getPorperties().getBackgroundColor());
 }
 
 void Text::dPrint(String text, int x, int y, int size, int color, int datum, int backgroundColor, String oldText, int oldTextSize, boolean redraw, int padding) {

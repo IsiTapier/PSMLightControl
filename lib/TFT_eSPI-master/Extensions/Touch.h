@@ -14,6 +14,9 @@
            // In future the function may return an 8 "quality" (jitter) value.
   uint8_t  getTouch(uint16_t *x, uint16_t *y, uint16_t threshold = 600);
 
+           //returns Touch data as Object
+  TSPoint  getTouch();
+
            // Run screen calibration and test, report calibration values to the serial port
   void     calibrateTouch(uint16_t *data, uint32_t color_fg, uint32_t color_bg, uint8_t size);
            // Set the screen calibration values

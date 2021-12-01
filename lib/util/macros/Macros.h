@@ -8,8 +8,11 @@
 #include "Arduino.h"
 
 #define SETMAX(x, value)    if(x < (value)) x = (value);
+#define SETMIN(x, value)    if(x > (value)) x = (value);
 #define MIN(x, y)           min((int) x, (int) y)
 #define MAX(x, y)           max((int) x, (int) y)
+#define IFGREATER(x, y, value)  ((x>y)?value:x)
+#define IFSMALLER(x, y, value)  ((x<y)?value:x)
 
 //font
 #define LETTER_LENGTH              6

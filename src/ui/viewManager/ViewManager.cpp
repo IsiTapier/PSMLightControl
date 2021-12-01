@@ -12,6 +12,12 @@ void ViewManager::addView(View* view) {
   view->init();
 }
 
+void ViewManager::init() {
+  for(View* view : views)
+    view->init();
+  setCurrentView(DEFAULT_VIEW);
+}
+
 void ViewManager::setCurrentView(short view) {
   if(!VALID_VIEW(view))
     return;

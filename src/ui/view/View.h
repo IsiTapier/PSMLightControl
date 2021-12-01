@@ -8,6 +8,8 @@
 #include "Arduino.h"
 #include "../container/Container.h"
 #include "viewProperties/ViewProperties.h"
+class View;
+#include "../viewManager/ViewManager.h"
 
 class View : Container {
   public:

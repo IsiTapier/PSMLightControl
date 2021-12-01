@@ -15,11 +15,12 @@
 
 class TextProperties {
   public:
-    TextProperties(uint32_t color = TFT_WHITE, uint32_t backgroundColor = TFT_DARKGREY, Size size = Size(), uint8_t datum = TL_DATUM);
+    TextProperties(uint32_t color = TFT_WHITE, uint32_t backgroundColor = TFT_DARKGREY, Size size = Size(), uint8_t datum = CC_DATUM, bool transparent = true);
     TextProperties* setSize(Size size);
     TextProperties* setDatum(uint8_t datum);
     TextProperties* setColor(uint32_t color);
     TextProperties* setBackgroundColor(uint32_t color);
+    TextProperties* setTransparent(bool transparent);
     TextProperties* setX(short x);
     TextProperties* setY(short y);
     TextProperties* setXY(short x, short y);
@@ -27,6 +28,7 @@ class TextProperties {
     uint8_t getDatum();
     uint32_t getColor();
     uint32_t getBackgroundColor();
+    bool getTransparent();
     short getX();
     short getY();
 
@@ -35,6 +37,7 @@ class TextProperties {
     uint8_t _datum;
     uint32_t _color;
     uint32_t _backgroundColor;
+    bool _transparent;
     short _x = -1;
     short _y = -1;
 

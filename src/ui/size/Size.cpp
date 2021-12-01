@@ -62,6 +62,10 @@
         return _proportion;
     }
 
+    bool Size::getMode() {
+        return _mode;
+    }
+
     bool Size::checkCalculateMode(bool defaultMode) {
         if(!VALID_SIZE(_mode))
             if(!VALID_SIZE(!_mode))

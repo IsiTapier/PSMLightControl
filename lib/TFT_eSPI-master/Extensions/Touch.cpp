@@ -96,17 +96,13 @@ uint8_t TFT_eSPI::getTouchRaw(uint16_t *x, uint16_t *y){
 ** Description:             read raw pressure on touchpad and return Z value. 
 ***************************************************************************************/
 uint16_t TFT_eSPI::getTouchRawZ(void){
-
   begin_touch_read_write();
-
   // Z sample request
   int16_t tz = 0xFFF;
   spi.transfer(0xb0);               // Start new Z1 conversion
   tz += spi.transfer16(0xc0) >> 3;  // Read Z1 and start Z2 conversion
   tz -= spi.transfer16(0x00) >> 3;  // Read Z2
-
   end_touch_read_write();
-
   return (uint16_t)tz;
 }
 
@@ -124,11 +120,11 @@ uint8_t TFT_eSPI::validTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
   while (z1 > z2)
   {
     z2 = z1;
+    
     z1 = getTouchRawZ();
-    delay(1);
+    //delay(1);
+    vTaskDelay(1/portTICK_PERIOD_MS);
   }
-
-  //  Serial.print("Z = ");Serial.println(z1);
 
   if (z1 <= threshold) return false;
     
@@ -137,10 +133,10 @@ uint8_t TFT_eSPI::validTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
   //  Serial.print("Sample 1 x,y = "); Serial.print(x_tmp);Serial.print(",");Serial.print(y_tmp);
   //  Serial.print(", Z = ");Serial.println(z1);
 
-  delay(1); // Small delay to the next sample
+  vTaskDelay(1/portTICK_PERIOD_MS);//delay(1); // Small delay to the next sample
   if (getTouchRawZ() <= threshold) return false;
 
-  delay(2); // Small delay to the next sample
+  vTaskDelay(2/portTICK_PERIOD_MS);//delay(2); // Small delay to the next sample
   getTouchRaw(&x_tmp2,&y_tmp2);
   
   //  Serial.print("Sample 2 x,y = "); Serial.print(x_tmp2);Serial.print(",");Serial.println(y_tmp2);
@@ -170,7 +166,7 @@ uint8_t TFT_eSPI::getTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
   uint8_t valid = 0;
   while (n--)
   {
-    if (validTouch(&x_tmp, &y_tmp, threshold)) valid++;;
+    if (validTouch(&x_tmp, &y_tmp, threshold)) valid++;
   }
 
   if (valid<1) { _pressTime = 0; return false; }
@@ -186,6 +182,17 @@ uint8_t TFT_eSPI::getTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
   *x = _pressX;
   *y = _pressY;
   return valid;
+}
+
+/***************************************************************************************
+** Function name:           getTouch
+** Description:             read callibrated position. Return false if not pressed. 
+***************************************************************************************/
+TSPoint TFT_eSPI::getTouch(){
+  TSPoint p;
+  if(!getTouch(&p.x, &p.y))
+    return TSPoint(-1, -1);
+  return p;
 }
 
 /***************************************************************************************
