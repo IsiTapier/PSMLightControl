@@ -41,6 +41,7 @@
 #define MRGBWSE 0x1234567
 #define MXS 0x106
 #define PTsZMEwcCXXXX 0x89AB17CDF0000
+#define PTsZMEwcC 0x89AB17CDF
 #define ZMwc 0xB1CD
 #define ZMC 0xB1F
 
@@ -62,6 +63,7 @@ class DMXDevice {
     void writeStrobe(byte value);
     void writeEffect(byte value);
     void blackOut();
+    static void init();
 
   private:
     DMXUniverse _universe;
@@ -79,8 +81,11 @@ class DMXDevice {
     DMX* readUniverse;
     byte formatSize;
     byte inputFormatSize;
+    byte vMasterValue;
     unsigned long readcycle = millis();
     std::vector<std::function<byte(byte)>> _valueCalculation;
+
+    static std::vector<DMXDevice*> devices;
     
     void updateChannels();
     static void startUpdateTask(void* _this);

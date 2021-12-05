@@ -22,11 +22,11 @@ class ColorManager {
     static ColorPalette getColorPalette(byte colorPalette);
     static ColorPalette getColorPalette();
     static byte getCurrentColorPalette();
-    static uint32_t getContrastColor();
-    static uint32_t getBorderColor();
-    static uint32_t getTextColor();
-    static uint32_t getBackgroundColor();
-    static uint32_t getContainerColor(uint8_t order);
+    static uint16_t getContrastColor();
+    static uint16_t getBorderColor();
+    static uint16_t getTextColor();
+    static uint16_t getBackgroundColor();
+    static uint16_t getContainerColor(uint8_t order);
     
   private:
     static std::vector<ColorPalette> colorPalettes;

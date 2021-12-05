@@ -7,14 +7,14 @@
 Text::Text(ContainerProperties properties, TextProperties textProperties, String text) : Container(properties, {}), _textProperties(textProperties), _text(text) {
 }
 
-void Text::init(short x, short y) {
+void Text::init() {
   ContainerProperties properties = getPorperties();
   short length = properties.getContentLength(true);
   short height = properties.getContentHeight(true);
   short size = MIN(_textProperties.getSize()==-1?MAX_TEXT_SIZE:(int)_textProperties.getSize(), SIZE(length, height, _text.length()));
   _textProperties.setSize(size);
-  x+=properties.getBorderThickness()+properties.getMargin().get(LEFT);
-  y+=properties.getBorderThickness()+properties.getMargin().get(TOP);
+  short x = properties.getX()+properties.getBorderThickness()+properties.getMargin().get(LEFT);
+  short y = properties.getY()+properties.getBorderThickness()+properties.getMargin().get(TOP);
   switch(_textProperties.getDatum()) {
       case TL_DATUM: break;
       case TC_DATUM: x+=(size+length)/2; break;
@@ -43,11 +43,11 @@ void Text::init(short x, short y) {
 void Text::draw() {
     if(!getPorperties().getDraw())
       return;
-    if(!_textProperties.getTransparent())
+    if(!getPorperties().getInvisible())
       drawBorder();
     if(_textProperties.getX() == -1 || _textProperties.getY() == -1)
       return;
-    dPrint(_text, _textProperties.getX(), _textProperties.getY(), _textProperties.getSize(), _textProperties.getColor(), _textProperties.getDatum(), getPorperties().getBackgroundColor());
+    dPrint(_text, _textProperties.getX(), _textProperties.getY(), _textProperties.getSize(), IFNOT(_textProperties.getColor(), NO_COLOR, ColorManager::getTextColor()), _textProperties.getDatum()/*, getPorperties().getInvisible()?TFT_TRANSPARENT:getColor()*/);
 }
 
 void Text::dPrint(String text, int x, int y, int size, int color, int datum, int backgroundColor, String oldText, int oldTextSize, boolean redraw, int padding) {
@@ -92,7 +92,7 @@ void Text::dPrint(String text, int x, int y, int size, int color, int datum, int
   } else {
     display.setTextSize(size);
     display.setCursor(x, y);
-    if(backgroundColor > 0)
+    if(backgroundColor > -1)
       display.setTextColor(color, backgroundColor);
     else
       display.setTextColor(color);

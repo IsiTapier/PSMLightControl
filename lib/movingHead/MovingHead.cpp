@@ -5,6 +5,8 @@
 #include "MovingHead.h"
 bool MovingHead::activeMovingHead = 0;
 bool MovingHead::togetherMode = TOGETHER_MODE;
+byte MovingHead::_lastHeight = 0;
+byte MovingHead::_speed = 0;
 unsigned long MovingHead::lastClick = 0;
 MovingHead MovingHead::movingHead1(HEIGHT_MV1, X_OFFSET_MV1, Y_OFFSET, TILT_OFFSET_MV1, PAN_OFFSET_MV1, UNIVERSE_3, 1);
 MovingHead MovingHead::movingHead2(HEIGHT_MV2, X_OFFSET_MV2, Y_OFFSET, TILT_OFFSET_MV2, PAN_OFFSET_MV2, UNIVERSE_3, 14);
@@ -26,6 +28,7 @@ MovingHead* MovingHead::setX(float x) {
         _device.writeType(TILT, calculateTilt(x, getY()));
     if(calculatePan(x, getY()) != calculatePan(getX(), getY()))
         _device.writeType(PAN, calculatePan(x, getY()));
+    // _device.update();
     if(togetherMode)
         xAll = x;
     else
@@ -42,6 +45,7 @@ MovingHead* MovingHead::setY(float y) {
         _device.writeType(TILT, calculateTilt(getX(), y));
     if(calculatePan(getX(), y) != calculatePan(getX(), getY()))
         _device.writeType(PAN, calculatePan(getX(), y));
+    // _device.update();
     if(togetherMode)
         yAll = y;
     else
@@ -54,6 +58,7 @@ MovingHead* MovingHead::setXY(float x, float y, bool update) {
         _device.writeType(TILT, calculateTilt(x, y));
     if(update || calculatePan(x, y) != calculatePan(getX(), getY()))
         _device.writeType(PAN, calculatePan(x, y));
+    // _device.update();
     if(togetherMode) {
         xAll = x;
         yAll = y;
@@ -101,16 +106,22 @@ MovingHead* MovingHead::getMovingHead(bool movingHead) {
 
 void MovingHead::init() {
     _device.writeType(E, UINT8_MAX);
-    _device.writeChannel(2, 0);
-    _device.writeType(M, UINT8_MAX);
-    _device.writeType(Z, UINT8_MAX);
-    _device.writeType(C, DEFAULT_COLOR);
-    _device.writeChannel(9, 0);
-    _device.writeChannel(10, 0);
-    _device.writeChannel(11, 0);
-    _device.writeChannel(12, 0);
+    // _device.writeChannel(2, 0);
+    // _device.writeType(M, UINT8_MAX);
+    // _device.writeType(Z, UINT8_MAX);
+    // _device.writeType(C, DEFAULT_COLOR);
+    // _device.writeChannel(9, 0);
+    // _device.writeChannel(10, 0);
+    // _device.writeChannel(11, 0);
+    // _device.writeChannel(12, 0);
     _device.writeType(PAN, calculatePan(x, y));
     _device.writeType(TILT, calculateTilt(y, y));
+}
+
+void MovingHead::init(bool i) {
+    xTaskCreate(loop, "moving head loop", 1024, NULL, 9, NULL);
+    getMovingHead(0)->init();
+    getMovingHead(1)->init();
 }
 
 byte MovingHead::calculatePan(float x, float y) {
@@ -121,7 +132,7 @@ byte MovingHead::calculatePan(float x, float y) {
     return pan;
 }
 
-#define alpha atan(sqrt(pow(y,2)+pow(x,2))/(double)(_height-(y>STAGE_Y-_yOffset&&abs(x+_xOffset)<STAGE_X?STAGE_HIGHT:0)))*180/PI
+#define alpha atan(sqrt(pow(y,2)+pow(x,2))/(double)(_height-_lastHeight*2-(y>STAGE_Y-_yOffset&&abs(x+_xOffset)<STAGE_X?STAGE_HIGHT:0)))*180/PI
 
 byte MovingHead::calculateTilt(float x, float y) {
     x-=_xOffset;
@@ -133,7 +144,7 @@ byte MovingHead::calculateTilt(float x, float y) {
 #undef alpha
 
 void MovingHead::joystickHandle(float x, float y) {
-    ACTIVE_MOVINGHEAD.addX(x*(X_SPEED*(DMX::getUniverse(UNIVERSE_1)->read(SPEED_ADDRESS)==0?DEFAULT_X_SPEED:DMX::getUniverse(UNIVERSE_1)->read(SPEED_ADDRESS))/255.))->addY(y*(Y_SPEED*(DMX::getUniverse(UNIVERSE_1)->read(SPEED_ADDRESS)==0?DEFAULT_Y_SPEED:DMX::getUniverse(UNIVERSE_1)->read(SPEED_ADDRESS))/255.));
+    ACTIVE_MOVINGHEAD.addX(x*(X_SPEED*(_speed==0?DEFAULT_X_SPEED:_speed)/255.))->addY(y*(Y_SPEED*(_speed==0?DEFAULT_Y_SPEED:_speed)/255.));
     if(togetherMode)
         INACTIVE_MOVINGHEAD.addXY(0, 0, true);
     // Serial.print("x: "); Serial.print((activeMovingHead==0?movingHead1:movingHead2).getX());
@@ -151,4 +162,17 @@ void MovingHead::joystickButtonHandle() {
   }
   lastClick = millis();
   //Serial.println(F("click"));
+}
+
+void MovingHead::loop(void*) {
+    for(;;) {
+        vTaskDelay(MOVING_LOOP_CYCLE/portTICK_PERIOD_MS);
+        byte height = DMX::getUniverse(UNIVERSE_1)->read(HEIGHT_ADDRESS);
+        if(height != _lastHeight) {
+            _lastHeight = height;
+            ACTIVE_MOVINGHEAD.addXY(0, 0, true);
+            INACTIVE_MOVINGHEAD.addXY(0, 0, true);
+        }
+        _speed = DMX::getUniverse(UNIVERSE_1)->read(SPEED_ADDRESS);
+    }
 }

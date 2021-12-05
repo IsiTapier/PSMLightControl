@@ -25,7 +25,7 @@ void ButtonManager::checkTouch(void*) {
     nearestDistance = UINT8_MAX;
     nearestButton.clear();
     for(Button* button : buttons) {
-      if(button->getProperties().getView()!=ViewManager::getCurrentView())
+      if(button->getPorperties().getViewId()!=ViewManager::getCurrentView())
         continue;
       if(p.x == UINT16_MAX || p.y == UINT16_MAX) {
         button->untrigger();
@@ -43,7 +43,7 @@ void ButtonManager::checkTouch(void*) {
         nearestButton.push_back(button);
     }
     for(Button* button : buttons) {
-      if(button->getProperties().getView()!=ViewManager::getCurrentView())
+      if(button->getPorperties().getViewId()!=ViewManager::getCurrentView())
         continue;
       if(std::find(nearestButton.begin(), nearestButton.end(), button) != nearestButton.end())
         button->trigger();

@@ -240,7 +240,6 @@ void TFT_eSPI::pushBlock(uint16_t color, uint32_t len){
 //*/
 //*
 void TFT_eSPI::pushBlock(uint16_t color, uint32_t len){
-
   volatile uint32_t* spi_w = _spi_w;
   uint32_t color32 = (color<<8 | color >>8)<<16 | (color<<8 | color >>8);  
   uint32_t i = 0;

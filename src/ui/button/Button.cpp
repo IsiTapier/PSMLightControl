@@ -7,14 +7,14 @@
 Button::Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<void()> touchEvent, std::vector<Container*> content) : Container(properties, content), _buttonProperties(buttonProperties), _touchEvent(touchEvent) {
 }
 
-void Button::init(short x, short y) {
-  Container::init(x, y);
+void Button::init() {
+  Container::init();
   _buttonProperties.setTouchExtension(*_buttonProperties.getTouchExtension().setReference(getPorperties().getLength(), getPorperties().getHeight(), false));
   ButtonManager::addButton(this);
 }
 
 void Button::draw() {
-  setBackground(triggered?_buttonProperties.getPressedColor():_buttonProperties.getColor());
+  setBackground(triggered?IFNOT(_buttonProperties.getPressedColor(), NO_COLOR, display.setBrightness(display.getBrightness(getColor())>150?-COLOR_SHIFT:3*COLOR_SHIFT, getColor())):getColor());
   Container::draw();
 }
 

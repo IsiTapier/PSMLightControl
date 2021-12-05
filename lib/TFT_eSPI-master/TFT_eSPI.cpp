@@ -3836,6 +3836,61 @@ uint32_t TFT_eSPI::color24to16(uint32_t color888)
 }
 
 /***************************************************************************************
+** Function name:           getRed
+** Description:             convert 16 bit colour to 8 bit red component
+***************************************************************************************/
+uint8_t TFT_eSPI::getRed(uint16_t color565)
+{
+  uint8_t r = (color565 >> 8) & 0xF8; r |= (r >> 5);
+
+  return r;
+}
+
+/***************************************************************************************
+** Function name:           getGreen
+** Description:             convert 16 bit colour to 8 bit green component
+***************************************************************************************/
+uint8_t TFT_eSPI::getGreen(uint16_t color565)
+{
+  uint8_t g = (color565 >> 3) & 0xFC; g |= (g >> 6);
+
+  return g;
+}
+
+/***************************************************************************************
+** Function name:           getBlue
+** Description:             convert 16 bit colour to 8 bit blue component
+***************************************************************************************/
+uint8_t TFT_eSPI::getBlue(uint16_t color565)
+{
+  uint8_t b = (color565 << 3) & 0xF8; b |= (b >> 5);
+
+  return b;
+}
+
+/***************************************************************************************
+** Function name:           getBrightness
+** Description:             convert 24 bit colour to a 16 bit 565 colour value
+***************************************************************************************/
+uint8_t TFT_eSPI::getBrightness(uint16_t color565)
+{
+  uint8_t r = (color565 >> 8) & 0xF8; r |= (r >> 5);
+  uint8_t g = (color565 >> 3) & 0xFC; g |= (g >> 6);
+  uint8_t b = (color565 << 3) & 0xF8; b |= (b >> 5);
+
+  return round((r+g+b)/3);
+}
+
+/***************************************************************************************
+** Function name:           setBrightness
+** Description:             changes the brightness of a 16 bit colour
+***************************************************************************************/
+uint16_t TFT_eSPI::setBrightness(int8_t brightness, uint16_t color565)
+{
+  return display.alphaBlend(abs(brightness*2), brightness > 0 ? TFT_WHITE : TFT_BLACK, color565);
+}
+
+/***************************************************************************************
 ** Function name:           invertDisplay
 ** Description:             invert the display colours i = 1 invert, i = 0 normal
 ***************************************************************************************/

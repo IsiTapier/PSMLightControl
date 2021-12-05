@@ -17,7 +17,7 @@ class Text : public Container {
   public:
     Text(ContainerProperties properties, TextProperties textProperties, String text);
 
-    void init(short x, short y) override;
+    void init() override;
     void draw() override;
 
     static void dPrint(String text, int x, int y, int size, int color, int datum = 0, int backgroundColor = -1, String oldText = "", int oldTextSize = -1, boolean redraw = false, int padding = 0);

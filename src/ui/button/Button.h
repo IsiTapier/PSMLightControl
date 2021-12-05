@@ -11,11 +11,13 @@
 class Button;
 #include "../buttonManager/ButtonManager.h"
 
+#define COLOR_SHIFT 20
+
 class Button : public Container {
   public:
     Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<void()> touchEvent, std::vector<Container*> content);
 
-    void init(short x, short y) override;
+    void init() override;
     void draw() override;
 
     ButtonProperties getProperties();

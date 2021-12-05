@@ -16,7 +16,7 @@ class View : Container {
     View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content);
     
     byte getId();
-    void init(short x = 0, short y = 0) override;
+    void init() override;
     void draw() override;
 
     static byte getCurrentId();

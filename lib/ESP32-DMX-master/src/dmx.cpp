@@ -17,7 +17,7 @@
 
 #include "dmx.h"
 
-uart_port_t DMX::currentUart = SERIAL_ACTIVE?UART_NUM_1:UART_NUM_0;
+uart_port_t DMX::currentUart = DEBUG?UART_NUM_1:UART_NUM_0;
 DMX DMX::universe1;
 DMX DMX::universe2;
 DMX DMX::universe3;
@@ -31,7 +31,17 @@ DMX::DMX(DMXUniverse universe, DMXDirection direction, gpio_num_t inputPin, gpio
         return;
     uart = currentUart;
     currentUart = currentUart==UART_NUM_0?UART_NUM_1:currentUart==UART_NUM_2?UART_NUM_MAX:UART_NUM_2;
-    initialize(universe, direction);
+    _universe = universe;
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 513; j++) {
+            dmx_data[i][j] = 0;
+        }
+    }
+    for(int j = 0; j < 513; j++) {
+        // dmx_data2[j] = 0;
+        dmx_temp_data[j] = 0;
+    }
+    initialize(direction);
 }
 
 DMX* DMX::initUniverse(DMXUniverse universe, DMXDirection direction, gpio_num_t inputPin, gpio_num_t outputPin, gpio_num_t enablePin) {
@@ -49,7 +59,7 @@ DMX* DMX::getUniverse(DMXUniverse universe) {
     return universe==UNIVERSE_1?&universe1:universe==UNIVERSE_2?&universe2:universe==UNIVERSE_3?&universe3:&universe4;
 }
 
-void DMX::initialize(DMXUniverse universe, DMXDirection direction) {
+void DMX::initialize(DMXDirection direction) {
     // configure UART for DMX
     uart_config_t uart_config = {
         .baud_rate = 250000,
@@ -69,10 +79,27 @@ void DMX::initialize(DMXUniverse universe, DMXDirection direction) {
 
     // create mutex for syncronisation
     sync_dmx = xSemaphoreCreateMutex();
+    sync_health = xSemaphoreCreateMutex();
 
     // set gpio for direction
     gpio_pad_select_gpio(_enablePin);
     gpio_set_direction(_enablePin, GPIO_MODE_OUTPUT);
+
+            // if(_universe == UNIVERSE_2) {
+            // //for(int x = 0; x < 3; x++) {
+            //     for(int i = 0; i < 7; i++) {
+            //         dmx_data2[19+i*7] = 255;
+            //         dmx_data2[20+i*7] = 255;
+            //         dmx_data2[21+i*7] = 20;
+            //     }
+            //     for(int i = 0; i < 9; i++) {
+            //         for(int j = 0; j < 36; j+=3) {
+            //             dmx_data2[150+i*36+j] = 255;
+            //             dmx_data2[150+i*36+j+1] = 30;
+            //         }
+            //     }
+            //}
+        // }
 
     // depending on parameter set gpio for direction change and start rx or tx thread
     if(direction == output) {
@@ -80,18 +107,20 @@ void DMX::initialize(DMXUniverse universe, DMXDirection direction) {
         dmx_state = DMX_OUTPUT;
 
         //clear data
-        writeOff();
-
+        // writeOff();
+    
         // create send task
-        xTaskCreatePinnedToCore(startSendTask, "uart_send_task", 1024, getUniverse(universe), configMAX_PRIORITIES-2, NULL, DMX_CORE);
+        xTaskCreatePinnedToCore(startSendTask, "uart_send_task", 1024, getUniverse(_universe), 12, NULL, DMX_CORE);
+        // create update task
+        xTaskCreatePinnedToCore(startUpdateTask, "dmx_update_task", 1024, getUniverse(_universe), 10, NULL, DMX_CORE);
     } else {
         gpio_set_level(_enablePin, 0);
         dmx_state = DMX_IDLE;
 
         // create receive task
-        xTaskCreatePinnedToCore(startEventTask, "uart_event_task", 2048, getUniverse(universe), configMAX_PRIORITIES-1, NULL, DMX_CORE);
+        xTaskCreatePinnedToCore(startEventTask, "uart_event_task", 2048, getUniverse(_universe), 11, NULL, DMX_CORE);
         // create check task
-        xTaskCreatePinnedToCore(startCheckTask, "uart_check_task", 1024, getUniverse(universe), 1, NULL, DMX_CORE);
+        xTaskCreatePinnedToCore(startCheckTask, "uart_check_task", 1024, getUniverse(_universe), 1, NULL, DMX_CORE);
     }
 }
 
@@ -105,7 +134,7 @@ uint8_t DMX::read(uint16_t channel) {
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreTake(sync_dmx, portMAX_DELAY);
 #endif
-    uint8_t tmp_dmx = dmx_data[channel];
+    uint8_t tmp_dmx = dmx_data[2][channel];
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreGive(sync_dmx);
 #endif
@@ -120,25 +149,30 @@ void DMX::readAll(uint8_t * data, uint16_t start, size_t size) {
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreTake(sync_dmx, portMAX_DELAY);
 #endif
-    memcpy(data, (uint8_t *)dmx_data + start, size);
+    memcpy(data, (uint8_t *)dmx_data[0] + start, size);
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreGive(sync_dmx);
 #endif
 }
 
-void DMX::write(uint16_t channel, uint8_t value) {
+void DMX::write(uint16_t channel, uint8_t value, bool update) {
     // restrict acces to dmx array to valid values
     if(channel < 1 || channel > 512) {
         return;
     }
-
+    if(update) {
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreTake(sync_dmx, portMAX_DELAY);
 #endif
-    dmx_data[channel] = value;
+    dmx_data[0][channel] = value;
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreGive(sync_dmx);
 #endif
+    } else {
+        xSemaphoreTake(sync_health, portMAX_DELAY);
+        dmx_temp_data[channel-1] = value;
+        xSemaphoreGive(sync_health);
+    }
 }
 
 void DMX::writeAll(uint8_t * data, uint16_t start, size_t size) {
@@ -149,7 +183,26 @@ void DMX::writeAll(uint8_t * data, uint16_t start, size_t size) {
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreTake(sync_dmx, portMAX_DELAY);
 #endif
-    memcpy((uint8_t *)dmx_data + start, data, size);
+    memcpy((uint8_t *)dmx_data[0] + start, data, size);
+#if !DMX_IGNORE_THREADSAFETY
+    xSemaphoreGive(sync_dmx);
+#endif
+}
+
+void DMX::writeAll(std::vector<uint8_t> data, uint16_t start, size_t size) {
+    // restrict acces to dmx array to valid values
+    if(start < 1 || start > 512 || start + size > 513) {
+        return;
+    }
+    std::vector<uint8_t>::iterator i = data.begin();
+    std::vector<uint8_t>::iterator j = data.begin();
+    std::advance(i, start);
+    std::advance(j, start+size);
+#if !DMX_IGNORE_THREADSAFETY
+    xSemaphoreTake(sync_dmx, portMAX_DELAY);
+#endif
+    std::copy(data.begin(), data.end(), dmx_data[0]);
+   // memcpy((uint8_t *)dmx_data[(currentDmx+2)%3] + start, data, size);
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreGive(sync_dmx);
 #endif
@@ -163,11 +216,11 @@ void DMX::writeOff() {
 uint8_t DMX::isHealthy() {
     // get timestamp of last received packet
 #if !DMX_IGNORE_THREADSAFETY
-    xSemaphoreTake(sync_dmx, portMAX_DELAY);
+    xSemaphoreTake(sync_health, portMAX_DELAY);
 #endif
     long dmx_timeout = last_dmx_packet;
 #if !DMX_IGNORE_THREADSAFETY
-    xSemaphoreGive(sync_dmx);
+    xSemaphoreGive(sync_health);
 #endif
     bool check_channel = HEALTHY_CHANNEL == -1 || read(HEALTHY_CHANNEL) != 0;
     // check if elapsed time < defined timeout
@@ -177,7 +230,7 @@ uint8_t DMX::isHealthy() {
 }
 
 void DMX::uart_send_task() {
-    vTaskDelay((DMX_CHECKCYCLE+DMX_READCYCLE)/portTICK_PERIOD_MS);
+    //vTaskDelay((DMX_CHECKCYCLE+DMX_READCYCLE)/portTICK_PERIOD_MS);
     uint8_t start_code = 0x00;
     for(;;) {
         // wait till uart is ready
@@ -190,22 +243,26 @@ void DMX::uart_send_task() {
         uart_set_line_inverse(uart,  0);
         // wait mark after break
         ets_delay_us(24);
+#if !DMX_IGNORE_THREADSAFETY
+    xSemaphoreTake(sync_dmx, portMAX_DELAY);
+#endif
+    memcpy((uint8_t *)dmx_temp_copy+1, (uint8_t *)dmx_data[0]+1, 512);
+#if !DMX_IGNORE_THREADSAFETY
+    xSemaphoreGive(sync_dmx);
+#endif
         // write start code
         uart_write_bytes(uart, (const char*) &start_code, 1);
-#if !DMX_IGNORE_THREADSAFETY
-        xSemaphoreTake(sync_dmx, portMAX_DELAY);
-#endif
         // transmit the dmx data
-        uart_write_bytes(uart, (const char*) dmx_data+1, 512);
-#if !DMX_IGNORE_THREADSAFETY
-        xSemaphoreGive(sync_dmx);
-#endif
+        // xSemaphoreTake(sync_dmx, portMAX_DELAY);
+        uart_write_bytes(uart, (const char*) dmx_temp_copy+1, 512);
+        // xSemaphoreGive(sync_dmx);
     }
 }
 
 void DMX::uart_event_task() {
     uart_event_t event;
     uint8_t* dtmp = (uint8_t*) malloc(BUF_SIZE);
+    bool state = false;
     for(;;) {
          // wait for data in the dmx_queue
         if(xQueueReceive(dmx_rx_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
@@ -221,26 +278,47 @@ void DMX::uart_event_task() {
                             dmx_state = DMX_DATA;
                             // reset dmx adress to 0
                             current_rx_addr = 0;
+                            state = !state;
+                            vTaskDelay(1);
 #if !DMX_IGNORE_THREADSAFETY
                             xSemaphoreTake(sync_dmx, portMAX_DELAY);
+#endif
+                            byte jumps = 0;
+                            for(int i = 1; i < 513 && jumps < 2; i++)
+                                if(dmx_data[0][i]!=dmx_data[1][i]&&(dmx_data[0][i]==0||dmx_data[1][i]==0||dmx_data[0][i]==230||dmx_data[1][i]==230))
+                                    jumps++;
+                            if(jumps < 1)
+                                memcpy((uint8_t *)dmx_data[2]+1, (uint8_t *)dmx_data[!state]+1, 512);
+
+#if !DMX_IGNORE_THREADSAFETY
+                            xSemaphoreGive(sync_dmx);
+#endif
+
+#if !DMX_IGNORE_THREADSAFETY
+                            xSemaphoreTake(sync_health, portMAX_DELAY);
 #endif
                             // store received timestamp
                             last_dmx_packet = xTaskGetTickCount();
 #if !DMX_IGNORE_THREADSAFETY
-                            xSemaphoreGive(sync_dmx);
+                            xSemaphoreGive(sync_health);
 #endif
                         }
                     }
                     // check if in data receive mode
                     if(dmx_state == DMX_DATA) {
-#if !!DMX_IGNORE_THREADSAFETY
+#if !DMX_IGNORE_THREADSAFETY
                         xSemaphoreTake(sync_dmx, portMAX_DELAY);
 #endif
                         // copy received bytes to dmx data array
                         for(int i = 0; i < event.size; i++) {
                             if(current_rx_addr < 513) {
-                                dmx_data[current_rx_addr++] = dtmp[i];
-                                //current_rx_addr++;
+                                // if(dmx_data[2][current_rx_addr]!=dtmp[i]) {
+                                //     Serial.print(current_rx_addr);
+                                //     Serial.print(" ");
+                                //     Serial.println(dtmp[i]);
+                                // }
+                                dmx_data[state][current_rx_addr++] = dtmp[i];
+                                // current_rx_addr++;
                             }
                         }
 #if !DMX_IGNORE_THREADSAFETY
@@ -273,13 +351,21 @@ void DMX::uart_event_task() {
 void DMX::uart_check_task() {
     for(;;) {
         vTaskDelay(DMX_CHECKCYCLE/portTICK_PERIOD_MS);
-        if(xTaskGetTickCount() - last_dmx_packet < HEALTHY_TIME)
+        if(isHealthy())
             stateLed.writeRGB(0, 255, 0);
         else
             stateLed.writeRGB(255, 0, 0);
     }
 }
 
+void DMX::dmx_update_task() {
+    for(;;) {
+        vTaskDelay(DMX_UPDATE_CYCLE);
+        xSemaphoreTake(sync_health, 1000);
+        writeAll(dmx_temp_data);
+        xSemaphoreGive(sync_health);
+    }
+}
 
 void DMX::startEventTask(void *_this) {
     ((DMX*)_this)->uart_event_task();
@@ -291,4 +377,8 @@ void DMX::startSendTask(void *_this) {
 
 void DMX::startCheckTask(void *_this) {
     ((DMX*)_this)->uart_check_task();
+}
+
+void DMX::startUpdateTask(void *_this) {
+    ((DMX*)_this)->dmx_update_task();
 }

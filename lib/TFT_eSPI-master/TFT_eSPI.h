@@ -614,6 +614,17 @@ class TFT_eSPI : public Print { friend class TFT_eSprite; // Sprite class has ac
   uint32_t color16to24(uint16_t color565);
   uint32_t color24to16(uint32_t color888);
 
+           // Convert 16 bit colour to R, G, B components
+  uint8_t  getRed(uint16_t color565);
+  uint8_t  getGreen(uint16_t color565);
+  uint8_t  getBlue(uint16_t color565);
+
+           // Returns the brightness level of a 16 bit colour
+  uint8_t  getBrightness(uint16_t color565);
+
+           // Changes brightness level of a 16 bit colours
+  uint16_t setBrightness(int8_t brightness, uint16_t color565);
+
            // Alpha blend 2 colours, see generic "alphaBlend_Test" example
            // alpha =   0 = 100% background colour
            // alpha = 255 = 100% foreground colour

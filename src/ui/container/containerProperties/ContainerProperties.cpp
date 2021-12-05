@@ -4,15 +4,15 @@
 
 #include "ContainerProperties.h"
 
-ContainerProperties::ContainerProperties(Size length, Size height, Spacing padding, Spacing margin, Size borderThickness, Size borderRoundness, uint32_t borderColor, uint32_t backgroundColor) : _length(length), _height(height), _format(height/length), _padding(padding), _margin(margin), _borderThickness(borderThickness), _borderRoundness(borderRoundness), _borderColor(borderColor), _backgroundColor(backgroundColor) {
+ContainerProperties::ContainerProperties(Size length, Size height, Spacing padding, Spacing margin, Size borderThickness, Size borderRoundness, bool invisible, uint16_t borderColor, uint16_t backgroundColor) : _length(length), _height(height), _format(height/length), _padding(padding), _margin(margin), _borderThickness(borderThickness), _borderRoundness(borderRoundness), _borderColor(borderColor), _backgroundColor(backgroundColor), _invisible(invisible) {
 
 }
 
-ContainerProperties::ContainerProperties(Size length, float format, Spacing padding, Spacing margin, Size borderThickness, Size borderRoundness, uint32_t borderColor, uint32_t backgroundColor) : _length(length), _height(format*length), _format(format), _padding(padding), _margin(margin), _borderThickness(borderThickness), _borderRoundness(borderRoundness), _borderColor(borderColor), _backgroundColor(backgroundColor) {
+ContainerProperties::ContainerProperties(Size length, float format, Spacing padding, Spacing margin, Size borderThickness, Size borderRoundness, bool invisible, uint16_t borderColor, uint16_t backgroundColor) : _length(length), _height(format*length), _format(format), _padding(padding), _margin(margin), _borderThickness(borderThickness), _borderRoundness(borderRoundness), _borderColor(borderColor), _backgroundColor(backgroundColor), _invisible(invisible) {
 
 }
 
-ContainerProperties::ContainerProperties(bool, Size height, float format, Spacing padding, Spacing margin, Size borderThickness, Size borderRoundness, uint32_t borderColor, uint32_t backgroundColor) : _length(height/format), _height(height), _format(format), _padding(padding), _margin(margin), _borderThickness(borderThickness), _borderRoundness(borderRoundness), _borderColor(borderColor), _backgroundColor(backgroundColor) {
+ContainerProperties::ContainerProperties(bool, Size height, float format, Spacing padding, Spacing margin, Size borderThickness, Size borderRoundness, bool invisible, uint16_t borderColor, uint16_t backgroundColor) : _length(height/format), _height(height), _format(format), _padding(padding), _margin(margin), _borderThickness(borderThickness), _borderRoundness(borderRoundness), _borderColor(borderColor), _backgroundColor(backgroundColor), _invisible(invisible) {
 
 }
 
@@ -54,12 +54,12 @@ ContainerProperties* ContainerProperties::setBorderRoundness(Size borderRoundnes
     return this;
 }
 
-ContainerProperties* ContainerProperties::setBorderColor(uint32_t borderColor) {
+ContainerProperties* ContainerProperties::setBorderColor(uint16_t borderColor) {
     _borderColor = borderColor;
     return this;
 }
 
-ContainerProperties* ContainerProperties::setBackgroundColor(uint32_t backgroundColor) {
+ContainerProperties* ContainerProperties::setBackgroundColor(uint16_t backgroundColor) {
     _backgroundColor = backgroundColor;
     return this;
 }
@@ -82,6 +82,21 @@ ContainerProperties* ContainerProperties::setY(short y) {
 ContainerProperties* ContainerProperties::setXY(short x, short y) {
     _x = x;
     _y = y;
+    return this;
+}
+
+ContainerProperties* ContainerProperties::setInvisible(bool invisible) {
+    _invisible = invisible;
+    return this;
+}
+
+ContainerProperties* ContainerProperties::setOrder(byte order) {
+    _order = order;
+    return this;
+}
+
+ContainerProperties* ContainerProperties::setViewId(uint8_t viewId) {
+    _viewId = viewId;
     return this;
 }
 
@@ -121,11 +136,11 @@ Size ContainerProperties::getBorderRoundness() {
     return _borderRoundness;
 }
 
-uint32_t ContainerProperties::getBorderColor() {
+uint16_t ContainerProperties::getBorderColor() {
     return _borderColor;
 }
 
-uint32_t ContainerProperties::getBackgroundColor() {
+uint16_t ContainerProperties::getBackgroundColor() {
     return _backgroundColor;
 }
 
@@ -139,4 +154,16 @@ short ContainerProperties::getX() {
 
 short ContainerProperties::getY() {
     return _y;
+}
+
+bool ContainerProperties::getInvisible() {
+    return _invisible;
+}
+
+byte ContainerProperties::getOrder() {
+    return _order;
+}
+
+uint8_t ContainerProperties::getViewId() {
+    return _viewId;
 }

@@ -59,8 +59,11 @@
 #define INPUT_UNIVERSE      UNIVERSE_1
 #define INPUT_ADDRESS       508
 #define INPUT_FORMAT        ZMC
-#define OUTPUT_FORMAT       PTsZMEwcCXXXX
+#define OUTPUT_FORMAT       PTsZMEwcC
 #define SPEED_ADDRESS       512
+#define HEIGHT_ADDRESS      96
+
+#define MOVING_LOOP_CYCLE   100
 
 
 #define ACTIVE_MOVINGHEAD   (activeMovingHead==0?movingHead1:movingHead2)
@@ -81,7 +84,12 @@ class MovingHead {
     byte getTilt();
     
     static MovingHead* getMovingHead(bool movingHead);
+    static void init(bool i);
     void init();
+
+    //pan bugs
+    //right moving head x > seitlich links y < mv seitlich
+    //left moving head > seitlich links < mv seitlich
 
   private:
     DMXDevice _device;
@@ -102,12 +110,16 @@ class MovingHead {
     static MovingHead movingHead2;
     static Joystick joystick;
 
+    static byte _lastHeight;
+    static byte _speed;
+
     byte calculatePan(float x, float y);
     byte calculateTilt(float x, float y);
 
-    static void control(void* parm); 
     static void joystickHandle(float x, float y);
     static void joystickButtonHandle(); 
+
+    static void loop(void*);
 
 };
 

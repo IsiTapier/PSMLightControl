@@ -13,6 +13,8 @@
 #define MAX(x, y)           max((int) x, (int) y)
 #define IFGREATER(x, y, value)  ((x>y)?value:x)
 #define IFSMALLER(x, y, value)  ((x<y)?value:x)
+#define IF(x, value, y)     ((x==value)?x:y)
+#define IFNOT(x, value, y)  ((x!=value)?x:y)
 
 //font
 #define LETTER_LENGTH              6

@@ -4,7 +4,7 @@
 
 #include "TextProperties.h"
 
-TextProperties::TextProperties(uint32_t color, uint32_t backgroundColor, Size size, uint8_t datum, bool transparent) : _size(size), _datum(VALID_DATUM(datum)?datum:TL_DATUM), _color(color), _backgroundColor(backgroundColor), _transparent(transparent) {
+TextProperties::TextProperties(uint16_t color, Size size, uint8_t datum) : _size(size), _datum(VALID_DATUM(datum)?datum:TL_DATUM), _color(color) {
 
 }
 
@@ -21,18 +21,8 @@ TextProperties* TextProperties::setDatum(uint8_t datum) {
     return this;
 }
 
-TextProperties* TextProperties::setColor(uint32_t color) {
+TextProperties* TextProperties::setColor(uint16_t color) {
     _color = color;
-    return this;
-}
-
-TextProperties* TextProperties::setBackgroundColor(uint32_t backgroundColor) {
-    _backgroundColor = backgroundColor;
-    return this;
-}
-
-TextProperties* TextProperties::setTransparent(bool transparent) {
-    _transparent = transparent;
     return this;
 }
 
@@ -59,16 +49,8 @@ uint8_t TextProperties::getDatum() {
     return _datum;
 }
 
-uint32_t TextProperties::getColor() {
+uint16_t TextProperties::getColor() {
     return _color;
-}
-
-uint32_t TextProperties::getBackgroundColor() {
-    return _backgroundColor;
-}
-
-bool TextProperties::getTransparent() {
-    return _transparent;
 }
 
 short TextProperties::getX() {
