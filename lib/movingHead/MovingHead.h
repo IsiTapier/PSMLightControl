@@ -74,18 +74,23 @@ class MovingHead {
     MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse = INPUT_UNIVERSE, uint16_t inputAddress = INPUT_ADDRESS);
     MovingHead* setX(float x);
     MovingHead* setY(float y);
-    MovingHead* setXY(float x, float y, bool update = false);
+    MovingHead* setXY(float x, float y, bool update = false, bool chain = togetherMode);
     MovingHead* addX(float x);
     MovingHead* addY(float y);
-    MovingHead* addXY(float x, float y, bool update = false);
-    float getX();
-    float getY();
+    MovingHead* addXY(float x, float y, bool update = false, bool chain = togetherMode);
+    float getX(bool trueX = false);
+    float getY(bool trueY = false);
     byte getPan();
     byte getTilt();
+    static float getXAll();
+    static float getYAll();
     
-    static MovingHead* getMovingHead(bool movingHead);
+    static MovingHead* getMovingHead(bool movingHead = activeMovingHead);
+    static short getActiveMovingHead();
     static void init(bool i);
     void init();
+
+    static void setUpdate(std::function<void(float, float)> update);
 
     //pan bugs
     //right moving head x > seitlich links y < mv seitlich
@@ -120,6 +125,8 @@ class MovingHead {
     static void joystickButtonHandle(); 
 
     static void loop(void*);
+
+    static std::function<void(float, float)> _update;
 
 };
 

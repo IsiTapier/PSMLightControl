@@ -140,3 +140,8 @@ void Container::addContent(Container* content) {
 uint8_t Container::getContentAmount() {
     return _content.size();
 }
+
+void Container::setContentProperties(ContainerProperties properties) {
+    for(Container* content : _content)
+        content->setProperties(properties);
+}

@@ -120,7 +120,6 @@ uint8_t TFT_eSPI::validTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
   while (z1 > z2)
   {
     z2 = z1;
-    
     z1 = getTouchRawZ();
     //delay(1);
     vTaskDelay(1/portTICK_PERIOD_MS);
@@ -130,8 +129,8 @@ uint8_t TFT_eSPI::validTouch(uint16_t *x, uint16_t *y, uint16_t threshold){
     
   getTouchRaw(&x_tmp,&y_tmp);
 
-  //  Serial.print("Sample 1 x,y = "); Serial.print(x_tmp);Serial.print(",");Serial.print(y_tmp);
-  //  Serial.print(", Z = ");Serial.println(z1);
+  // Serial.print("Sample 1 x,y = "); Serial.print(x_tmp);Serial.print(",");Serial.print(y_tmp);
+  // Serial.print(", Z = ");Serial.println(z1);
 
   vTaskDelay(1/portTICK_PERIOD_MS);//delay(1); // Small delay to the next sample
   if (getTouchRawZ() <= threshold) return false;

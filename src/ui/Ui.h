@@ -10,6 +10,9 @@
 #include "container/Container.h"
 #include "textField/Text.h"
 #include "viewManager/ViewManager.h"
+#include "containerGrid/ContainerGrid.h"
+#include "customView/CustomView.h"
+#include "MovingHead.h"
 
 #define ROTATION 3
 #define BACKGROUND_COLOR TFT_BLACK

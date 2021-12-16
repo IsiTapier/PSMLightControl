@@ -34,7 +34,7 @@ DMXDevice blinder[3] = {
 
 #if UNIVERSE_3_ACTIVE && UNIVERSE_1_ACTIVE
 #include "MovingHead.h"
-DMXDevice strahlerNeu2(UNIVERSE_3, 68, RGBW, 1, UNIVERSE_1, 68, RGBW, 2);
+// DMXDevice strahlerNeu2(UNIVERSE_3, 68, RGBW, 1, UNIVERSE_1, 68, RGBW, 2);
 #endif
 
 void setup() {

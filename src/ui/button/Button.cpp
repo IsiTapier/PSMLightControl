@@ -10,7 +10,8 @@ Button::Button(ContainerProperties properties, ButtonProperties buttonProperties
 void Button::init() {
   Container::init();
   _buttonProperties.setTouchExtension(*_buttonProperties.getTouchExtension().setReference(getPorperties().getLength(), getPorperties().getHeight(), false));
-  ButtonManager::addButton(this);
+  if(getPorperties().getDraw())
+    ButtonManager::addButton(this);
 }
 
 void Button::draw() {

@@ -9,7 +9,7 @@
 
 //Display
 #define SCLK        GPIO_NUM_22
-#define MISO        GPIO_NUM_15
+#define MISO        GPIO_NUM_5
 #define MOSI        GPIO_NUM_23
 #define CS          GPIO_NUM_2
 #define BL          GPIO_NUM_4
@@ -28,7 +28,7 @@
 #define BUTTON      GPIO_NUM_32
 
 //DMX
-#define UNUSED      GPIO_NUM_5
+#define UNUSED      GPIO_NUM_12
 #define U1_IN       GPIO_NUM_13
 #define U1_OUT      UNUSED
 #define U1_EN       GPIO_NUM_14

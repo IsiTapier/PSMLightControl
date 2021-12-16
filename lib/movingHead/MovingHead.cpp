@@ -11,6 +11,7 @@ unsigned long MovingHead::lastClick = 0;
 MovingHead MovingHead::movingHead1(HEIGHT_MV1, X_OFFSET_MV1, Y_OFFSET, TILT_OFFSET_MV1, PAN_OFFSET_MV1, UNIVERSE_3, 1);
 MovingHead MovingHead::movingHead2(HEIGHT_MV2, X_OFFSET_MV2, Y_OFFSET, TILT_OFFSET_MV2, PAN_OFFSET_MV2, UNIVERSE_3, 14);
 Joystick MovingHead::joystick(X_POS, Y_POS, BUTTON, joystickHandle, joystickButtonHandle);
+std::function<void(float, float)> MovingHead::_update;
 
 float MovingHead::xAll = X_DEFAULT;
 float MovingHead::yAll = Y_DEFAULT;
@@ -53,7 +54,7 @@ MovingHead* MovingHead::setY(float y) {
     return this;
 }
 
-MovingHead* MovingHead::setXY(float x, float y, bool update) {
+MovingHead* MovingHead::setXY(float x, float y, bool update, bool chain) {
     if(update || calculateTilt(x, y) != calculateTilt(getX(), getY()))
         _device.writeType(TILT, calculateTilt(x, y));
     if(update || calculatePan(x, y) != calculatePan(getX(), getY()))
@@ -62,6 +63,8 @@ MovingHead* MovingHead::setXY(float x, float y, bool update) {
     if(togetherMode) {
         xAll = x;
         yAll = y;
+        if(update && chain)
+            INACTIVE_MOVINGHEAD.addXY(0, 0, true, false);
     } else {
         this->x = x;
         this->y = y;
@@ -79,17 +82,17 @@ MovingHead* MovingHead::addY(float y) {
     return this;
 }
 
-MovingHead* MovingHead::addXY(float x, float y, bool update) {
-    setXY((togetherMode?xAll:this->x)+x, (togetherMode?yAll:this->y)+y, update);
+MovingHead* MovingHead::addXY(float x, float y, bool update, bool chain) {
+    setXY((togetherMode?xAll:this->x)+x, (togetherMode?yAll:this->y)+y, update, chain);
     return this;
 }
 
-float MovingHead::getX() {
-    return togetherMode?xAll:x;
+float MovingHead::getX(bool trueX) {
+    return togetherMode&&!trueX?xAll:x;
 }
 
-float MovingHead::getY() {
-    return togetherMode?yAll:y;
+float MovingHead::getY(bool trueY) {
+    return togetherMode&&!trueY?yAll:y;
 }
 
 byte MovingHead::getPan() {
@@ -100,8 +103,20 @@ byte MovingHead::getTilt() {
     return calculateTilt(getX(), getY());
 }
 
+float MovingHead::getXAll() {
+    return xAll;
+}
+
+float MovingHead::getYAll() {
+    return yAll;
+}
+
 MovingHead* MovingHead::getMovingHead(bool movingHead) {
    return &(movingHead==0?movingHead1:movingHead2);
+}
+
+short MovingHead::getActiveMovingHead() {
+    return togetherMode?2:activeMovingHead;
 }
 
 void MovingHead::init() {
@@ -124,6 +139,10 @@ void MovingHead::init(bool i) {
     getMovingHead(1)->init();
 }
 
+void MovingHead::setUpdate(std::function<void(float, float)> update) {
+    _update = update;
+}
+
 byte MovingHead::calculatePan(float x, float y) {
     x-=_xOffset;
     y-=_yOffset;
@@ -144,9 +163,13 @@ byte MovingHead::calculateTilt(float x, float y) {
 #undef alpha
 
 void MovingHead::joystickHandle(float x, float y) {
-    ACTIVE_MOVINGHEAD.addX(x*(X_SPEED*(_speed==0?DEFAULT_X_SPEED:_speed)/255.))->addY(y*(Y_SPEED*(_speed==0?DEFAULT_Y_SPEED:_speed)/255.));
-    if(togetherMode)
-        INACTIVE_MOVINGHEAD.addXY(0, 0, true);
+    // ACTIVE_MOVINGHEAD.addX(x*(X_SPEED*(_speed==0?DEFAULT_X_SPEED:_speed)/255.))->addY(y*(Y_SPEED*(_speed==0?DEFAULT_Y_SPEED:_speed)/255.));
+    // if(togetherMode)
+    //     INACTIVE_MOVINGHEAD.addXY(0, 0, true);
+    float lastX = ACTIVE_MOVINGHEAD.getX();
+    float lastY = ACTIVE_MOVINGHEAD.getY();
+    ACTIVE_MOVINGHEAD.addXY(x*(X_SPEED*(_speed==0?DEFAULT_X_SPEED:_speed)/255.), y*(Y_SPEED*(_speed==0?DEFAULT_Y_SPEED:_speed)/255.), true, togetherMode);
+    _update(lastX, lastY);
     // Serial.print("x: "); Serial.print((activeMovingHead==0?movingHead1:movingHead2).getX());
     // Serial.print("  y: "); Serial.print((activeMovingHead==0?movingHead1:movingHead2).getY());
     //Serial.print("  pan: "); Serial.print((activeMovingHead==0?movingHead1:movingHead2).getPan());

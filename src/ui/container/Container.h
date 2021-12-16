@@ -38,6 +38,8 @@ class Container {
     void addContent(Container* content);
     uint8_t getContentAmount();
 
+    void setContentProperties(ContainerProperties properties);
+
   private:
     ContainerProperties _properties;
     std::vector<Container*> _content;

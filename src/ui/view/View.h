@@ -18,6 +18,7 @@ class View : Container {
     byte getId();
     void init() override;
     void draw() override;
+    virtual void checkTouch(TSPoint p);
 
     static byte getCurrentId();
 

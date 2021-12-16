@@ -8,7 +8,7 @@ std::vector<Button*> ButtonManager::buttons;
 
 void ButtonManager::init() {
   calibrateTouch();
-  xTaskCreate(checkTouch, "check touch", 2048, NULL, 6, NULL);
+  xTaskCreate(checkTouch, "check touch", 4096, NULL, 6, NULL);
 }
 
 void ButtonManager::addButton(Button* button) {
@@ -22,12 +22,13 @@ void ButtonManager::checkTouch(void*) {
   for(;;) {
     vTaskDelay(TOUCH_CYCLE/portTICK_PERIOD_MS);
     p = display.getTouch();
+    ViewManager::getView(ViewManager::getCurrentView())->checkTouch(p);
     nearestDistance = UINT8_MAX;
     nearestButton.clear();
     for(Button* button : buttons) {
-      if(button->getPorperties().getViewId()!=ViewManager::getCurrentView())
+      if(button->getPorperties().getViewId()!=ViewManager::getCurrentView() || !button->getPorperties().getDraw())
         continue;
-      if(p.x == UINT16_MAX || p.y == UINT16_MAX) {
+      if(p.x == (uint16_t)-1 || p.y == (uint16_t)-1) {
         button->untrigger();
         continue;
       }
@@ -43,7 +44,7 @@ void ButtonManager::checkTouch(void*) {
         nearestButton.push_back(button);
     }
     for(Button* button : buttons) {
-      if(button->getPorperties().getViewId()!=ViewManager::getCurrentView())
+      if(button->getPorperties().getViewId()!=ViewManager::getCurrentView() || !button->getPorperties().getDraw())
         continue;
       if(std::find(nearestButton.begin(), nearestButton.end(), button) != nearestButton.end())
         button->trigger();

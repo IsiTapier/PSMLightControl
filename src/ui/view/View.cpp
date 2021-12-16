@@ -36,3 +36,7 @@ void View::init() {
 void View::draw() {
   Container::draw();
 }
+
+void View::checkTouch(TSPoint p) {
+
+}

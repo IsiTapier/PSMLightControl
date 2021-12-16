@@ -37,7 +37,7 @@ enum DMXUniverse { UNIVERSE_1 = 1, UNIVERSE_2 = 2, UNIVERSE_3 = 3, UNIVERSE_4 = 
 
 // chose which universe stay active while serial on
 #define UNIVERSE_1_ACTIVE       1           //keep always on
-#define UNIVERSE_2_ACTIVE       1
+#define UNIVERSE_2_ACTIVE       !DEBUG
 #define UNIVERSE_3_ACTIVE       1
 
 #define HEALTHY_TIME            500         // timeout in ms
