@@ -13,7 +13,7 @@
 
 class ContainerProperties {
   public:
-    ContainerProperties(Size length, Size height, Spacing padding = 0, Spacing margin = 0, Size borderThickness = 0, Size borderRoundness = 0, bool invisible = false, uint16_t borderColor = NO_COLOR, uint16_t backgroundColor = NO_COLOR);
+    ContainerProperties(Size length = Size(1., -1), Size height = Size(1., -1), Spacing padding = 0, Spacing margin = 0, Size borderThickness = 0, Size borderRoundness = 0, bool invisible = false, uint16_t borderColor = NO_COLOR, uint16_t backgroundColor = NO_COLOR);
     ContainerProperties(Size length, float format, Spacing padding = 0, Spacing margin = 0, Size borderThickness = 0, Size borderRoundness = 0, bool invisible = false, uint16_t borderColor = NO_COLOR, uint16_t backgroundColor = NO_COLOR);
     ContainerProperties(bool, Size height, float format, Spacing padding = 0, Spacing margin = 0, Size borderThickness = 0, Size borderRoundness = 0, bool invisible = false, uint16_t borderColor = NO_COLOR, uint16_t backgroundColor = NO_COLOR);
     ContainerProperties* setLength(Size length);
@@ -32,6 +32,7 @@ class ContainerProperties {
     ContainerProperties* setInvisible(bool invisible);
     ContainerProperties* setOrder(byte order);
     ContainerProperties* setViewId(uint8_t viewId);
+    ContainerProperties* setId(uint8_t id);
     short getContentLength(bool includeMargin = false);
     short getContentHeight(bool includeMargin = false);
     Size getLength();
@@ -49,6 +50,9 @@ class ContainerProperties {
     bool getInvisible();
     uint8_t getOrder();
     uint8_t getViewId();
+    uint8_t getId();
+    uint8_t getNextId();
+    uint8_t getCurrentId();
 
   private:
     Size _length;
@@ -66,6 +70,8 @@ class ContainerProperties {
     bool _invisible;
     uint8_t _order;
     uint8_t _viewId;
+    uint8_t _id;
+    uint8_t _currentId = -1;
 
 };
 

@@ -4,7 +4,10 @@
 
 #include "CustomView.h"
 
-CustomView::CustomView(ContainerProperties properties, ViewProperties viewProperties, std::function<void()> init, std::function<void()> draw, std::function<void(TSPoint)> checkTouch) : View(properties, viewProperties, {}), _init(init), _draw(draw), _checkTouch(checkTouch) {
+//temporary
+CustomView::CustomView() {}
+
+CustomView::CustomView(ContainerProperties properties, ViewProperties viewProperties, std::function<void()> init, std::function<void()> draw, std::function<uint16_t(TSPoint)> checkTouch, std::vector<Container*> content) : View(properties, viewProperties, content), _init(init), _draw(draw), _checkTouch(checkTouch) {
 }
 
 void CustomView::init() {
@@ -17,6 +20,6 @@ void CustomView::draw() {
   _draw();
 }
 
-void CustomView::checkTouch(TSPoint p) {
-  _checkTouch(p);
+uint16_t CustomView::checkTouch(TSPoint p) {
+  return _checkTouch(p);
 }

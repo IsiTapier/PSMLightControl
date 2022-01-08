@@ -5,6 +5,9 @@
 #include "Text.h"
 
 Text::Text(ContainerProperties properties, TextProperties textProperties, String text) : Container(properties, {}), _textProperties(textProperties), _text(text) {
+    //temporary
+    //TODO
+    setProperties(*getPorperties().setInvisible(true));
 }
 
 void Text::init() {

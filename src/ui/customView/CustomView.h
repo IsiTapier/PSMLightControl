@@ -10,15 +10,17 @@
 
 class CustomView : public View {
   public:
-    CustomView(ContainerProperties properties, ViewProperties viewProperties, std::function<void()> init, std::function<void()> draw, std::function<void(TSPoint)> checkTouch = [](TSPoint){});    
+    //temporary
+    CustomView();
+    CustomView(ContainerProperties properties, ViewProperties viewProperties, std::function<void()> init, std::function<void()> draw, std::function<uint16_t(TSPoint)> checkTouch = [](TSPoint){return 0;}, std::vector<Container*> normalContent = {});    
     void init() override;
     void draw() override;
-    void checkTouch(TSPoint p) override;
+    uint16_t checkTouch(TSPoint p) override;
 
   private:
     std::function<void()> _init;
     std::function<void()> _draw;
-    std::function<void(TSPoint)> _checkTouch;
+    std::function<uint16_t(TSPoint)> _checkTouch;
 
 };
 

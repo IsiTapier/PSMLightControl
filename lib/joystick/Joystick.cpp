@@ -8,7 +8,7 @@ Joystick::Joystick() {}
 
 Joystick::Joystick(uint8_t xPin, uint8_t yPin, uint8_t buttonPin, JOYSTICK_CALLBACK_SIGNATURE, BUTTON_CALLBACK_SIGNATURE) : _xPin(xPin), _yPin(yPin), _buttonPin(buttonPin), joystickCallback(joystickCallback), buttonCallback(buttonCallback) {
     pinMode(buttonPin, INPUT_PULLUP);
-    xTaskCreatePinnedToCore(startLoopTask, "joystick_loop_task", 1024, this, 7, NULL, 0);
+    xTaskCreatePinnedToCore(startLoopTask, "joystick_loop_task", 2048, this, 7, NULL, 0);
 }
 
 void Joystick::joystick_loop_task() {
@@ -30,6 +30,7 @@ void Joystick::joystick_loop_task() {
         yPercent = yVal/(double)((yValRaw<centerY)?centerY:-(4095-centerY));
         if(xVal > JOYSTICK_MOVE_TOLLERANCE || yVal > JOYSTICK_MOVE_TOLLERANCE)
             joystickCallback(xPercent, yPercent);
+        vTaskDelay(10);
         //button
         lastButtonState = buttonState;
         buttonState = !digitalRead(_buttonPin) && yValRaw != 4095;

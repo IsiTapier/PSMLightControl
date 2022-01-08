@@ -3,7 +3,7 @@
 */
 
 #include "MovingHead.h"
-bool MovingHead::activeMovingHead = 0;
+byte MovingHead::activeMovingHead = 0;
 bool MovingHead::togetherMode = TOGETHER_MODE;
 byte MovingHead::_lastHeight = 0;
 byte MovingHead::_speed = 0;
@@ -16,8 +16,11 @@ std::function<void(float, float)> MovingHead::_update;
 float MovingHead::xAll = X_DEFAULT;
 float MovingHead::yAll = Y_DEFAULT;
 
+std::vector<MovingHead*> MovingHead::_movingHeads;
+
 MovingHead::MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress) : x(address==1?X_DEFAULT_MV1:X_DEFAULT_MV2), y(Y_DEFAULT), _height(height), _xOffset(xOffset), _yOffset(yOffset), _tiltOffset(tiltOffset), _panOffset(panOffset) { //ACHTUNG: QUICK AND DIRTY, fix start positions
     _device = DMXDevice(&_device, universe, address, OUTPUT_FORMAT, 1, inputUniverse, inputAddress, INPUT_FORMAT, 1, 0, {NULL, NULL, [](byte value){if(value<10)return (byte)DEFAULT_COLOR; else return value;}});
+    _movingHeads.push_back(this);
 }
 
 MovingHead* MovingHead::setX(float x) {
@@ -64,7 +67,11 @@ MovingHead* MovingHead::setXY(float x, float y, bool update, bool chain) {
         xAll = x;
         yAll = y;
         if(update && chain)
-            INACTIVE_MOVINGHEAD.addXY(0, 0, true, false);
+            for(int i = 0; i < _movingHeads.size(); i++) {
+                vTaskDelay(1);
+                getMovingHead(i)->addXY(0, 0, update, false);
+            }
+            //INACTIVE_MOVINGHEAD.addXY(0, 0, true, false);
     } else {
         this->x = x;
         this->y = y;
@@ -95,6 +102,23 @@ float MovingHead::getY(bool trueY) {
     return togetherMode&&!trueY?yAll:y;
 }
 
+Position MovingHead::getPosition(bool trueVal) {
+    return Position(getX(trueVal), getY(trueVal));
+}
+
+void MovingHead::setPosition(Position position) {
+    setXY(position.getX(), position.getY(), true);
+}
+
+Position MovingHead::getPositionAll() {
+    return Position(getXAll(), getYAll());
+}
+
+void MovingHead::setPositionAll(Position position) {
+    xAll = position.getX();
+    yAll = position.getY();
+}
+
 byte MovingHead::getPan() {
     return calculatePan(getX(), getY());
 }
@@ -111,12 +135,12 @@ float MovingHead::getYAll() {
     return yAll;
 }
 
-MovingHead* MovingHead::getMovingHead(bool movingHead) {
-   return &(movingHead==0?movingHead1:movingHead2);
+MovingHead* MovingHead::getMovingHead(byte movingHead) {
+   return _movingHeads.at(VALID_MOVINGHEAD(movingHead));//&(movingHead==0?movingHead1:movingHead2);
 }
 
 short MovingHead::getActiveMovingHead() {
-    return togetherMode?2:activeMovingHead;
+    return togetherMode?-1:VALID_MOVINGHEAD(activeMovingHead);
 }
 
 void MovingHead::init() {
@@ -134,9 +158,12 @@ void MovingHead::init() {
 }
 
 void MovingHead::init(bool i) {
+    for(int i = 0; i < _movingHeads.size(); i++) {
+        vTaskDelay(1);
+        getMovingHead(i)->init();
+    }
     xTaskCreate(loop, "moving head loop", 1024, NULL, 9, NULL);
-    getMovingHead(0)->init();
-    getMovingHead(1)->init();
+    //getMovingHead(1)->init();
 }
 
 void MovingHead::setUpdate(std::function<void(float, float)> update) {
@@ -166,9 +193,10 @@ void MovingHead::joystickHandle(float x, float y) {
     // ACTIVE_MOVINGHEAD.addX(x*(X_SPEED*(_speed==0?DEFAULT_X_SPEED:_speed)/255.))->addY(y*(Y_SPEED*(_speed==0?DEFAULT_Y_SPEED:_speed)/255.));
     // if(togetherMode)
     //     INACTIVE_MOVINGHEAD.addXY(0, 0, true);
-    float lastX = ACTIVE_MOVINGHEAD.getX();
-    float lastY = ACTIVE_MOVINGHEAD.getY();
-    ACTIVE_MOVINGHEAD.addXY(x*(X_SPEED*(_speed==0?DEFAULT_X_SPEED:_speed)/255.), y*(Y_SPEED*(_speed==0?DEFAULT_Y_SPEED:_speed)/255.), true, togetherMode);
+    float lastX = ACTIVE_MOVINGHEAD->getX();
+    float lastY = ACTIVE_MOVINGHEAD->getY();
+    ACTIVE_MOVINGHEAD->addXY(x*(X_SPEED*(_speed==0?DEFAULT_X_SPEED:_speed)/255.), y*(Y_SPEED*(_speed==0?DEFAULT_Y_SPEED:_speed)/255.), true, togetherMode);
+    vTaskDelay(1);
     _update(lastX, lastY);
     // Serial.print("x: "); Serial.print((activeMovingHead==0?movingHead1:movingHead2).getX());
     // Serial.print("  y: "); Serial.print((activeMovingHead==0?movingHead1:movingHead2).getY());
@@ -177,14 +205,22 @@ void MovingHead::joystickHandle(float x, float y) {
 }
 
 void MovingHead::joystickButtonHandle() {
-  activeMovingHead = !activeMovingHead;
+  float lastX = ACTIVE_MOVINGHEAD->getX();
+  float lastY = ACTIVE_MOVINGHEAD->getY();
+  activeMovingHead = VALID_MOVINGHEAD(activeMovingHead+1);
   if(millis() - lastClick < DOUBlE_CLICK_TIME) {
     togetherMode = !togetherMode;
-    ACTIVE_MOVINGHEAD.addXY(0, 0, true);
-    INACTIVE_MOVINGHEAD.addXY(0, 0, true);
+    for(int i = 0; i < _movingHeads.size(); i++) {
+        vTaskDelay(10);
+        getMovingHead(i)->addXY(0, 0, true);
+    }
+    // ACTIVE_MOVINGHEAD.addXY(0, 0, true);
+    // INACTIVE_MOVINGHEAD.addXY(0, 0, true);
+    // Serial.println(F("Double click"));
   }
+  _update(lastX, lastY);
   lastClick = millis();
-  //Serial.println(F("click"));
+//   Serial.println(F("click"));
 }
 
 void MovingHead::loop(void*) {
@@ -193,8 +229,12 @@ void MovingHead::loop(void*) {
         byte height = DMX::getUniverse(UNIVERSE_1)->read(HEIGHT_ADDRESS);
         if(height != _lastHeight) {
             _lastHeight = height;
-            ACTIVE_MOVINGHEAD.addXY(0, 0, true);
-            INACTIVE_MOVINGHEAD.addXY(0, 0, true);
+            // ACTIVE_MOVINGHEAD.addXY(0, 0, true);
+            // INACTIVE_MOVINGHEAD.addXY(0, 0, true);
+            for(int i = 0; i < _movingHeads.size(); i++) {
+                vTaskDelay(1);
+                getMovingHead(i)->addXY(0, 0, true);
+            }
         }
         _speed = DMX::getUniverse(UNIVERSE_1)->read(SPEED_ADDRESS);
     }

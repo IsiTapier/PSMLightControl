@@ -11,25 +11,29 @@
 class Button;
 #include "../buttonManager/ButtonManager.h"
 
-#define COLOR_SHIFT 20
+#define COLOR_SHIFT 40
 
 class Button : public Container {
   public:
-    Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<void()> touchEvent, std::vector<Container*> content);
+    Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<uint16_t()> touchEvent, std::vector<Container*> content);
 
     void init() override;
     void draw() override;
 
+    void setId(short id);
+    short getId();
+
     ButtonProperties getProperties();
 
     byte checkTouch(TSPoint p);
-    void trigger();
+    uint16_t trigger();
     void untrigger();
 
   private:
     ButtonProperties _buttonProperties;
-    std::function<void()> _touchEvent;
+    std::function<uint16_t()> _touchEvent;
     bool triggered = false;
+    short _id = -1;
 
 };
 

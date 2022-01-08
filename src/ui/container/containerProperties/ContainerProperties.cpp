@@ -90,7 +90,7 @@ ContainerProperties* ContainerProperties::setInvisible(bool invisible) {
     return this;
 }
 
-ContainerProperties* ContainerProperties::setOrder(byte order) {
+ContainerProperties* ContainerProperties::setOrder(uint8_t order) {
     _order = order;
     return this;
 }
@@ -100,12 +100,17 @@ ContainerProperties* ContainerProperties::setViewId(uint8_t viewId) {
     return this;
 }
 
+ContainerProperties* ContainerProperties::setId(uint8_t id) {
+    _id = id;
+    return this;
+}
+
 short ContainerProperties::getContentLength(bool includeMargin) {
-    return _length-2*_borderThickness-(includeMargin?_margin.getLeft()-_margin.getRight():0);
+    return _length-2*_borderThickness-(includeMargin?(_margin.get(LEFT)+_margin.get(RIGHT)):0);
 }
 
 short ContainerProperties::getContentHeight(bool includeMargin) {
-    return _height-2*_borderThickness-(includeMargin?_margin.getTop()-_margin.getBottom():0);
+    return _height-2*_borderThickness-(includeMargin?(_margin.get(TOP)+_margin.get(BOTTOM)):0);
 }
 
 Size ContainerProperties::getLength() {
@@ -166,4 +171,17 @@ byte ContainerProperties::getOrder() {
 
 uint8_t ContainerProperties::getViewId() {
     return _viewId;
+}
+
+uint8_t ContainerProperties::getId() {
+    return _id;
+}
+
+uint8_t ContainerProperties::getNextId() {
+    _currentId++;
+    return _currentId;
+}
+
+uint8_t ContainerProperties::getCurrentId() {
+    return _currentId;
 }

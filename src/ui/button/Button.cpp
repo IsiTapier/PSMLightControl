@@ -4,18 +4,21 @@
 
 #include "Button.h"
 
-Button::Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<void()> touchEvent, std::vector<Container*> content) : Container(properties, content), _buttonProperties(buttonProperties), _touchEvent(touchEvent) {
+Button::Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<uint16_t()> touchEvent, std::vector<Container*> content) : Container(properties, content), _buttonProperties(buttonProperties), _touchEvent(touchEvent) {
 }
 
 void Button::init() {
   Container::init();
+  if(_buttonProperties.getColor() == NO_COLOR)
+    _buttonProperties.setColor(getColor());
   _buttonProperties.setTouchExtension(*_buttonProperties.getTouchExtension().setReference(getPorperties().getLength(), getPorperties().getHeight(), false));
   if(getPorperties().getDraw())
-    ButtonManager::addButton(this);
+    if(_id==-1)
+      ButtonManager::addButton(this);
 }
 
 void Button::draw() {
-  setBackground(triggered?IFNOT(_buttonProperties.getPressedColor(), NO_COLOR, display.setBrightness(display.getBrightness(getColor())>150?-COLOR_SHIFT:3*COLOR_SHIFT, getColor())):getColor());
+  setBackground(triggered?IFNOT(_buttonProperties.getPressedColor(), NO_COLOR, display.setBrightness(display.getBrightness(_buttonProperties.getColor())<128?-COLOR_SHIFT:1.5*COLOR_SHIFT, _buttonProperties.getColor())):_buttonProperties.getColor());
   Container::draw();
 }
 
@@ -31,12 +34,12 @@ byte Button::checkTouch(TSPoint p) {
   return distance;
 }
 
-void Button::trigger() {
+uint16_t Button::trigger() {
   if(triggered)
-    return;
+    return 0;
   triggered = true;
   draw();
-  _touchEvent();
+  return _touchEvent();
 }
 
 void Button::untrigger() {
@@ -44,4 +47,12 @@ void Button::untrigger() {
     return;
   triggered = false;
   draw();
+}
+
+void Button::setId(short id) {
+  _id = id;
+}
+
+short Button::getId() {
+  return _id;
 }

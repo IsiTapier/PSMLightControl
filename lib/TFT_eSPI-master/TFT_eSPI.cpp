@@ -3878,7 +3878,7 @@ uint8_t TFT_eSPI::getBrightness(uint16_t color565)
   uint8_t g = (color565 >> 3) & 0xFC; g |= (g >> 6);
   uint8_t b = (color565 << 3) & 0xF8; b |= (b >> 5);
 
-  return round((r+g+b)/3);
+  return round(max(r, max(g, b))+((r+g+b)/3.)/2.);
 }
 
 /***************************************************************************************

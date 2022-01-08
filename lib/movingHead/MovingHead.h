@@ -11,10 +11,10 @@
 #include "../../src/Pins.h"
 
 
-#define TOGETHER_MODE       1
+#define TOGETHER_MODE       0
 #define COMMON_ZOOM         1
 
-#define DOUBlE_CLICK_TIME   700
+#define DOUBlE_CLICK_TIME   1000
 
 #define SPEED               60
 #define X_SPEED             60
@@ -65,9 +65,23 @@
 
 #define MOVING_LOOP_CYCLE   100
 
-
-#define ACTIVE_MOVINGHEAD   (activeMovingHead==0?movingHead1:movingHead2)
+#define ACTIVE_MOVINGHEAD   (getMovingHead(activeMovingHead))//(activeMovingHead==0?movingHead1:movingHead2)
 #define INACTIVE_MOVINGHEAD (activeMovingHead!=0?movingHead1:movingHead2)
+
+#define VALID_MOVINGHEAD(mv) (mv<_movingHeads.size()?mv:mv%_movingHeads.size())
+
+class Position {
+  public:
+    Position() : _x(-340282346638528859811704183484516925440), _y(-340282346638528859811704183484516925440) {}
+    Position(float x, float y) : _x(x), _y(y) {}
+    void setX(float x) {_x = x;}
+    void setY(float y) {_y = y;}
+    float getX() {return _x;}
+    float getY() {return _y;}
+    bool isSet() {return _x == -340282346638528859811704183484516925440 || _y == -340282346638528859811704183484516925440;}
+  private:
+    float _x, _y;
+};
 
 class MovingHead {
   public:
@@ -80,12 +94,16 @@ class MovingHead {
     MovingHead* addXY(float x, float y, bool update = false, bool chain = togetherMode);
     float getX(bool trueX = false);
     float getY(bool trueY = false);
+    Position getPosition(bool trueVal = false);
+    void setPosition(Position position);
+    static Position getPositionAll();
+    static void setPositionAll(Position position);
     byte getPan();
     byte getTilt();
     static float getXAll();
     static float getYAll();
     
-    static MovingHead* getMovingHead(bool movingHead = activeMovingHead);
+    static MovingHead* getMovingHead(byte movingHead = activeMovingHead);
     static short getActiveMovingHead();
     static void init(bool i);
     void init();
@@ -108,7 +126,7 @@ class MovingHead {
 
     static float xAll;
     static float yAll;
-    static bool activeMovingHead;
+    static byte activeMovingHead;
     static bool togetherMode;
     static unsigned long lastClick;
     static MovingHead movingHead1;
@@ -127,6 +145,7 @@ class MovingHead {
     static void loop(void*);
 
     static std::function<void(float, float)> _update;
+    static std::vector<MovingHead*> _movingHeads;
 
 };
 

@@ -20,10 +20,13 @@ class ButtonManager {
   public:
     static void init();
     static void addButton(Button* button);
+    static void removeButton(short id);
     static void calibrateTouch();
+    static short getCurrentId();
     
   private:
     static std::vector<Button*> buttons;
+    static short currentId;
 
     static void checkTouch(void*);
 

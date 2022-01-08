@@ -5,6 +5,10 @@
 #include "Container.h"
 #include "../viewManager/ViewManager.h"
 
+//temporary
+Container::Container() : _properties(ContainerProperties(0, 0)) {}
+
+
 Container::Container(ContainerProperties properties, std::vector<Container*> content) : _properties(properties), _content(content) {
     // for(Container* content : _content) {
     //     //set dimensions
@@ -17,6 +21,8 @@ Container::Container(ContainerProperties properties, std::vector<Container*> con
     //     properties.getBorderRoundness().setReference(properties.getBorderThickness(), false);
     //     content->setProperties(properties);
     // }
+    for(Container* content : _content)
+        content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
 }
 
 void Container::init() {
@@ -29,6 +35,7 @@ void Container::init() {
     short paddingLeft = margin.get(LEFT);
     short paddingTop = margin.get(TOP);
     short paddingBottom = 0;
+    byte place = 0;
     for(Container* content : _content) {
         //set dimensions
         ContainerProperties properties = content->getPorperties();
@@ -36,12 +43,13 @@ void Container::init() {
         CONTAINER_SET_REFERENCES(_properties)
         properties.setOrder(_properties.getOrder()+(properties.getInvisible()?0:1));
         properties.setViewId(_properties.getViewId());
+        place++;
         //check if available length in current line is enough
         if(_properties.getContentLength()-currentX < properties.getLength() + MAX(paddingLeft, padding.get(LEFT)) + MAX(padding.get(RIGHT), margin.get(RIGHT))) {
             //check if available length in new line is enough
             if(_properties.getContentLength() < properties.getLength() + MAX(margin.get(LEFT), padding.get(LEFT)) + MAX(padding.get(RIGHT), margin.get(RIGHT))) {
                 if(DEBUG)
-                    Serial.println("WARNING\tContainer skipped, because it was longer than its parent-container");
+                    Serial.println("WARNING:\tContainer skipped, because it was longer than its parent-container");
                 properties.setDraw(false);
                 content->setProperties(properties);
                 continue;
@@ -95,7 +103,11 @@ void Container::draw() {
         content->draw();
 }
 
-void Container::drawBorder() {
+void Container::drawBorder(bool erase) {
+    if(!_properties.getDraw())
+        return;
+    if(erase)
+        display.fillRoundRect(_properties.getX(), _properties.getY(), _properties.getLength(), _properties.getHeight(), _properties.getBorderRoundness(), getColor());
     if(_properties.getInvisible())
         return;
     //draw border
@@ -130,11 +142,28 @@ uint16_t Container::getColor() {
 }
 
 void Container::addContent(Container* content) {
+    content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
     _content.push_back(content);
+    if(!_properties.getDraw())
+        return;
     init();
-    //TODO check if view 
-    if(ViewManager::getCurrentView() == 255)
+    if(ViewManager::getCurrentView() == _properties.getViewId())
         draw();
+}
+
+void Container::removeContent(byte id) {
+    Container* content = getContent(id);
+    if(content == NULL)
+        return;
+    content->setProperties(*content->getPorperties().setDraw(false));
+    _content.erase(getIterator(id));
+    if(!_properties.getDraw())
+        return;
+    init();
+    if(ViewManager::getCurrentView() == _properties.getViewId()) {
+        drawBorder(true);
+        draw();
+    }
 }
 
 uint8_t Container::getContentAmount() {
@@ -144,4 +173,23 @@ uint8_t Container::getContentAmount() {
 void Container::setContentProperties(ContainerProperties properties) {
     for(Container* content : _content)
         content->setProperties(properties);
+}
+
+Container* Container::getContent(byte id) {
+    if(id > _properties.getCurrentId())
+        return NULL;
+    for(Container* content : _content)
+        if(content->getPorperties().getId() == id)
+            return content;
+    return NULL;
+}
+
+std::vector<Container*>::iterator Container::getIterator(byte id) {
+    if(id > _properties.getCurrentId())
+        return _content.end();
+    std::vector<Container*>::iterator it = _content.begin();
+    for(it; it != _content.end(); ++it)
+        if((*it)->getPorperties().getId() == id)
+            return it;
+    return _content.end();
 }

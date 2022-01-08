@@ -12,8 +12,8 @@
 #include "../colorManager/ColorManager.h"
 
 #define CONTAINER_SET_REFERENCES(_properties) \
-        properties.setLength(*properties.getLength().setReference(_properties.getContentLength(), false));\
-        properties.setHeight(*properties.getHeight().setReference(_properties.getContentHeight(), false));\
+        properties.setLength(*properties.getLength().setReference(_properties.getContentLength(true), false));\
+        properties.setHeight(*properties.getHeight().setReference(_properties.getContentHeight(true), false));\
         properties.setPadding(*properties.getPadding().setReference(properties.getLength(), properties.getHeight(), false));\
         properties.setMargin(*properties.getMargin().setReference(properties.getLength(), properties.getHeight(), false));\
         properties.setBorderThickness(*properties.getBorderThickness().setReference(properties.getLength(), false));\
@@ -23,11 +23,14 @@
 
 class Container {
   public:
+    //temporary
+    Container();
+    
     Container(ContainerProperties properties, std::vector<Container*> content);
 
     virtual void init();
     virtual void draw();
-    void drawBorder();
+    void drawBorder(bool erase = false);
 
     ContainerProperties getPorperties();
     void setProperties(ContainerProperties properties);
@@ -36,6 +39,7 @@ class Container {
     uint16_t getColor();
 
     void addContent(Container* content);
+    void removeContent(byte id);
     uint8_t getContentAmount();
 
     void setContentProperties(ContainerProperties properties);
@@ -43,7 +47,9 @@ class Container {
   private:
     ContainerProperties _properties;
     std::vector<Container*> _content;
-    uint8_t _viewId;
+
+    Container* getContent(byte id);
+    std::vector<Container*>::iterator getIterator(byte id);
 
 };
 

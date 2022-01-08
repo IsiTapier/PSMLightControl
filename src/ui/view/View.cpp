@@ -6,6 +6,10 @@
 
 byte View::currentId = 0;
 
+//temporary
+View::View() {}
+
+
 View::View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content) : Container(properties, content), _viewProperties(viewProperties), id(currentId) {
   currentId++;
   ViewManager::addView(this);
@@ -37,6 +41,6 @@ void View::draw() {
   Container::draw();
 }
 
-void View::checkTouch(TSPoint p) {
-
+uint16_t View::checkTouch(TSPoint p) {
+  return 0;
 }

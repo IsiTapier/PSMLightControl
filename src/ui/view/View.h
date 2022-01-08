@@ -11,14 +11,17 @@
 class View;
 #include "../viewManager/ViewManager.h"
 
-class View : Container {
+class View : public Container {
   public:
+    //temporary
+    View();
+    
     View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content);
     
     byte getId();
     void init() override;
     void draw() override;
-    virtual void checkTouch(TSPoint p);
+    virtual uint16_t checkTouch(TSPoint p);
 
     static byte getCurrentId();
 

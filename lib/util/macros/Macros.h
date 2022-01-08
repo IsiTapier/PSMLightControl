@@ -7,14 +7,23 @@
 
 #include "Arduino.h"
 
-#define SETMAX(x, value)    if(x < (value)) x = (value);
-#define SETMIN(x, value)    if(x > (value)) x = (value);
+//SONDER ZEICHEN
+#define AE String(char(142))
+#define ae String(char(132))
+#define OE String(char(153))
+#define oe String(char(148))
+#define UE String(char(154))
+#define ue String(char(129))
+//#define ss String(char(225))
+
+#define SETMAX(x, value)    if((x) < (value)) (x) = (value);
+#define SETMIN(x, value)    if((x) > (value)) (x) = (value);
 #define MIN(x, y)           min((int) x, (int) y)
 #define MAX(x, y)           max((int) x, (int) y)
-#define IFGREATER(x, y, value)  ((x>y)?value:x)
-#define IFSMALLER(x, y, value)  ((x<y)?value:x)
-#define IF(x, value, y)     ((x==value)?x:y)
-#define IFNOT(x, value, y)  ((x!=value)?x:y)
+#define IFGREATER(x, y, value)  (((x)>(y))?(value):(x))
+#define IFSMALLER(x, y, value)  (((x)<(y))?(value):(x))
+#define IF(x, value, y)     (((x)==(value))?(x):(y))
+#define IFNOT(x, value, y)  (((x)!=(value))?(x):(y))
 
 //font
 #define LETTER_LENGTH              6
