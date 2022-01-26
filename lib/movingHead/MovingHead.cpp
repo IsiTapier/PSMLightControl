@@ -8,8 +8,8 @@ bool MovingHead::togetherMode = TOGETHER_MODE;
 byte MovingHead::_lastHeight = 0;
 byte MovingHead::_speed = 0;
 unsigned long MovingHead::lastClick = 0;
-MovingHead MovingHead::movingHead1(HEIGHT_MV1, X_OFFSET_MV1, Y_OFFSET, TILT_OFFSET_MV1, PAN_OFFSET_MV1, UNIVERSE_3, 1);
-MovingHead MovingHead::movingHead2(HEIGHT_MV2, X_OFFSET_MV2, Y_OFFSET, TILT_OFFSET_MV2, PAN_OFFSET_MV2, UNIVERSE_3, 14);
+// MovingHead MovingHead::movingHead1(HEIGHT_MV1, X_OFFSET_MV1, Y_OFFSET, TILT_OFFSET_MV1, PAN_OFFSET_MV1, UNIVERSE_3, 1);
+// MovingHead MovingHead::movingHead2(HEIGHT_MV2, X_OFFSET_MV2, Y_OFFSET, TILT_OFFSET_MV2, PAN_OFFSET_MV2, UNIVERSE_3, 14);
 Joystick MovingHead::joystick(X_POS, Y_POS, BUTTON, joystickHandle, joystickButtonHandle);
 std::function<void(float, float)> MovingHead::_update;
 
@@ -18,7 +18,7 @@ float MovingHead::yAll = Y_DEFAULT;
 
 std::vector<MovingHead*> MovingHead::_movingHeads;
 
-MovingHead::MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress) : x(address==1?X_DEFAULT_MV1:X_DEFAULT_MV2), y(Y_DEFAULT), _height(height), _xOffset(xOffset), _yOffset(yOffset), _tiltOffset(tiltOffset), _panOffset(panOffset) { //ACHTUNG: QUICK AND DIRTY, fix start positions
+MovingHead::MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, int16_t defaultX, int16_t defaultY) : x(defaultX), y(defaultY), _height(height), _xOffset(xOffset), _yOffset(yOffset), _tiltOffset(tiltOffset), _panOffset(panOffset) { //ACHTUNG: QUICK AND DIRTY, fix start positions
     _device = DMXDevice(&_device, universe, address, OUTPUT_FORMAT, 1, inputUniverse, inputAddress, INPUT_FORMAT, 1, 0, {NULL, NULL, [](byte value){if(value<10)return (byte)DEFAULT_COLOR; else return value;}});
     _movingHeads.push_back(this);
 }

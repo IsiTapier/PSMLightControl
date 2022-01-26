@@ -25,7 +25,17 @@
 
 #define X_DEFAULT_MV1       0
 #define X_DEFAULT_MV2       0
+#define X_DEFAULT_MV3       0
+#define X_DEFAULT_MV4       0
+#define X_DEFAULT_MV5       0
+#define X_DEFAULT_MV6       0
 #define X_DEFAULT           0
+#define Y_DEFAULT_MV1       Y_DEFAULT
+#define Y_DEFAULT_MV2       Y_DEFAULT
+#define Y_DEFAULT_MV3       Y_DEFAULT
+#define Y_DEFAULT_MV4       Y_DEFAULT
+#define Y_DEFAULT_MV5       Y_DEFAULT
+#define Y_DEFAULT_MV6       Y_DEFAULT
 #define Y_DEFAULT           200
 
 #define X_MIN               0
@@ -34,14 +44,30 @@
 #define Y_MAX               255
 
 #define TILT_OFFSET         20
-#define TILT_OFFSET_MV1     22
-#define TILT_OFFSET_MV2     19
-#define PAN_OFFSET_MV1      0.5
+#define TILT_OFFSET_MV1     19
+#define TILT_OFFSET_MV2     20
+#define TILT_OFFSET_MV3     20
+#define TILT_OFFSET_MV4     20
+#define TILT_OFFSET_MV5     20
+#define TILT_OFFSET_MV6     22
+#define PAN_OFFSET_MV1      0
 #define PAN_OFFSET_MV2      0
-#define HEIGHT_MV1          574//570 //guess 5,7 + 4
-#define HEIGHT_MV2          694 //710 //guess  6,9 + 4
-#define X_OFFSET_MV1        484 //guess (279 rechts) (293)  310 total = 15,875
-#define X_OFFSET_MV2        -504 //guess (323 links) (282)  2,9
+#define PAN_OFFSET_MV3      0
+#define PAN_OFFSET_MV4      0
+#define PAN_OFFSET_MV5      0
+#define PAN_OFFSET_MV6      0.5
+#define HEIGHT_MV1          694 //710 //guess  6,9 + 4
+#define HEIGHT_MV2          670
+#define HEIGHT_MV3          650
+#define HEIGHT_MV4          620
+#define HEIGHT_MV5          600
+#define HEIGHT_MV6          574//570 //guess 5,7 + 4
+#define X_OFFSET_MV1        -504 //guess (323 links) (282)  2,9
+#define X_OFFSET_MV2        -300
+#define X_OFFSET_MV3        -100
+#define X_OFFSET_MV4        100
+#define X_OFFSET_MV5        300
+#define X_OFFSET_MV6        484 //guess (279 rechts) (293)  310 total = 15,875
 #define Y_OFFSET            -474 //guess (680) (481) (473)  //mv2, 4,743 (6,557 - 1,792 = 4,765) mv1 4,625 (6,58 - 1,87 = 4,71)
 //mv1 pan -1 tilt 25
 //mv2 tilt 20
@@ -49,7 +75,7 @@
 #define STAGE_HIGHT         62
 #define STAGE_Y             0
 #define STAGE_X             700
-#define MV_LENSE_LENGTH     25 //guess
+#define MV_LENSE_LENGTH     20
 
 #define DEFAULT_COLOR       50
 
@@ -85,7 +111,7 @@ class Position {
 
 class MovingHead {
   public:
-    MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse = INPUT_UNIVERSE, uint16_t inputAddress = INPUT_ADDRESS);
+    MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, int16_t defaultX = X_DEFAULT, int16_t defaultY = Y_DEFAULT);
     MovingHead* setX(float x);
     MovingHead* setY(float y);
     MovingHead* setXY(float x, float y, bool update = false, bool chain = togetherMode);
@@ -129,8 +155,8 @@ class MovingHead {
     static byte activeMovingHead;
     static bool togetherMode;
     static unsigned long lastClick;
-    static MovingHead movingHead1;
-    static MovingHead movingHead2;
+    // static MovingHead movingHead1;
+    // static MovingHead movingHead2;
     static Joystick joystick;
 
     static byte _lastHeight;
