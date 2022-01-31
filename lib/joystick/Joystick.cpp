@@ -8,7 +8,7 @@ Joystick::Joystick() {}
 
 Joystick::Joystick(uint8_t xPin, uint8_t yPin, uint8_t buttonPin, JOYSTICK_CALLBACK_SIGNATURE, BUTTON_CALLBACK_SIGNATURE) : _xPin(xPin), _yPin(yPin), _buttonPin(buttonPin), joystickCallback(joystickCallback), buttonCallback(buttonCallback) {
     pinMode(buttonPin, INPUT_PULLUP);
-    xTaskCreatePinnedToCore(startLoopTask, "joystick_loop_task", 2048, this, 7, NULL, 0);
+    xTaskCreatePinnedToCore(startLoopTask, "joystick_loop_task", 4*1024, this, 7, NULL, 0);
 }
 
 void Joystick::joystick_loop_task() {

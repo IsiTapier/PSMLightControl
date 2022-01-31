@@ -836,6 +836,7 @@ class TFT_eSPI : public Print { friend class TFT_eSprite; // Sprite class has ac
 }; // End of class TFT_eSPI
 
 extern TFT_eSPI display;
+extern SemaphoreHandle_t sync_display;
 
 /***************************************************************************************
 **                         Section 10: Additional extension classes

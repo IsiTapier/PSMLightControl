@@ -10,11 +10,13 @@
 #include "Joystick.h"
 #include "../../src/Pins.h"
 
-
+#define DRAW_ONLY_ACTIVE    1
 #define TOGETHER_MODE       0
 #define COMMON_ZOOM         1
 
-#define DOUBlE_CLICK_TIME   1000
+#define MOVING_HEADS_AMOUNT 6
+
+#define DOUBlE_CLICK_TIME   300
 
 #define SPEED               60
 #define X_SPEED             60
@@ -43,32 +45,34 @@
 #define Y_MIN               0
 #define Y_MAX               255
 
-#define TILT_OFFSET         20
-#define TILT_OFFSET_MV1     19
-#define TILT_OFFSET_MV2     20
-#define TILT_OFFSET_MV3     20
-#define TILT_OFFSET_MV4     20
-#define TILT_OFFSET_MV5     20
-#define TILT_OFFSET_MV6     22
+#define TILT_OFFSET         20.5
+#define TILT_OFFSET_MV1     21-2
+#define TILT_OFFSET_MV2     23.5
+#define TILT_OFFSET_MV3     20.5
+#define TILT_OFFSET_MV4     21.2
+#define TILT_OFFSET_MV5     19.9
+#define TILT_OFFSET_MV6     23.5
 #define PAN_OFFSET_MV1      0
 #define PAN_OFFSET_MV2      0
 #define PAN_OFFSET_MV3      0
 #define PAN_OFFSET_MV4      0
 #define PAN_OFFSET_MV5      0
-#define PAN_OFFSET_MV6      0.5
-#define HEIGHT_MV1          694 //710 //guess  6,9 + 4
-#define HEIGHT_MV2          670
-#define HEIGHT_MV3          650
-#define HEIGHT_MV4          620
-#define HEIGHT_MV5          600
-#define HEIGHT_MV6          574//570 //guess 5,7 + 4
-#define X_OFFSET_MV1        -504 //guess (323 links) (282)  2,9
-#define X_OFFSET_MV2        -300
-#define X_OFFSET_MV3        -100
-#define X_OFFSET_MV4        100
-#define X_OFFSET_MV5        300
-#define X_OFFSET_MV6        484 //guess (279 rechts) (293)  310 total = 15,875
-#define Y_OFFSET            -474 //guess (680) (481) (473)  //mv2, 4,743 (6,557 - 1,792 = 4,765) mv1 4,625 (6,58 - 1,87 = 4,71)
+#define PAN_OFFSET_MV6      0
+#define HEIGHT_MV1          701.5
+#define HEIGHT_MV2          685.5
+#define HEIGHT_MV3          666.7
+#define HEIGHT_MV4          624.1
+#define HEIGHT_MV5          604.1
+#define HEIGHT_MV6          581.6
+#define X_OFFSET_MV1        X_OFFSET(true, 299.0)
+#define X_OFFSET_MV2        X_OFFSET(true, 455.0)
+#define X_OFFSET_MV3        X_OFFSET(true, 615.7)
+#define X_OFFSET_MV4        X_OFFSET(false, 620.7)
+#define X_OFFSET_MV5        X_OFFSET(false, 461.2)
+#define X_OFFSET_MV6        X_OFFSET(false, 297.9)
+#define Y_OFFSET            (-652.2+180.4+4)
+#define SAAL_LENGTH         1587.2
+#define X_OFFSET(left, distance) ((left?-1:1)*(SAAL_LENGTH/2-distance))
 //mv1 pan -1 tilt 25
 //mv2 tilt 20
 //leichte neigung (hinten und seite anders)
@@ -118,6 +122,8 @@ class MovingHead {
     MovingHead* addX(float x);
     MovingHead* addY(float y);
     MovingHead* addXY(float x, float y, bool update = false, bool chain = togetherMode);
+    MovingHead* goToHome();
+    static void resetPositions();
     float getX(bool trueX = false);
     float getY(bool trueY = false);
     Position getPosition(bool trueVal = false);
@@ -131,10 +137,11 @@ class MovingHead {
     
     static MovingHead* getMovingHead(byte movingHead = activeMovingHead);
     static short getActiveMovingHead();
+    static void setActiveMovingHead(byte mvoingHead);
     static void init(bool i);
     void init();
 
-    static void setUpdate(std::function<void(float, float)> update);
+    static void setUpdate(std::function<void(float, float, bool)> update);
 
     //pan bugs
     //right moving head x > seitlich links y < mv seitlich
@@ -149,6 +156,8 @@ class MovingHead {
   	int16_t _yOffset;
     uint8_t _tiltOffset;
     uint8_t _panOffset;
+    float _defaultX;
+    float _defaultY;
 
     static float xAll;
     static float yAll;
@@ -170,7 +179,7 @@ class MovingHead {
 
     static void loop(void*);
 
-    static std::function<void(float, float)> _update;
+    static std::function<void(float, float, bool)> _update;
     static std::vector<MovingHead*> _movingHeads;
 
 };

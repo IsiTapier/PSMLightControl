@@ -5155,7 +5155,7 @@ void TFT_eSPI::getSetup(setup_t &tft_settings)
 }
 
 TFT_eSPI display = TFT_eSPI();
-
+SemaphoreHandle_t sync_display = xSemaphoreCreateMutex();
 
 ////////////////////////////////////////////////////////////////////////////////////////
 #ifdef TOUCH_CS

@@ -31,11 +31,13 @@ void ButtonManager::removeButton(short id) {
 
 void ButtonManager::checkTouch(void*) {
   TSPoint p;
-  byte nearestDistance;
+  byte nearestDistance = 0;
   std::vector<Button*> nearestButton;
   for(;;) {
     vTaskDelay(TOUCH_CYCLE/portTICK_PERIOD_MS);
+    xSemaphoreTake(sync_display, portMAX_DELAY);
     p = display.getTouch();
+    xSemaphoreGive(sync_display);
     bool isTouching = (p.x != (uint16_t)-1 && p.y != (uint16_t)-1);
     for(Button* button : buttons) {
       if(button->getPorperties().getViewId()!=ViewManager::getCurrentView() || !button->getPorperties().getDraw())
@@ -72,7 +74,6 @@ void ButtonManager::checkTouch(void*) {
       nearestButton.clear();
     }
     vTaskDelay(delay/portTICK_PERIOD_MS);
-
   }
 }
 

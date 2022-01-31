@@ -106,10 +106,13 @@ void Container::draw() {
 void Container::drawBorder(bool erase) {
     if(!_properties.getDraw())
         return;
+    xSemaphoreTake(sync_display, portMAX_DELAY);
     if(erase)
         display.fillRoundRect(_properties.getX(), _properties.getY(), _properties.getLength(), _properties.getHeight(), _properties.getBorderRoundness(), getColor());
-    if(_properties.getInvisible())
+    if(_properties.getInvisible()) {
+        xSemaphoreGive(sync_display);
         return;
+    }
     //draw border
     short borderThickness = _properties.getBorderThickness();
     /*for(short i = 0; i < borderThickness; i++) {
@@ -120,6 +123,7 @@ void Container::drawBorder(bool erase) {
     //draw interior
     display.fillRoundRect(_properties.getX()+borderThickness, _properties.getY()+borderThickness, _properties.getLength()-2*borderThickness, _properties.getHeight()-2*borderThickness, MAX(0, _properties.getBorderRoundness()-borderThickness), getColor());
     //draw contents
+    xSemaphoreGive(sync_display);
 }
 
 ContainerProperties Container::getPorperties() {
@@ -142,13 +146,18 @@ uint16_t Container::getColor() {
 }
 
 void Container::addContent(Container* content) {
+    Serial.println("Test");
     content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
     _content.push_back(content);
+    Serial.println("Test2");
     if(!_properties.getDraw())
         return;
+        Serial.println("Test3");
     init();
+    Serial.println("Test4");
     if(ViewManager::getCurrentView() == _properties.getViewId())
         draw();
+        Serial.println("Test5");
 }
 
 void Container::removeContent(byte id) {

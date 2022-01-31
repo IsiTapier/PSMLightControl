@@ -30,15 +30,19 @@ void Text::init() {
       case BR_DATUM: y+=height; x+=length; break;
   }
   if(size*_text.length()*LETTER_LENGTH > properties.getContentLength(true) || size*LETTER_HEIGHT > properties.getContentHeight(true)) {
-    if(DEBUG) {
-      if(size > 1)
-        Serial.println("WARNING:\tText size miscalculated and Textfield supressed");
-      else
-        Serial.println("WARNING:\tTextfield supressed, because there wasn't enough space available");
-    }
-    properties.setDraw(false);
-  } else
-    properties.setDraw(true);
+    if(size>1) //QUICK AND DIRTY (MISSCALCULATION)
+      size--;
+    if(size*_text.length()*LETTER_LENGTH > properties.getContentLength(true) || size*LETTER_HEIGHT > properties.getContentHeight(true)) {
+      if(DEBUG) {
+        if(size > 1)
+            Serial.println("WARNING:\tText size miscalculated and Textfield supressed");
+        else
+          Serial.println("WARNING:\tTextfield supressed, because there wasn't enough space available");
+      }
+      properties.setDraw(false);
+    } else
+      properties.setDraw(true);
+  }
   _textProperties.setXY(x, y);
   setProperties(properties);
 }
@@ -50,7 +54,9 @@ void Text::draw() {
       drawBorder();
     if(_textProperties.getX() == -1 || _textProperties.getY() == -1)
       return;
+    xSemaphoreTake(sync_display, portMAX_DELAY);
     dPrint(_text, _textProperties.getX(), _textProperties.getY(), _textProperties.getSize(), IFNOT(_textProperties.getColor(), NO_COLOR, ColorManager::getTextColor()), _textProperties.getDatum()/*, getPorperties().getInvisible()?TFT_TRANSPARENT:getColor()*/);
+    xSemaphoreGive(sync_display);
 }
 
 void Text::dPrint(String text, int x, int y, int size, int color, int datum, int backgroundColor, String oldText, int oldTextSize, boolean redraw, int padding) {
