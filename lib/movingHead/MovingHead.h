@@ -86,12 +86,26 @@
 //22 + 377 170 mv2 + 140
 //mv1 5,7 mv3 7,1
 
-#define INPUT_UNIVERSE      UNIVERSE_1
-#define INPUT_ADDRESS       508
-#define INPUT_FORMAT        ZMC
+#define INPUT_UNIVERSE_ALL  UNIVERSE_1
+#define INPUT_FORMAT        MZ
 #define OUTPUT_FORMAT       PTsZMEwcC
-#define SPEED_ADDRESS       512
-#define HEIGHT_ADDRESS      96
+#define INPUT_FORMAT_ALL    C
+#define INPUT_ADDRESS_ALL   508
+#define SPEED_ADDRESS       509
+#define READ_UNIVERSE_ALL   DMX::getUniverse(INPUT_UNIVERSE_ALL)
+
+#define INPUT_ADDRESS_MV1   101
+#define INPUT_ADDRESS_MV2   103
+#define INPUT_ADDRESS_MV3   105
+#define INPUT_ADDRESS_MV4   112
+#define INPUT_ADDRESS_MV5   114
+#define INPUT_ADDRESS_MV6   116
+#define HEIGHT_ADDRESS_MV1  118
+#define HEIGHT_ADDRESS_MV2  119
+#define HEIGHT_ADDRESS_MV3  120
+#define HEIGHT_ADDRESS_MV4  121
+#define HEIGHT_ADDRESS_MV5  122
+#define HEIGHT_ADDRESS_MV6  123
 
 #define MOVING_LOOP_CYCLE   100
 
@@ -115,7 +129,7 @@ class Position {
 
 class MovingHead {
   public:
-    MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, int16_t defaultX = X_DEFAULT, int16_t defaultY = Y_DEFAULT);
+    MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, uint16_t heightAddress, int16_t defaultX = X_DEFAULT, int16_t defaultY = Y_DEFAULT);
     MovingHead* setX(float x);
     MovingHead* setY(float y);
     MovingHead* setXY(float x, float y, bool update = false, bool chain = togetherMode);
@@ -134,6 +148,9 @@ class MovingHead {
     byte getTilt();
     static float getXAll();
     static float getYAll();
+    byte getHeight();
+    void setHeight(byte newHeight);
+    uint16_t getHeightAddress();
     
     static MovingHead* getMovingHead(byte movingHead = activeMovingHead);
     static short getActiveMovingHead();
@@ -168,7 +185,8 @@ class MovingHead {
     // static MovingHead movingHead2;
     static Joystick joystick;
 
-    static byte _lastHeight;
+    byte _lastHeight;
+    uint16_t _heightAddress;
     static byte _speed;
 
     byte calculatePan(float x, float y);

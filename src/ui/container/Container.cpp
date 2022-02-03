@@ -146,18 +146,13 @@ uint16_t Container::getColor() {
 }
 
 void Container::addContent(Container* content) {
-    Serial.println("Test");
     content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
     _content.push_back(content);
-    Serial.println("Test2");
     if(!_properties.getDraw())
         return;
-        Serial.println("Test3");
     init();
-    Serial.println("Test4");
     if(ViewManager::getCurrentView() == _properties.getViewId())
         draw();
-        Serial.println("Test5");
 }
 
 void Container::removeContent(byte id) {

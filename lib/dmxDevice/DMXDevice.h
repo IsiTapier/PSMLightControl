@@ -44,15 +44,27 @@
 #define PTsZMEwcC 0x89AB17CDF
 #define ZMwc 0xB1CD
 #define ZMC 0xB1F
+#define MZ 0x1B
 
-#define INPUT_FORMAT_TYPE ((_inputFormat>>(i*4))%16)
+#define INPUT_FORMAT_TYPE ((input.format>>(i*4))%16)
 #define FORMAT_EQUALS(type) ((_format>>i*4)%16 == type)
+#define READ_UNIVERSE (DMX::getUniverse(input.universe))
+
+struct Input {
+  DMXUniverse universe = UNIVERSE_1;
+  uint16_t address = 0;
+  uint64_t format = 0x0;
+  std::vector<std::function<byte(byte)>> valueCalculation = {};
+  byte formatSize = 0;
+};
 
 class DMXDevice {
   public:
     DMXDevice();
-    DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, DMXUniverse inputUniverse = UNIVERSE_1, uint16_t inputAddress = 0, uint64_t inputFormat = 0x0, byte devices = 1, byte distance = 0, std::vector<std::function<byte(byte)>> valueCalculation = {});
-    DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, DMXUniverse inputUniverse = UNIVERSE_1, uint16_t inputAddress = 0, uint64_t inputFormat = 0x0, byte devices = 1, byte distance = 0, std::vector<std::function<byte(byte)>> valueCalculation = {});
+    DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, std::vector<Input> = {}, byte repeat = 1, byte devices = 1, byte distance = 0);
+    DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, std::vector<Input> = {}, byte repeat = 1, byte devices = 1, byte distance = 0);
+    // DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, Input input = none, byte repeat = 1, byte devices = 1, byte distance = 0);
+    // DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, Input input = none, byte devices = 1, byte distance = 0);
     void writeChannel(byte channel, byte value, byte device = UINT8_MAX);
     void writeType(byte type, byte value);
     void writeMaster(byte value);
@@ -70,20 +82,17 @@ class DMXDevice {
     uint16_t _address;
     uint64_t _format;
     byte _repeat;
-    DMXUniverse _inputUniverse;
-    uint16_t _inputAddress;
-    uint64_t _inputFormat;
     byte _devices;
     byte _distance;
+    std::vector<Input> _inputs;
+
     boolean hasMaster;
     int16_t virtualMaster = -1;
+    DMX* virtualMasterUniverse;
     DMX* writeUniverse;
-    DMX* readUniverse;
     byte formatSize;
-    byte inputFormatSize;
     byte vMasterValue;
     unsigned long readcycle = millis();
-    std::vector<std::function<byte(byte)>> _valueCalculation;
 
     static std::vector<DMXDevice*> devices;
     

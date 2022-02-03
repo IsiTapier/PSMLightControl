@@ -5,7 +5,6 @@
 #include "MovingHead.h"
 byte MovingHead::activeMovingHead = 0;
 bool MovingHead::togetherMode = TOGETHER_MODE;
-byte MovingHead::_lastHeight = 0;
 byte MovingHead::_speed = 0;
 unsigned long MovingHead::lastClick = 0;
 // MovingHead MovingHead::movingHead1(HEIGHT_MV1, X_OFFSET_MV1, Y_OFFSET, TILT_OFFSET_MV1, PAN_OFFSET_MV1, UNIVERSE_3, 1);
@@ -18,8 +17,10 @@ float MovingHead::yAll = Y_DEFAULT;
 
 std::vector<MovingHead*> MovingHead::_movingHeads;
 
-MovingHead::MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, int16_t defaultX, int16_t defaultY) : x(defaultX), y(defaultY), _height(height), _xOffset(xOffset), _yOffset(yOffset), _tiltOffset(tiltOffset), _panOffset(panOffset), _defaultX(defaultX), _defaultY(defaultY) { //ACHTUNG: QUICK AND DIRTY, fix start positions
-    _device = DMXDevice(&_device, universe, address, OUTPUT_FORMAT, 1, inputUniverse, inputAddress, INPUT_FORMAT, 1, 0, {NULL, NULL, [](byte value){if(value<10)return (byte)DEFAULT_COLOR; else return value;}});
+MovingHead::MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, uint16_t heightAddress, int16_t defaultX, int16_t defaultY) : x(defaultX), y(defaultY), _height(height), _xOffset(xOffset), _yOffset(yOffset), _tiltOffset(tiltOffset), _panOffset(panOffset), _defaultX(defaultX), _defaultY(defaultY), _heightAddress(heightAddress) { //ACHTUNG: QUICK AND DIRTY, fix start positions
+    Input i; i.universe=INPUT_UNIVERSE_ALL; i.address=INPUT_ADDRESS_ALL; i.format=INPUT_FORMAT_ALL, i.valueCalculation={{[](byte value){if(value<10)return (byte)DEFAULT_COLOR; else return value;}}};
+    Input i2; i2.universe=inputUniverse; i2.address=inputAddress; i2.format=INPUT_FORMAT; i2.valueCalculation={};
+    _device = DMXDevice(&_device, universe, address, (uint64_t)OUTPUT_FORMAT, {i, i2});
     _movingHeads.push_back(this);
     goToHome();
 }
@@ -146,6 +147,21 @@ float MovingHead::getYAll() {
     return yAll;
 }
 
+byte MovingHead::getHeight() {
+    return _height;
+}
+
+void MovingHead::setHeight(byte newHeight) {
+    if(newHeight == _lastHeight)
+        return;
+    _lastHeight = newHeight;
+    addXY(0, 0, true);
+}
+
+uint16_t MovingHead::getHeightAddress() {
+    return _heightAddress;
+}
+
 MovingHead* MovingHead::getMovingHead(byte movingHead) {
    return _movingHeads.at(VALID_MOVINGHEAD(movingHead));//&(movingHead==0?movingHead1:movingHead2);
 }
@@ -241,16 +257,8 @@ void MovingHead::joystickButtonHandle() {
 void MovingHead::loop(void*) {
     for(;;) {
         vTaskDelay(MOVING_LOOP_CYCLE/portTICK_PERIOD_MS);
-        byte height = DMX::getUniverse(UNIVERSE_1)->read(HEIGHT_ADDRESS);
-        if(height != _lastHeight) {
-            _lastHeight = height;
-            // ACTIVE_MOVINGHEAD.addXY(0, 0, true);
-            // INACTIVE_MOVINGHEAD.addXY(0, 0, true);
-            for(int i = 0; i < _movingHeads.size(); i++) {
-                vTaskDelay(1);
-                getMovingHead(i)->addXY(0, 0, true);
-            }
-        }
-        _speed = DMX::getUniverse(UNIVERSE_1)->read(SPEED_ADDRESS);
+        for(MovingHead* mv : _movingHeads)
+            mv->setHeight(READ_UNIVERSE_ALL->read(mv->getHeightAddress()));
+        _speed = READ_UNIVERSE_ALL->read(SPEED_ADDRESS);
     }
 }
