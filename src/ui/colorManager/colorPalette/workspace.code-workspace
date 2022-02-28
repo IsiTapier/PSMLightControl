@@ -18,6 +18,9 @@
 		{
 			"name": "Roboter",
 			"path": "..\\..\\..\\..\\..\\Roboter\\Roboter"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\serverTemperatureControl"
 		}
 	],
 	"settings": {
@@ -61,7 +64,15 @@
 			"streambuf": "cpp",
 			"cinttypes": "cpp",
 			"utility": "cpp",
-			"typeinfo": "cpp"
+			"typeinfo": "cpp",
+			"atomic": "cpp",
+			"bitset": "cpp",
+			"chrono": "cpp",
+			"list": "cpp",
+			"ratio": "cpp",
+			"iostream": "cpp",
+			"mutex": "cpp",
+			"regex": "cpp"
 		}
 	}
 }

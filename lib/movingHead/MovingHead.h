@@ -123,6 +123,8 @@ class Position {
     float getX() {return _x;}
     float getY() {return _y;}
     bool isSet() {return _x == -340282346638528859811704183484516925440 || _y == -340282346638528859811704183484516925440;}
+    Position operator+(Position p) const {Position result(_x+p.getX(), _y+p.getY());return result;}
+    Position operator-(Position p) const {Position result(_x-p.getX(), _y-p.getY());return result;}
   private:
     float _x, _y;
 };
@@ -151,6 +153,8 @@ class MovingHead {
     byte getHeight();
     void setHeight(byte newHeight);
     uint16_t getHeightAddress();
+    void setDriveRandom(bool value);
+    void driveTo(Position position, byte speed);
     
     static MovingHead* getMovingHead(byte movingHead = activeMovingHead);
     static short getActiveMovingHead();
@@ -159,6 +163,8 @@ class MovingHead {
     void init();
 
     static void setUpdate(std::function<void(float, float, bool)> update);
+    static void setDriveRandomAll(bool value = !_driveRandom);
+    static void driveToHome();
 
     //pan bugs
     //right moving head x > seitlich links y < mv seitlich
@@ -175,11 +181,16 @@ class MovingHead {
     uint8_t _panOffset;
     float _defaultX;
     float _defaultY;
+    bool driveRandom;
+    Position driveToPosition;
+    byte driveToSpeed;
+    xTaskHandle driveToHandle;
 
     static float xAll;
     static float yAll;
     static byte activeMovingHead;
     static bool togetherMode;
+    static bool _driveRandom;
     static unsigned long lastClick;
     // static MovingHead movingHead1;
     // static MovingHead movingHead2;

@@ -38,7 +38,7 @@ DMXDevice::DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, 
     _inputs = temp;
     
     // DMXDevice::devices.push_back(device);
-    xTaskCreate(startUpdateTask, "updateChannels", 1024, device, 9, NULL);
+    xTaskCreate(startUpdateTask, "updateChannels", 1024, device, 7, NULL);
 }
 
 DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, std::vector<Input> inputs, byte repeat, byte devices, byte distance) : _universe(universe), _address(address), _format(format), _repeat(repeat), _devices(devices), _distance(distance), _inputs(inputs), writeUniverse(DMX::getUniverse(universe)) {
@@ -68,6 +68,38 @@ DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, st
             input.address = 1;
     }
     
+    // DMXDevice::devices.push_back(device);
+    xTaskCreate(startUpdateTask, "updateChannels", 1024, this, 9, NULL);
+}
+
+DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DMXUniverse inputUniverse, uint16_t inputAddress, uint64_t inputFormat, byte repeat, byte devices, byte distance) : _universe(universe), _address(address), _format(format), _repeat(repeat), _devices(devices), _distance(distance), writeUniverse(DMX::getUniverse(universe)) {
+    Input i; i.universe=inputUniverse; i.address=inputAddress; i.format=inputFormat;
+    _inputs.push_back(i);
+    formatSize = floor(logn((double)16, (double)_format)+1);
+    for(int i = 0; i < formatSize; i++)
+        if(FORMAT_EQUALS(M)) {
+            hasMaster = true;
+            break;
+        }
+    if(_address > 513-(formatSize*_repeat+_distance)*_devices-_distance)
+        _address = 513-(formatSize*_repeat+_distance)*_devices-_distance;
+    if(_address < 1)
+        _address = 1;
+
+    for(Input input : _inputs) {
+        input.formatSize = floor(logn((double)16, (double)input.format)+1);
+        if(!hasMaster)
+            for(int i = 0; i < input.formatSize; i++)
+                if(INPUT_FORMAT_TYPE == M) {
+                    virtualMaster = input.address+input.formatSize-i-1;
+                    virtualMasterUniverse = READ_UNIVERSE;
+                    break;
+                }
+        if(input.address > 513-input.formatSize)
+            input.address = 513-input.formatSize;
+        if(input.address < 1)
+            input.address = 1;
+    }
     // DMXDevice::devices.push_back(device);
     xTaskCreate(startUpdateTask, "updateChannels", 1024, this, 9, NULL);
 }

@@ -63,6 +63,7 @@ class DMXDevice {
     DMXDevice();
     DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, std::vector<Input> = {}, byte repeat = 1, byte devices = 1, byte distance = 0);
     DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, std::vector<Input> = {}, byte repeat = 1, byte devices = 1, byte distance = 0);
+    DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DMXUniverse inputUniverse, uint16_t inputAddress, uint64_t inputFormat, byte repeat = 1, byte devices = 1, byte distance = 0);
     // DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, Input input = none, byte repeat = 1, byte devices = 1, byte distance = 0);
     // DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, Input input = none, byte devices = 1, byte distance = 0);
     void writeChannel(byte channel, byte value, byte device = UINT8_MAX);

@@ -38,7 +38,6 @@ DMX::DMX(DMXUniverse universe, DMXDirection direction, gpio_num_t inputPin, gpio
         }
     }
     for(int j = 0; j < 513; j++) {
-        // dmx_data2[j] = 0;
         dmx_temp_data[j] = 0;
     }
     initialize(direction);
@@ -88,17 +87,17 @@ void DMX::initialize(DMXDirection direction) {
             // if(_universe == UNIVERSE_2) {
             // //for(int x = 0; x < 3; x++) {
             //     for(int i = 0; i < 7; i++) {
-            //         dmx_data2[19+i*7] = 255;
-            //         dmx_data2[20+i*7] = 255;
-            //         dmx_data2[21+i*7] = 20;
+            //         dmx_data[0][19+i*7] = 255;
+            //         dmx_data[0][20+i*7] = 255;
+            //         dmx_data[0][21+i*7] = 20;
             //     }
             //     for(int i = 0; i < 9; i++) {
             //         for(int j = 0; j < 36; j+=3) {
-            //             dmx_data2[150+i*36+j] = 255;
-            //             dmx_data2[150+i*36+j+1] = 30;
+            //             dmx_data[0][150+i*36+j] = 255;
+            //             dmx_data[0][150+i*36+j+1] = 30;
             //         }
             //     }
-            //}
+            // }
         // }
 
     // depending on parameter set gpio for direction change and start rx or tx thread
@@ -230,9 +229,10 @@ uint8_t DMX::isHealthy() {
 }
 
 void DMX::uart_send_task() {
-    //vTaskDelay((DMX_CHECKCYCLE+DMX_READCYCLE)/portTICK_PERIOD_MS);
+    vTaskDelay((DMX_CHECKCYCLE+DMX_READCYCLE)/portTICK_PERIOD_MS);
     uint8_t start_code = 0x00;
     for(;;) {
+        vTaskDelay(1);
         // wait till uart is ready
         uart_wait_tx_done(uart, 1000);
         // set line to inverse, creates break signal
@@ -243,19 +243,19 @@ void DMX::uart_send_task() {
         uart_set_line_inverse(uart,  0);
         // wait mark after break
         ets_delay_us(24);
-#if !DMX_IGNORE_THREADSAFETY
-    xSemaphoreTake(sync_dmx, portMAX_DELAY);
-#endif
-    memcpy((uint8_t *)dmx_temp_copy+1, (uint8_t *)dmx_data[0]+1, 512);
-#if !DMX_IGNORE_THREADSAFETY
-    xSemaphoreGive(sync_dmx);
-#endif
+// #if !DMX_IGNORE_THREADSAFETY
+//     xSemaphoreTake(sync_dmx, portMAX_DELAY);
+// #endif
+//     memcpy((uint8_t *)dmx_temp_copy+1, (uint8_t *)dmx_data[0]+1, 512);
+// #if !DMX_IGNORE_THREADSAFETY
+//     xSemaphoreGive(sync_dmx);
+// #endif
         // write start code
         uart_write_bytes(uart, (const char*) &start_code, 1);
         // transmit the dmx data
-        // xSemaphoreTake(sync_dmx, portMAX_DELAY);
-        uart_write_bytes(uart, (const char*) dmx_temp_copy+1, 512);
-        // xSemaphoreGive(sync_dmx);
+        xSemaphoreTake(sync_dmx, portMAX_DELAY);
+        uart_write_bytes(uart, (const char*) dmx_data[0]+1, 512);
+        xSemaphoreGive(sync_dmx);
     }
 }
 

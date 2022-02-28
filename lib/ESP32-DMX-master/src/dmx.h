@@ -102,7 +102,7 @@ class DMX {
 
         uint8_t dmx_temp_data[513];
 
-        uint8_t dmx_temp_copy[513];
+        // uint8_t dmx_temp_copy[513];
 
         uint8_t currentDmx = 0;                          // cycles the dmx data arrays
 

@@ -21,11 +21,11 @@ Container::Container(ContainerProperties properties, std::vector<Container*> con
     //     properties.getBorderRoundness().setReference(properties.getBorderThickness(), false);
     //     content->setProperties(properties);
     // }
-    for(Container* content : _content)
-        content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
 }
 
 void Container::init() {
+    for(Container* content : _content)
+        content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
     Spacing margin = _properties.getMargin();
     short x = _properties.getX()+_properties.getBorderThickness();;
     short y = _properties.getY()+_properties.getBorderThickness();;
@@ -73,7 +73,7 @@ void Container::init() {
         //check if available height is enough
         if(_properties.getContentHeight()-currentY < properties.getHeight() + MAX(padding.get(TOP), paddingTop) + MAX(padding.get(BOTTOM), margin.get(BOTTOM))) {
             if(DEBUG)
-                Serial.println("WARNING:\tContainer skipped, because there wasn't enough height available");
+                Serial.println("WARNING:\tContainer skipped, because there wasn't enough height available.");
             properties.setDraw(false);
             content->setProperties(properties);
             continue;

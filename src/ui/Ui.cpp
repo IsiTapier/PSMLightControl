@@ -68,7 +68,15 @@ void updateBuehne(float lastX, float lastY, bool redraw = false) {
     xSemaphoreGive(sync_display);
 }
 std::vector<std::array<Position, MOVING_HEADS_AMOUNT+1>> presetPositions = {{Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT)}};
-const CustomView buehne(ContainerProperties(0, 0), ViewProperties(), [](){MovingHead::setUpdate(&updateBuehne);}, [](){
+Container movingHeadButtons(ContainerProperties(Size(480), Size(86), Spacing(0), Spacing(0), Size(0), Size(0), true), {
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(0);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_GREEN), "MV 1")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(1);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_RED), "MV 2")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(2);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_YELLOW), "MV 3")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(3);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_PURPLE), "MV 4")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(4);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_ORANGE), "MV 5")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 10, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(5);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_DARKCYAN), "MV 6")})
+    });
+CustomView Ui::buehne(ContainerProperties(0, 0), ViewProperties(), [](){MovingHead::setUpdate(&updateBuehne);}, [](){
     updateBuehne(0, 0);
 }, [](TSPoint p){
     if(p.x == (uint16_t)-1 || p.y == (uint16_t)-1)
@@ -80,13 +88,9 @@ const CustomView buehne(ContainerProperties(0, 0), ViewProperties(), [](){Moving
     return 0;
 }, {new Button(ContainerProperties(Size(100), Size(60), Spacing(17, 15, 15, 15), Spacing(2), Size(2), Size(4)), ButtonProperties(), [](){ViewManager::setCurrentView(1);return 0;}, {new Text(ContainerProperties(), TextProperties(), "Presets")}),
     new Button(ContainerProperties(Size(100), Size(60), Spacing(480-2*100-2*17, 15, 15, 15), Spacing(4), Size(2), Size(4)), ButtonProperties(), [](){for(int i=0;i<MOVING_HEADS_AMOUNT;i++)MovingHead::getMovingHead(i)->setPosition(presetPositions[0][i]);MovingHead::setPositionAll(presetPositions[0][MOVING_HEADS_AMOUNT]);updateBuehne(0, 0, true);/*MovingHead::resetPositions();*/return 0;}, {new Text(ContainerProperties(), TextProperties(), "Home")}),
-    new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 8, 320-60-15-70-8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(0);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_GREEN), "MV 1")}),
-    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 320-60-15-70-8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(1);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_RED), "MV 2")}),
-    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 320-60-15-70-8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(2);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_YELLOW), "MV 3")}),
-    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 320-60-15-70-8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(3);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_PURPLE), "MV 4")}),
-    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 320-60-15-70-8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(4);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_ORANGE), "MV 5")}),
-    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 10, 320-60-15-70-8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(5);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_DARKCYAN), "MV 6")})
-    });
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 480-10-70, 320-60-15-15-70-70-8-8, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setDriveRandomAll();for(int i=0;i<MOVING_HEADS_AMOUNT;i++)MovingHead::getMovingHead(i)->setPosition(presetPositions[0][i]);MovingHead::setPositionAll(presetPositions[0][MOVING_HEADS_AMOUNT]);return 0;}, {new Text(ContainerProperties(), TextProperties(), "Wirbel")}),
+    &movingHeadButtons
+});
 Container presets(ContainerProperties(Size(480-24), Size(320-90), Spacing(Size(12), Size(12), Size(0), Size(0)), Spacing(5), 0, 0, true), {});
 struct EepromPosition {
     byte id;

@@ -9,7 +9,7 @@ short ButtonManager::currentId = -1;
 
 void ButtonManager::init() {
   calibrateTouch();
-  xTaskCreate(checkTouch, "check touch", 4096*2, NULL, 6, NULL);
+  xTaskCreate(checkTouch, "check touch", 1024*4, NULL, 6, NULL);
 }
 
 void ButtonManager::addButton(Button* button) {
