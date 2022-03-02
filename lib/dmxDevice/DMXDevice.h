@@ -67,6 +67,7 @@ class DMXDevice {
     // DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, Input input = none, byte repeat = 1, byte devices = 1, byte distance = 0);
     // DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, Input input = none, byte devices = 1, byte distance = 0);
     void writeChannel(byte channel, byte value, byte device = UINT8_MAX);
+    void writeChannels(int channel, byte value);
     void writeType(byte type, byte value);
     void writeMaster(byte value);
     void writeRed(byte value);
@@ -77,6 +78,9 @@ class DMXDevice {
     void writeEffect(byte value);
     void blackOut();
     static void init();
+    void setUpdate(bool update);
+    bool getUpdate();
+    byte getChannels();
 
   private:
     DMXUniverse _universe;
@@ -93,6 +97,7 @@ class DMXDevice {
     DMX* writeUniverse;
     byte formatSize;
     byte vMasterValue;
+    boolean _update = true;
     unsigned long readcycle = millis();
 
     static std::vector<DMXDevice*> devices;

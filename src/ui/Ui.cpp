@@ -67,15 +67,71 @@ void updateBuehne(float lastX, float lastY, bool redraw = false) {
 #endif 
     xSemaphoreGive(sync_display);
 }
+/*Übyte speed = 2;
+DMXDevice barsShip(UNIVERSE_2, 114, RGB, UNIVERSE_1, 20, RGB, 12, 4);
+#define WRITE_WHITE(c, m)   bars->writeChannels((((c)%(4*12))*3), 150*m); \
+                            bars->writeChannels((((c)%(4*12))*3)+1, 255*m); \
+                            bars->writeChannels((((c)%(4*12))*3)+2, 130*m);
+#define WRITE_BLUE(c, m)    bars->writeChannels(((c)%(4*12))*3, 0*m); \
+                            bars->writeChannels(((c)%(4*12))*3+1, 40*m); \
+                            bars->writeChannels(((c)%(4*12))*3+2, 255*m);
+bool waveAnimationActive = false;
+TaskHandle_t waveAnimationHandle;
+void waveAnimation(void* parm) {
+    DMXDevice* bars = (DMXDevice*) parm;
+    bool state = 0;
+    for(;;) {
+        for(int i=0; i<12; i++) {
+            for(int j=0; j<12; j++) {
+                WRITE_BLUE(j, 1.);
+                WRITE_BLUE(1*(12)+j, 1.);
+                WRITE_BLUE(2*(12)+j, 1.);
+                WRITE_BLUE(3*(12)+j, 1.);
+            }
+            for(int a=0; a<4; a++) {
+                WRITE_WHITE((a*(12)+i), .25)
+                WRITE_WHITE((a*(12)+i+1), .5)
+                WRITE_WHITE((a*(12)+i+2), .8)
+                WRITE_WHITE((a*(12)+i+3), 1.)
+                WRITE_WHITE((a*(12)+i+4), .8)
+                WRITE_WHITE((a*(12)+i+5), .5)
+                WRITE_WHITE((a*(12)+i+6), .25)
+            }
+            vTaskDelay((5-speed)*50);
+        }
+    }
+}
+bool waterAnimationActive = false;
+TaskHandle_t waterAnimationHandle;
+void waterAnimation(void* parm) {
+    DMXDevice* bars = (DMXDevice*) parm;
+    bool state = 0;
+    for(;;) {
+        for(int i = state?2:0; i < 4*12; i+=4) {
+            WRITE_WHITE(i, 1.)
+            WRITE_WHITE(i+1, 1.)
+            WRITE_BLUE(i+2, 1.)
+            WRITE_BLUE(i+3, 1.)
+        }
+        state=!state;
+        vTaskDelay((5-speed)*300);
+    }
+}*/
 std::vector<std::array<Position, MOVING_HEADS_AMOUNT+1>> presetPositions = {{Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT),Position(X_DEFAULT,Y_DEFAULT)}};
-Container movingHeadButtons(ContainerProperties(Size(480), Size(86), Spacing(0), Spacing(0), Size(0), Size(0), true), {
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(0);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_GREEN), "MV 1")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(1);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_RED), "MV 2")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(2);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_YELLOW), "MV 3")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(3);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_PURPLE), "MV 4")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(4);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_ORANGE), "MV 5")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 10, 8, 8), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(5);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_DARKCYAN), "MV 6")})
+Container movingHeadButtons(ContainerProperties(Size(480), Size(70), Spacing(0, 0, 320-70-8-60-15, 0), Spacing(0), Size(0), Size(0), true), {
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(0);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_GREEN), "MV 1")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(1);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_RED), "MV 2")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(2);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_YELLOW), "MV 3")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(3);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_PURPLE), "MV 4")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(4);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_ORANGE), "MV 5")}),
+        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 10, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(5);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_DARKCYAN), "MV 6")})
     });
+/*Container speedButtons(ContainerProperties(Size(4*78-8), Size(86), Spacing(0), Spacing(0), Size(0), Size(0), true), {
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(0, 8, 4, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){speed = 1; MovingHead::setRandomSpeed(speed); return 0;}, {new Text(ContainerProperties(), TextProperties(), "Speed 1")}),
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 4, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){speed = 2; MovingHead::setRandomSpeed(speed); return 0;}, {new Text(ContainerProperties(), TextProperties(), "Speed 2")}),
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 4, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){speed = 3; MovingHead::setRandomSpeed(speed); return 0;}, {new Text(ContainerProperties(), TextProperties(), "Speed 3")}),
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 0, 4, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){speed = 4; MovingHead::setRandomSpeed(speed); return 0;}, {new Text(ContainerProperties(), TextProperties(), "Speed 4")})
+});*/
 CustomView Ui::buehne(ContainerProperties(0, 0), ViewProperties(), [](){MovingHead::setUpdate(&updateBuehne);}, [](){
     updateBuehne(0, 0);
 }, [](TSPoint p){
@@ -88,7 +144,10 @@ CustomView Ui::buehne(ContainerProperties(0, 0), ViewProperties(), [](){MovingHe
     return 0;
 }, {new Button(ContainerProperties(Size(100), Size(60), Spacing(17, 15, 15, 15), Spacing(2), Size(2), Size(4)), ButtonProperties(), [](){ViewManager::setCurrentView(1);return 0;}, {new Text(ContainerProperties(), TextProperties(), "Presets")}),
     new Button(ContainerProperties(Size(100), Size(60), Spacing(480-2*100-2*17, 15, 15, 15), Spacing(4), Size(2), Size(4)), ButtonProperties(), [](){for(int i=0;i<MOVING_HEADS_AMOUNT;i++)MovingHead::getMovingHead(i)->setPosition(presetPositions[0][i]);MovingHead::setPositionAll(presetPositions[0][MOVING_HEADS_AMOUNT]);updateBuehne(0, 0, true);/*MovingHead::resetPositions();*/return 0;}, {new Text(ContainerProperties(), TextProperties(), "Home")}),
-    new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 480-10-70, 320-60-15-15-70-70-8-8, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setDriveRandomAll();for(int i=0;i<MOVING_HEADS_AMOUNT;i++)MovingHead::getMovingHead(i)->setPosition(presetPositions[0][i]);MovingHead::setPositionAll(presetPositions[0][MOVING_HEADS_AMOUNT]);return 0;}, {new Text(ContainerProperties(), TextProperties(), "Wirbel")}),
+    // new Button(ContainerProperties(Size(70), Size(70), Spacing(480-70-10, 10, 10, 4), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){if(waterAnimationActive){waterAnimationActive=false;vTaskDelete(waterAnimationHandle);barsShip.setUpdate(true);}else{if(waveAnimationActive){vTaskDelete(waveAnimationHandle);waveAnimationActive=false;}waterAnimationActive=true;barsShip.setUpdate(false);xTaskCreate(waterAnimation, "Water Animation", 1*1024, &barsShip, 6, &waterAnimationHandle);}return 0;}, {new Text(ContainerProperties(), TextProperties(), "Water")}),
+    // new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 8, 4, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setDriveRandomAll();for(int i=0;i<MOVING_HEADS_AMOUNT;i++)MovingHead::getMovingHead(i)->setPosition(presetPositions[0][i]);MovingHead::setPositionAll(presetPositions[0][MOVING_HEADS_AMOUNT]);return 0;}, {new Text(ContainerProperties(), TextProperties(), "Wirbel")}),
+    // &speedButtons,
+    // new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 10, 4, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){if(waveAnimationActive){waveAnimationActive=false;vTaskDelete(waveAnimationHandle);barsShip.setUpdate(true);}else{if(waterAnimationActive){vTaskDelete(waterAnimationHandle);waterAnimationActive=false;}waveAnimationActive=true;barsShip.setUpdate(false);xTaskCreate(waveAnimation, "Wave Animation", 1*1024, &barsShip, 6, &waveAnimationHandle);}return 0;}, {new Text(ContainerProperties(), TextProperties(), "Wave")}),
     &movingHeadButtons
 });
 Container presets(ContainerProperties(Size(480-24), Size(320-90), Spacing(Size(12), Size(12), Size(0), Size(0)), Spacing(5), 0, 0, true), {});
@@ -150,5 +209,5 @@ void Ui::init() {
     ViewManager::init();
     ViewManager::setCurrentView(0);
     ButtonManager::init();
-    readEeprom();
+    readEeprom();   
 }

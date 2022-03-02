@@ -6,6 +6,7 @@
 byte MovingHead::activeMovingHead = 0;
 bool MovingHead::togetherMode = TOGETHER_MODE;
 bool MovingHead::_driveRandom = 0;
+byte MovingHead::_randomSpeed = 2;
 byte MovingHead::_speed = 0;
 unsigned long MovingHead::lastClick = 0;
 // MovingHead MovingHead::movingHead1(HEIGHT_MV1, X_OFFSET_MV1, Y_OFFSET, TILT_OFFSET_MV1, PAN_OFFSET_MV1, UNIVERSE_3, 1);
@@ -229,8 +230,8 @@ void MovingHead::driveToHome() {
 void MovingHead::setDriveRandom(bool value) {
     driveRandom = value;
     if(driveRandom)
-        driveTo(Position(_xOffset<0?random(_xOffset+1, 800):random(-700, _xOffset-1), random(-1500, 1000)), random(10, 20));
-    else
+         driveTo(Position(_xOffset<0?random(_xOffset+1, 800):random(-700, _xOffset-1), random(-1500, 1000)), _randomSpeed*random(5, 7));
+     else
         vTaskDelete(driveToHandle);
 }
 
@@ -240,6 +241,10 @@ void MovingHead::setDriveRandomAll(bool value) {
         if(mv->driveRandom != value)
             mv->setDriveRandom(value);
     }
+}
+
+void MovingHead::setRandomSpeed(byte speed) {
+    _randomSpeed = speed;
 }
 
 void MovingHead::driveTo(Position position, byte speed) {
@@ -264,6 +269,10 @@ void MovingHead::driveTo(Position position, byte speed) {
         // Serial.print(" steps: ");
         // Serial.println(steps);
         byte currentStep = 0;
+        if(random(0, 3)<2)
+            mv->_device.writeType(E, 255);
+        else
+            mv->_device.writeType(E, 0);
         for(;;) {
             currentStep++;
             if(currentStep<steps)

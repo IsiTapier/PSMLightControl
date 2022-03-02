@@ -19,7 +19,8 @@ DMXDevice::DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, 
         _address = 513-(formatSize*_repeat+_distance)*_devices-_distance;
     if(_address < 1)
         _address = 1;
-    std::vector<Input> temp;
+    
+    std::vector<Input> __inputs;
     for(Input input : _inputs) {
         input.formatSize = floor(logn((double)16, (double)input.format)+1);
         if(!hasMaster)
@@ -33,9 +34,9 @@ DMXDevice::DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, 
             input.address = 513-input.formatSize;
         if(input.address < 1)
             input.address = 1;
-        temp.push_back(input);
+        __inputs.push_back(input);
     }
-    _inputs = temp;
+    _inputs = __inputs;
     
     // DMXDevice::devices.push_back(device);
     xTaskCreate(startUpdateTask, "updateChannels", 1024, device, 7, NULL);
@@ -53,6 +54,7 @@ DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, st
     if(_address < 1)
         _address = 1;
 
+    std::vector<Input> __inputs;
     for(Input input : _inputs) {
         input.formatSize = floor(logn((double)16, (double)input.format)+1);
         if(!hasMaster)
@@ -66,14 +68,16 @@ DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, st
             input.address = 513-input.formatSize;
         if(input.address < 1)
             input.address = 1;
-    }
-    
+        __inputs.push_back(input);
+    }    
+    _inputs = __inputs;
+
     // DMXDevice::devices.push_back(device);
     xTaskCreate(startUpdateTask, "updateChannels", 1024, this, 9, NULL);
 }
 
 DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DMXUniverse inputUniverse, uint16_t inputAddress, uint64_t inputFormat, byte repeat, byte devices, byte distance) : _universe(universe), _address(address), _format(format), _repeat(repeat), _devices(devices), _distance(distance), writeUniverse(DMX::getUniverse(universe)) {
-    Input i; i.universe=inputUniverse; i.address=inputAddress; i.format=inputFormat;
+    Input i; i.universe=inputUniverse; i.address=inputAddress; i.format=inputFormat; i.valueCalculation = {};
     _inputs.push_back(i);
     formatSize = floor(logn((double)16, (double)_format)+1);
     for(int i = 0; i < formatSize; i++)
@@ -86,6 +90,7 @@ DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DM
     if(_address < 1)
         _address = 1;
 
+    std::vector<Input> __inputs;
     for(Input input : _inputs) {
         input.formatSize = floor(logn((double)16, (double)input.format)+1);
         if(!hasMaster)
@@ -99,7 +104,9 @@ DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DM
             input.address = 513-input.formatSize;
         if(input.address < 1)
             input.address = 1;
+        __inputs.push_back(input);
     }
+    _inputs = __inputs;
     // DMXDevice::devices.push_back(device);
     xTaskCreate(startUpdateTask, "updateChannels", 1024, this, 9, NULL);
 }
@@ -174,6 +181,12 @@ void DMXDevice::writeChannel(byte channel, byte value, byte device) {
         writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), value);
 }
 
+void DMXDevice::writeChannels(int channel, byte value) {
+    if(channel >= (formatSize*_repeat+_distance)*_devices)
+        return;
+    writeUniverse->write(_address+channel, value);
+}
+
 void DMXDevice::writeType(byte type, byte value) {
     if(type == X)
         return;
@@ -230,6 +243,18 @@ void DMXDevice::blackOut() {
     }    
 }
 
+void DMXDevice::setUpdate(bool update) {
+    _update = update;
+}
+
+bool DMXDevice::getUpdate() {
+    return _update;
+}
+
+byte DMXDevice::getChannels() {
+    return formatSize;
+}
+
 void DMXDevice::updateChannels() {
     // vTaskDelay((DMX_CHECKCYCLE+random(DMX_READCYCLE))/portTICK_PERIOD_MS);
     for(;;) {
@@ -237,6 +262,8 @@ void DMXDevice::updateChannels() {
         /*if(millis() - readcycle < DMX_READCYCLE)
             continue;
         readcycle = millis();*/
+        if(!_update)
+            continue;
         for(Input input : _inputs) {
             if(!READ_UNIVERSE->isHealthy())
                 continue;

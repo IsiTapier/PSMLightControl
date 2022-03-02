@@ -165,6 +165,7 @@ class MovingHead {
     static void setUpdate(std::function<void(float, float, bool)> update);
     static void setDriveRandomAll(bool value = !_driveRandom);
     static void driveToHome();
+    static void setRandomSpeed(byte speed);
 
     //pan bugs
     //right moving head x > seitlich links y < mv seitlich
@@ -191,6 +192,7 @@ class MovingHead {
     static byte activeMovingHead;
     static bool togetherMode;
     static bool _driveRandom;
+    static byte _speed;
     static unsigned long lastClick;
     // static MovingHead movingHead1;
     // static MovingHead movingHead2;
@@ -198,7 +200,7 @@ class MovingHead {
 
     byte _lastHeight;
     uint16_t _heightAddress;
-    static byte _speed;
+    static byte _randomSpeed;
 
     byte calculatePan(float x, float y);
     byte calculateTilt(float x, float y);
