@@ -9,6 +9,7 @@
 #include "DMXDevice.h"
 #include "Joystick.h"
 #include "../../src/Pins.h"
+#include "Position.h"
 
 #define DRAW_ONLY_ACTIVE    1
 #define TOGETHER_MODE       0
@@ -114,24 +115,10 @@
 
 #define VALID_MOVINGHEAD(mv) (mv<_movingHeads.size()?mv:mv%_movingHeads.size())
 
-class Position {
-  public:
-    Position() : _x(-__FLT_MIN_EXP__), _y(__FLT_MIN_EXP__) {}
-    Position(float x, float y) : _x(x), _y(y) {}
-    void setX(float x) {_x = x;}
-    void setY(float y) {_y = y;}
-    float getX() {return _x;}
-    float getY() {return _y;}
-    bool isSet() {return _x == __FLT_MIN_EXP__ || _y == __FLT_MIN_EXP__;}
-    Position operator+(Position p) const {Position result(_x+p.getX(), _y+p.getY());return result;}
-    Position operator-(Position p) const {Position result(_x-p.getX(), _y-p.getY());return result;}
-  private:
-    float _x, _y;
-};
-
 class MovingHead {
   public:
-    MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, uint16_t heightAddress, int16_t defaultX = X_DEFAULT, int16_t defaultY = Y_DEFAULT);
+    MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, uint16_t heightAddress, Position home = Position(X_DEFAULT, Y_DEFAULT));
+    MovingHead* setHome(Position home);
     MovingHead* setX(float x);
     MovingHead* setY(float y);
     MovingHead* setXY(float x, float y, bool update = false, bool chain = togetherMode);
@@ -146,6 +133,7 @@ class MovingHead {
     void setPosition(Position position);
     static Position getPositionAll();
     static void setPositionAll(Position position);
+    static void setHomeAll(Position homeAll);
     byte getPan();
     byte getTilt();
     static float getXAll();
@@ -180,8 +168,7 @@ class MovingHead {
   	int16_t _yOffset;
     uint8_t _tiltOffset;
     uint8_t _panOffset;
-    float _defaultX;
-    float _defaultY;
+    Position _home;
     bool driveRandom;
     Position driveToPosition;
     byte driveToSpeed;
@@ -189,6 +176,7 @@ class MovingHead {
 
     static float xAll;
     static float yAll;
+    static Position _homeAll;
     static byte activeMovingHead;
     static bool togetherMode;
     static bool _driveRandom;

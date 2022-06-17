@@ -9,7 +9,7 @@ short ButtonManager::currentId = -1;
 
 void ButtonManager::init() {
   calibrateTouch();
-  xTaskCreate(checkTouch, "check touch", 1024*4, NULL, 6, NULL);
+  xTaskCreate(checkTouch, "check touch", 1024*8, NULL, 6, NULL);
 }
 
 void ButtonManager::addButton(Button* button) {
@@ -19,13 +19,11 @@ void ButtonManager::addButton(Button* button) {
 }
 
 void ButtonManager::removeButton(short id) {
-  // for(auto it = buttons.begin(); it != buttons.end(); ++it) {
-  //   if((*it)->getId()==id)
-  //     buttons.erase(it);
-  // }
-  for(int i = 0; i < buttons.size(); i++) {
-    if(buttons.at(i)->getId() == id)
-      buttons.erase(buttons.begin()+i);
+  for(auto it = buttons.begin(); it != buttons.end(); ++it) {
+    if((*it)->getId()==id) {
+      buttons.erase(it);
+      return;
+    }
   }
 }
 

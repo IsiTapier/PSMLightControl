@@ -16,15 +16,21 @@ std::function<void(float, float, bool)> MovingHead::_update;
 
 float MovingHead::xAll = X_DEFAULT;
 float MovingHead::yAll = Y_DEFAULT;
+Position MovingHead::_homeAll;
 
 std::vector<MovingHead*> MovingHead::_movingHeads;
 
-MovingHead::MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, uint16_t heightAddress, int16_t defaultX, int16_t defaultY) : x(defaultX), y(defaultY), _height(height), _xOffset(xOffset), _yOffset(yOffset), _tiltOffset(tiltOffset), _panOffset(panOffset), _defaultX(defaultX), _defaultY(defaultY), _heightAddress(heightAddress) { //ACHTUNG: QUICK AND DIRTY, fix start positions
+MovingHead::MovingHead(uint16_t height, int16_t xOffset, int16_t yOffset, uint8_t tiltOffset, uint8_t panOffset, DMXUniverse universe, uint16_t address, DMXUniverse inputUniverse, uint16_t inputAddress, uint16_t heightAddress, Position home) : x(X_DEFAULT), y(Y_DEFAULT), _height(height), _xOffset(xOffset), _yOffset(yOffset), _tiltOffset(tiltOffset), _panOffset(panOffset), _home(home), _heightAddress(heightAddress) { //ACHTUNG: QUICK AND DIRTY, fix start positions
     Input i; i.universe=INPUT_UNIVERSE_ALL; i.address=INPUT_ADDRESS_ALL; i.format=INPUT_FORMAT_ALL; i.valueCalculation={{[](byte value){if(value<10)return (byte)DEFAULT_COLOR; else return value;}}};
     Input i2; i2.universe=inputUniverse; i2.address=inputAddress; i2.format=INPUT_FORMAT; i2.valueCalculation={{[](byte value){if(value>=250)return (byte)UINT8_MAX; else return value;}}};
     _device = DMXDevice(&_device, universe, address, (uint64_t)OUTPUT_FORMAT, {i, i2});
     _movingHeads.push_back(this);
     goToHome();
+}
+
+MovingHead* MovingHead::setHome(Position home) {
+    _home = home;
+    return this;
 }
 
 MovingHead* MovingHead::setX(float x) {
@@ -98,13 +104,14 @@ MovingHead* MovingHead::addXY(float x, float y, bool update, bool chain) {
 }
 
 MovingHead* MovingHead::goToHome() {
-    setXY(_defaultX, _defaultY, true);
+    setPosition(_home);
     return this;
 }
 
 void MovingHead::resetPositions() {
     for(MovingHead* mv : _movingHeads)
         mv->goToHome();
+    setPositionAll(_homeAll);
     _update(0, 0, true);
 }
 
@@ -131,6 +138,10 @@ Position MovingHead::getPositionAll() {
 void MovingHead::setPositionAll(Position position) {
     xAll = position.getX();
     yAll = position.getY();
+}
+
+void MovingHead::setHomeAll(Position homeAll) {
+    _homeAll = homeAll;
 }
 
 byte MovingHead::getPan() {

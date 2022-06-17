@@ -124,6 +124,24 @@ uint8_t DMX::read(uint16_t channel) {
     return tmp_dmx;
 }
 
+uint8_t DMX::readTemp(uint16_t channel) {
+    // restrict acces to dmx array to valid values
+    if(channel < 1 || channel > 512) {
+        return 0;
+    }
+
+    // take data threadsafe from array and return
+#if !DMX_IGNORE_THREADSAFETY
+    xSemaphoreTake(sync_health, portMAX_DELAY);
+#endif
+    uint8_t tmp_dmx = dmx_temp_data[channel];
+#if !DMX_IGNORE_THREADSAFETY
+    xSemaphoreGive(sync_health);
+#endif
+    return tmp_dmx;
+}
+
+
 void DMX::readAll(uint8_t * data, uint16_t start, size_t size) {
     // restrict acces to dmx array to valid values
     if(start < 1 || start > 512 || start + size > 513) {

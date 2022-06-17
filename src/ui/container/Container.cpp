@@ -21,11 +21,11 @@ Container::Container(ContainerProperties properties, std::vector<Container*> con
     //     properties.getBorderRoundness().setReference(properties.getBorderThickness(), false);
     //     content->setProperties(properties);
     // }
+    for(Container* content : _content)
+        content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
 }
 
 void Container::init() {
-    for(Container* content : _content)
-        content->setProperties(*content->getPorperties().setId(_properties.getNextId()));
     Spacing margin = _properties.getMargin();
     short x = _properties.getX()+_properties.getBorderThickness();;
     short y = _properties.getY()+_properties.getBorderThickness();;

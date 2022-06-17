@@ -60,6 +60,8 @@ class DMX {
         
         uint8_t read(uint16_t channel);              // returns the dmx value for the given address (values from 1 to 512)
 
+        uint8_t readTemp(uint16_t channel);
+
         void readAll(uint8_t * data, uint16_t start = 1, size_t size = 512);   // copies the defined channels from the read buffer
 
         void write(uint16_t channel, uint8_t value = 255, bool update = false); // writes the dmx value to the buffer

@@ -26,7 +26,7 @@ class Ui {
     static void init();
 
   private:
-    static CustomView buehne;
+    // static CustomView buehne;
 
 };
 

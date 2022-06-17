@@ -46,6 +46,8 @@
 #define ZMC 0xB1F
 #define MZ 0x1B
 
+#define ALL_DEVICES UINT8_MAX
+
 #define INPUT_FORMAT_TYPE ((input.format>>(i*4))%16)
 #define FORMAT_EQUALS(type) ((_format>>i*4)%16 == type)
 #define READ_UNIVERSE (DMX::getUniverse(input.universe))
@@ -66,16 +68,16 @@ class DMXDevice {
     DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DMXUniverse inputUniverse, uint16_t inputAddress, uint64_t inputFormat, byte repeat = 1, byte devices = 1, byte distance = 0);
     // DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, Input input = none, byte repeat = 1, byte devices = 1, byte distance = 0);
     // DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, Input input = none, byte devices = 1, byte distance = 0);
-    void writeChannel(byte channel, byte value, byte device = UINT8_MAX, bool update = false);
-    // void writeChannels(int channel, byte value, bool update = false);
-    void writeType(byte type, byte value, bool update = false);
-    void writeMaster(byte value, bool update = true);
-    void writeRed(byte value, bool update = true);
-    void writeGreen(byte value, bool update = true);
-    void writeBlue(byte value, bool update = true);
-    void writeWhite(byte value, bool update = true);
-    void writeStrobe(byte value, bool update = true);
-    void writeEffect(byte value, bool update = true);
+    void writeChannel(byte channel, byte value, byte device = ALL_DEVICES);
+    // void writeChannels(int channel, byte value);
+    void writeType(byte type, byte value);
+    void writeMaster(byte valuee);
+    void writeRed(byte value);
+    void writeGreen(byte value);
+    void writeBlue(byte value);
+    void writeWhite(byte value);
+    void writeStrobe(byte value);
+    void writeEffect(byte value);
     void blackOut();
     static void init();
     void setUpdate(bool update);

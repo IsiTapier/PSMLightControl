@@ -170,24 +170,21 @@ void DMXDevice::init() {
     // xTaskCreate(startUpdateTask, "updateChannels", 1024, NULL, 9, NULL);
 }
 
-void DMXDevice::writeChannel(byte channel, byte value, byte device, bool update) {
+void DMXDevice::writeChannel(byte channel, byte value, byte device) {
     if(channel >= formatSize*_repeat)
         return;
-    if(device != UINT8_MAX) {
-        writeUniverse->write(_address+channel+(min(device, _devices)-1)*(_repeat*formatSize+_distance), value, update);
-        return;
-    }
+    if(device != UINT8_MAX) return writeUniverse->write(_address+channel+(min(device, _devices)-1)*(_repeat*formatSize+_distance), value);
     for(int i = 0; i < _devices; i++)
-        writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), value, update);
+        writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), value);
 }
 
-// void DMXDevice::writeChannels(int channel, byte value, bool update) {
+// void DMXDevice::writeChannels(int channel, byte value) {
 //     if(channel >= (formatSize*_repeat+_distance)*_devices)
 //         return;
-//     writeUniverse->write(_address+channel, value, update);
+//     writeUniverse->write(_address+channel, value);
 // }
 
-void DMXDevice::writeType(byte type, byte value, bool update) {
+void DMXDevice::writeType(byte type, byte value) {
     if(type == X)
         return;
     if(virtualMaster >= 0) {
@@ -199,37 +196,37 @@ void DMXDevice::writeType(byte type, byte value, bool update) {
     for(int i = 0; i < formatSize; i++)
         if(FORMAT_EQUALS(type))
             for(int j = 1; j <= _repeat; j++)
-                writeChannel(j*formatSize-1-i, value, update);
+                writeChannel(j*formatSize-1-i, value, ALL_DEVICES);
 }
 
-void DMXDevice::writeMaster(byte value, bool update) {
-    writeType(M, value, update);
+void DMXDevice::writeMaster(byte value) {
+    writeType(M, value);
     if(virtualMaster < 0) return;
-    virtualMasterUniverse->write(virtualMaster, value, update);
+    virtualMasterUniverse->write(virtualMaster, value);
 }
 
-void DMXDevice::writeRed(byte value, bool update) {
-    writeType(R, value, update);
+void DMXDevice::writeRed(byte value) {
+    writeType(R, value);
 }
 
-void DMXDevice::writeGreen(byte value, bool update) {
-    writeType(G, value, update);
+void DMXDevice::writeGreen(byte value) {
+    writeType(G, value);
 }
 
-void DMXDevice::writeBlue(byte value, bool update) {
-    writeType(B, value, update);
+void DMXDevice::writeBlue(byte value) {
+    writeType(B, value);
 }
 
-void DMXDevice::writeWhite(byte value, bool update) {
-    writeType(W, value, update);
+void DMXDevice::writeWhite(byte value) {
+    writeType(W, value);
 }
 
-void DMXDevice::writeStrobe(byte value, bool update) {
-    writeType(S, value, update);
+void DMXDevice::writeStrobe(byte value) {
+    writeType(S, value);
 }
 
-void DMXDevice::writeEffect(byte value, bool update) {
-    writeType(E, value, update);
+void DMXDevice::writeEffect(byte value) {
+    writeType(E, value);
 }
 
 void DMXDevice::blackOut() {
@@ -259,14 +256,11 @@ void DMXDevice::updateChannels() {
         /*if(millis() - readcycle < DMX_READCYCLE)
             continue;
         readcycle = millis();*/
-        if(!_update)
-            continue;
+        if(!_update) continue;
         for(Input input : _inputs) {
-            if(!READ_UNIVERSE->isHealthy())
-                continue;
+            if(!READ_UNIVERSE->isHealthy()) continue;
             for(int i = 0; i < input.formatSize; i++) {
-                if(INPUT_FORMAT_TYPE == X)
-                    continue;
+                if(INPUT_FORMAT_TYPE == X) continue;
                 byte iterator = input.formatSize-1-i;
                 byte value = READ_UNIVERSE->read(input.address+iterator);
                 vTaskDelay(1/portTICK_PERIOD_MS);
@@ -278,18 +272,4 @@ void DMXDevice::updateChannels() {
 
 void DMXDevice::startUpdateTask(void* _this) {
     ((DMXDevice*)_this)->updateChannels();
-    // for(;;) {
-    //     if(!devices[0]->readUniverse->isHealthy()) {
-    //         vTaskDelay(100);
-    //         continue;
-    //     }
-    //     if(devices.size()!=8) {
-    //         vTaskDelay(100);
-    //         continue;
-    //     }
-    //     for(DMXDevice* device : devices) {
-    //         vTaskDelay(DMX_READCYCLE / portTICK_PERIOD_MS / devices.size());
-    //         device->updateChannels();
-    //     }
-    // }
 }
