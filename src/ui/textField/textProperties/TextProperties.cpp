@@ -39,6 +39,7 @@ TextProperties* TextProperties::setY(short y) {
 TextProperties* TextProperties::setXY(short x, short y) {
     _x = x;
     _y = y;
+    return this;
 }
 
 Size TextProperties::getSize() {

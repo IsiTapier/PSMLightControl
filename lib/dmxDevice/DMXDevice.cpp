@@ -170,24 +170,24 @@ void DMXDevice::init() {
     // xTaskCreate(startUpdateTask, "updateChannels", 1024, NULL, 9, NULL);
 }
 
-void DMXDevice::writeChannel(byte channel, byte value, byte device) {
+void DMXDevice::writeChannel(byte channel, byte value, byte device, bool update) {
     if(channel >= formatSize*_repeat)
         return;
     if(device != UINT8_MAX) {
-        writeUniverse->write(_address+channel+(min(device, _devices)-1)*(_repeat*formatSize+_distance), value);
+        writeUniverse->write(_address+channel+(min(device, _devices)-1)*(_repeat*formatSize+_distance), value, update);
         return;
     }
     for(int i = 0; i < _devices; i++)
-        writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), value);
+        writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), value, update);
 }
 
-void DMXDevice::writeChannels(int channel, byte value) {
-    if(channel >= (formatSize*_repeat+_distance)*_devices)
-        return;
-    writeUniverse->write(_address+channel, value);
-}
+// void DMXDevice::writeChannels(int channel, byte value, bool update) {
+//     if(channel >= (formatSize*_repeat+_distance)*_devices)
+//         return;
+//     writeUniverse->write(_address+channel, value, update);
+// }
 
-void DMXDevice::writeType(byte type, byte value) {
+void DMXDevice::writeType(byte type, byte value, bool update) {
     if(type == X)
         return;
     if(virtualMaster >= 0) {
@@ -199,48 +199,45 @@ void DMXDevice::writeType(byte type, byte value) {
     for(int i = 0; i < formatSize; i++)
         if(FORMAT_EQUALS(type))
             for(int j = 1; j <= _repeat; j++)
-                writeChannel(j*formatSize-1-i, value);
+                writeChannel(j*formatSize-1-i, value, update);
 }
 
-void DMXDevice::writeMaster(byte value) {
-    writeType(M, value);
-    if(virtualMaster >= 0)
-        virtualMasterUniverse->write(virtualMaster, value);
+void DMXDevice::writeMaster(byte value, bool update) {
+    writeType(M, value, update);
+    if(virtualMaster < 0) return;
+    virtualMasterUniverse->write(virtualMaster, value, update);
 }
 
-void DMXDevice::writeRed(byte value) {
-    writeType(R, value);
+void DMXDevice::writeRed(byte value, bool update) {
+    writeType(R, value, update);
 }
 
-void DMXDevice::writeGreen(byte value) {
-    writeType(G, value);
+void DMXDevice::writeGreen(byte value, bool update) {
+    writeType(G, value, update);
 }
 
-void DMXDevice::writeBlue(byte value) {
-    writeType(B, value);
+void DMXDevice::writeBlue(byte value, bool update) {
+    writeType(B, value, update);
 }
 
-void DMXDevice::writeWhite(byte value) {
-    writeType(W, value);
+void DMXDevice::writeWhite(byte value, bool update) {
+    writeType(W, value, update);
 }
 
-void DMXDevice::writeStrobe(byte value) {
-    writeType(S, value);
+void DMXDevice::writeStrobe(byte value, bool update) {
+    writeType(S, value, update);
 }
 
-void DMXDevice::writeEffect(byte value) {
-    writeType(E, value);
+void DMXDevice::writeEffect(byte value, bool update) {
+    writeType(E, value, update);
 }
 
 void DMXDevice::blackOut() {
-    if(hasMaster)
-        writeMaster(0);
-    else {
-        writeRed(0);
-        writeGreen(0);
-        writeBlue(0);
-        writeWhite(0);
-    }    
+    if(hasMaster) return writeMaster(0);
+    writeRed(0);
+    writeGreen(0);
+    writeBlue(0);
+    writeWhite(0);  
 }
 
 void DMXDevice::setUpdate(bool update) {

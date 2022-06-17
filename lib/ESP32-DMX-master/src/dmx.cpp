@@ -84,22 +84,6 @@ void DMX::initialize(DMXDirection direction) {
     gpio_pad_select_gpio(_enablePin);
     gpio_set_direction(_enablePin, GPIO_MODE_OUTPUT);
 
-            // if(_universe == UNIVERSE_2) {
-            // //for(int x = 0; x < 3; x++) {
-            //     for(int i = 0; i < 7; i++) {
-            //         dmx_data[0][19+i*7] = 255;
-            //         dmx_data[0][20+i*7] = 255;
-            //         dmx_data[0][21+i*7] = 20;
-            //     }
-            //     for(int i = 0; i < 9; i++) {
-            //         for(int j = 0; j < 36; j+=3) {
-            //             dmx_data[0][150+i*36+j] = 255;
-            //             dmx_data[0][150+i*36+j+1] = 30;
-            //         }
-            //     }
-            // }
-        // }
-
     // depending on parameter set gpio for direction change and start rx or tx thread
     if(direction == output) {
         gpio_set_level(_enablePin, 1);

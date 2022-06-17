@@ -6,8 +6,8 @@
 // View test(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0), 0, 0, 0), ViewProperties(), {(new Container(ContainerProperties(Size(200), Size(150), Spacing(10), Spacing(0), Size(5), Size(5)), {(new Container(ContainerProperties(Size(75), Size(45), Spacing(5), Spacing(0), Size(3), Size(3)), {})), (new Container(ContainerProperties(Size(60), Size(45), Spacing(10), Spacing(0), Size(5), Size(5)), {})), (new Container(ContainerProperties(Size(45), Size(60), Spacing(0), Spacing(0), Size(2), Size(3)), {})), (new Container(ContainerProperties(Size(102), Size(68), Spacing(3), Spacing(8), Size(5), Size(0)), {(new Container(ContainerProperties(Size(32), Size(20), Spacing(2), Spacing(0), Size(2), Size(3)), {})), (new Container(ContainerProperties(Size(32), Size(20), Spacing(2), Spacing(0), Size(2), Size(3), false, TFT_DARKGREY, TFT_WHITE), {})), (new Container(ContainerProperties(Size(32), Size(20), Spacing(2), Spacing(0), Size(2), Size(3), false, TFT_DARKGREY, TFT_WHITE), {}))})), (new Container(ContainerProperties(Size(30), Size(70), Spacing(5), Spacing(0), Size(1), Size(1), false, TFT_WHITE, TFT_BLACK), {}))})), (new Button(ContainerProperties(Size(200), Size(100), Spacing(20, 10, 20, 10), Spacing(0), Size(1), Size(7)), ButtonProperties(), [](){Serial.println("Hello World!");return 0;}, {new Text(ContainerProperties(Size(198), Size(78), Spacing(0, 0, 10, 10), Spacing(0), Size(0), Size(0), true), TextProperties(TFT_GOLD, -1, CC_DATUM), "Hello World")})), (new Container(ContainerProperties(Size(500), Size(100), Spacing(10), Spacing(0), Size(5), Size(7)), {})), (new Container(ContainerProperties(Size(120), Size(200), Spacing(10), Spacing(0), Size(5), Size(0)), {})), (new Container(ContainerProperties(Size(20), Size(170), Spacing(2), Spacing(0), Size(5), Size(7)), {})), (new Container(ContainerProperties(Size(120), Size(120), Spacing(10), Spacing(0), Size(5), Size(7)), {})), (new Container(ContainerProperties(Size(200), Size(200), Spacing(10), Spacing(0), Size(5), Size(0)), {})), new ContainerGrid(ContainerProperties(Size(280), Size(100), Spacing(10), Spacing(0), Size(2), Size(3)), ContainerProperties(Size(30), Size(30), Spacing(0), Spacing(0), Size(2), Size(2)), true, {new Button(ContainerProperties(0, 0), ButtonProperties(), [](){return 0;}, {})/*, new Button(ContainerProperties(0, 0), ButtonProperties(), [](){}, {}), new Button(ContainerProperties(0, 0), ButtonProperties(), [](){}, {}), new Button(ContainerProperties(0, 0), ButtonProperties(), [](){}, {}), new Button(ContainerProperties(0, 0), ButtonProperties(), [](){}, {})*/}), (new Button(ContainerProperties(Size(200), Size(100), Spacing(10), Spacing(0), Size(2), Size(3)), ButtonProperties(), [](){Serial.println("Button");return 0;}, {new Text(ContainerProperties(Size(1., 1), Size(1., 1), Spacing(0), Spacing(0), Size(0), Size(0), true), TextProperties(), "Button")}))});
 // View test2(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0), 0, 0, 0), ViewProperties(), {});
 #define METER_TO_PIXEL(m) ((m)*TFT_HEIGHT/16.4)
-#define P(m) round(METER_TO_PIXEL(m))
-#define M(p) ((p)*16.4/TFT_HEIGHT)
+#define PIXEL(m) round(METER_TO_PIXEL(m))
+#define METER(p) ((p)*16.4/TFT_HEIGHT)
 #define STAGE_COLOR TFT_WHITE
 #define MV_RADIUS   5
 #define OFFSET  0
@@ -22,46 +22,46 @@ void updateBuehne(float lastX, float lastY, bool redraw = false) {
         ViewManager::setCurrentView(ViewManager::getCurrentView());
     else {
         xSemaphoreTake(sync_display, portMAX_DELAY);
-        display.fillCircle(P(lastX/100.+16.4/2), OFFSET+P(lastY/-100.+6.6), MV_RADIUS+4, TFT_BLACK);
+        display.fillCircle(PIXEL(lastX/100.+16.4/2), OFFSET+PIXEL(lastY/-100.+6.6), MV_RADIUS+4, TFT_BLACK);
         xSemaphoreGive(sync_display);
     }
     xSemaphoreTake(sync_display, portMAX_DELAY);
     //left wall
-    display.drawLine(0, OFFSET+P(6.6-2.3), P(1.4), OFFSET+P(6.6-2.3), STAGE_COLOR);
+    display.drawLine(0, OFFSET+PIXEL(6.6-2.3), PIXEL(1.4), OFFSET+PIXEL(6.6-2.3), STAGE_COLOR);
     //right wall
-    display.drawLine(P(16.4-1.4), OFFSET+P(6.6-2.3), P(16.4), OFFSET+P(6.6-2.3), STAGE_COLOR);
+    display.drawLine(PIXEL(16.4-1.4), OFFSET+PIXEL(6.6-2.3), PIXEL(16.4), OFFSET+PIXEL(6.6-2.3), STAGE_COLOR);
     //back wall
-    display.drawLine(P((16.4-6.9)/2), OFFSET+0, P((16.4-6.9)/2+6.9), OFFSET+0, STAGE_COLOR);
+    display.drawLine(PIXEL((16.4-6.9)/2), OFFSET+0, PIXEL((16.4-6.9)/2+6.9), OFFSET+0, STAGE_COLOR);
     //back left wall
-    display.drawLine(P((16.4-6.9)/2), OFFSET+0, P((16.4-6.9)/2), OFFSET+P(3), STAGE_COLOR);
+    display.drawLine(PIXEL((16.4-6.9)/2), OFFSET+0, PIXEL((16.4-6.9)/2), OFFSET+PIXEL(3), STAGE_COLOR);
     //back right wall
-    display.drawLine(P((16.4-6.9)/2+6.9), OFFSET+0, P((16.4-6.9)/2+6.9), OFFSET+P(3), STAGE_COLOR);
+    display.drawLine(PIXEL((16.4-6.9)/2+6.9), OFFSET+0, PIXEL((16.4-6.9)/2+6.9), OFFSET+PIXEL(3), STAGE_COLOR);
     //left diagonal wall
-    display.drawLine(P(1.4), OFFSET+P(6.6-2.3), P((16.4-6.9)/2), OFFSET+P(3), STAGE_COLOR);
+    display.drawLine(PIXEL(1.4), OFFSET+PIXEL(6.6-2.3), PIXEL((16.4-6.9)/2), OFFSET+PIXEL(3), STAGE_COLOR);
     //right diagonal wall
-    display.drawLine(P(16.4-1.4), OFFSET+P(6.6-2.3), P((16.4-6.9)/2+6.9), OFFSET+P(3), STAGE_COLOR);
+    display.drawLine(PIXEL(16.4-1.4), OFFSET+PIXEL(6.6-2.3), PIXEL((16.4-6.9)/2+6.9), OFFSET+PIXEL(3), STAGE_COLOR);
     //front stair left
-    display.drawLine(P(1.5), OFFSET+P(6.6-2.3), P(2), OFFSET+P(6.6-0.8), STAGE_COLOR);
-    display.drawLine(P(2), OFFSET+P(6.6-0.8), P(3.2), OFFSET+P(6.6), STAGE_COLOR);
+    display.drawLine(PIXEL(1.5), OFFSET+PIXEL(6.6-2.3), PIXEL(2), OFFSET+PIXEL(6.6-0.8), STAGE_COLOR);
+    display.drawLine(PIXEL(2), OFFSET+PIXEL(6.6-0.8), PIXEL(3.2), OFFSET+PIXEL(6.6), STAGE_COLOR);
     //front
-    display.drawLine(P(3.2), OFFSET+P(6.6), P(10+3.2), OFFSET+P(6.6), STAGE_COLOR);
+    display.drawLine(PIXEL(3.2), OFFSET+PIXEL(6.6), PIXEL(10+3.2), OFFSET+PIXEL(6.6), STAGE_COLOR);
     //fornt stair right
-    display.drawLine(P(10+3.2), OFFSET+P(6.6), P(16.4-2), OFFSET+P(6.6-0.8), STAGE_COLOR);
-    display.drawLine(P(16.4-2), OFFSET+P(6.6-0.8), P(16.4-1.5), OFFSET+P(6.6-2.3), STAGE_COLOR);
+    display.drawLine(PIXEL(10+3.2), OFFSET+PIXEL(6.6), PIXEL(16.4-2), OFFSET+PIXEL(6.6-0.8), STAGE_COLOR);
+    display.drawLine(PIXEL(16.4-2), OFFSET+PIXEL(6.6-0.8), PIXEL(16.4-1.5), OFFSET+PIXEL(6.6-2.3), STAGE_COLOR);
     //movingHeads
 #if DRAW_ONLY_ACTIVE
     if(MovingHead::getActiveMovingHead()==-1)
 #endif
-    display.fillCircle(P(MovingHead::getXAll()/100.+16.4/2), OFFSET+P(MovingHead::getYAll()/-100.+6.6), MovingHead::getActiveMovingHead()==-1?MV_RADIUS+3:MV_RADIUS, TFT_BLUE);
+    display.fillCircle(PIXEL(MovingHead::getXAll()/100.+16.4/2), OFFSET+PIXEL(MovingHead::getYAll()/-100.+6.6), MovingHead::getActiveMovingHead()==-1?MV_RADIUS+3:MV_RADIUS, TFT_BLUE);
 #if DRAW_ONLY_ACTIVE
     else {
 #endif 
-    display.fillCircle(P(MovingHead::getMovingHead(0)->getX(true)/100.+16.4/2), OFFSET+P(MovingHead::getMovingHead(0)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==0?MV_RADIUS+3:MV_RADIUS, TFT_GREEN);
-    display.fillCircle(P(MovingHead::getMovingHead(1)->getX(true)/100.+16.4/2), OFFSET+P(MovingHead::getMovingHead(1)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==1?MV_RADIUS+3:MV_RADIUS, TFT_RED);
-    display.fillCircle(P(MovingHead::getMovingHead(2)->getX(true)/100.+16.4/2), OFFSET+P(MovingHead::getMovingHead(2)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==2?MV_RADIUS+3:MV_RADIUS, TFT_YELLOW);
-    display.fillCircle(P(MovingHead::getMovingHead(3)->getX(true)/100.+16.4/2), OFFSET+P(MovingHead::getMovingHead(3)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==3?MV_RADIUS+3:MV_RADIUS, TFT_PURPLE);
-    display.fillCircle(P(MovingHead::getMovingHead(4)->getX(true)/100.+16.4/2), OFFSET+P(MovingHead::getMovingHead(4)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==4?MV_RADIUS+3:MV_RADIUS, TFT_ORANGE);
-    display.fillCircle(P(MovingHead::getMovingHead(5)->getX(true)/100.+16.4/2), OFFSET+P(MovingHead::getMovingHead(5)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==5?MV_RADIUS+3:MV_RADIUS, TFT_DARKCYAN);
+    display.fillCircle(PIXEL(MovingHead::getMovingHead(0)->getX(true)/100.+16.4/2), OFFSET+PIXEL(MovingHead::getMovingHead(0)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==0?MV_RADIUS+3:MV_RADIUS, TFT_GREEN);
+    display.fillCircle(PIXEL(MovingHead::getMovingHead(1)->getX(true)/100.+16.4/2), OFFSET+PIXEL(MovingHead::getMovingHead(1)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==1?MV_RADIUS+3:MV_RADIUS, TFT_RED);
+    display.fillCircle(PIXEL(MovingHead::getMovingHead(2)->getX(true)/100.+16.4/2), OFFSET+PIXEL(MovingHead::getMovingHead(2)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==2?MV_RADIUS+3:MV_RADIUS, TFT_YELLOW);
+    display.fillCircle(PIXEL(MovingHead::getMovingHead(3)->getX(true)/100.+16.4/2), OFFSET+PIXEL(MovingHead::getMovingHead(3)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==3?MV_RADIUS+3:MV_RADIUS, TFT_PURPLE);
+    display.fillCircle(PIXEL(MovingHead::getMovingHead(4)->getX(true)/100.+16.4/2), OFFSET+PIXEL(MovingHead::getMovingHead(4)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==4?MV_RADIUS+3:MV_RADIUS, TFT_ORANGE);
+    display.fillCircle(PIXEL(MovingHead::getMovingHead(5)->getX(true)/100.+16.4/2), OFFSET+PIXEL(MovingHead::getMovingHead(5)->getY(true)/-100.+6.6), MovingHead::getActiveMovingHead()==5?MV_RADIUS+3:MV_RADIUS, TFT_DARKCYAN);
 #if DRAW_ONLY_ACTIVE
     }
 #endif 
@@ -139,7 +139,7 @@ CustomView Ui::buehne(ContainerProperties(0, 0), ViewProperties(), [](){MovingHe
         return 0;
     lastX = MovingHead::getMovingHead()->getX();
     lastY = MovingHead::getMovingHead()->getY();
-    MovingHead::getMovingHead()->setXY((M(p.x)-16.4/2.)*100, (-M(p.y-OFFSET)+6.6)*100, true);
+    MovingHead::getMovingHead()->setXY((METER(p.x)-16.4/2.)*100, (-METER(p.y-OFFSET)+6.6)*100, true);
     updateBuehne(lastX, lastY);
     return 0;
 }, {new Button(ContainerProperties(Size(100), Size(60), Spacing(17, 15, 15, 15), Spacing(2), Size(2), Size(4)), ButtonProperties(), [](){ViewManager::setCurrentView(1);return 0;}, {new Text(ContainerProperties(), TextProperties(), "Presets")}),

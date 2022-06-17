@@ -191,8 +191,7 @@ Container* Container::getContent(byte id) {
 std::vector<Container*>::iterator Container::getIterator(byte id) {
     if(id > _properties.getCurrentId())
         return _content.end();
-    std::vector<Container*>::iterator it = _content.begin();
-    for(it; it != _content.end(); ++it)
+    for(auto it = _content.begin(); it != _content.end(); ++it)
         if((*it)->getPorperties().getId() == id)
             return it;
     return _content.end();

@@ -8,6 +8,7 @@
 #include "Arduino.h"
 #include "colorPalette/ColorPalette.h"
 #include "TFT_eSPI.h"
+#include "vector"
 
 namespace colorModes {
   const byte darkMode = 0;

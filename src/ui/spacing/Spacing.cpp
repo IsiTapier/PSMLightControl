@@ -84,6 +84,7 @@ Size Spacing::get(Orientation orientation) {
         case TOP: return getTop(); break;
         case BOTTOM: return getBottom(); break;
     }
+    return 0;
 }
 
 Size Spacing::getAll() {

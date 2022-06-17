@@ -67,11 +67,12 @@
     }
 
     bool Size::checkCalculateMode(bool defaultMode) {
-        if(!VALID_SIZE(_mode))
+        if(!VALID_SIZE(_mode)) {
             if(!VALID_SIZE(!_mode))
                 _mode = defaultMode;
             else
                 _mode = !_mode;
+        }
         return _mode;
     }
 
