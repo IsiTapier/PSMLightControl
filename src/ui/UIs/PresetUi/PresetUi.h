@@ -111,9 +111,13 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
     new Button(ContainerProperties(Size(100), Size(60), Spacing(15), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
         [](){
             std::array<Position, MOVING_HEADS_AMOUNT+1> p;
-            std::for_each(p.begin(), std::prev(p.end()), [i=0](Position& n)mutable{
-                n = MovingHead::getMovingHead(i++)->getPosition();
-            });
+            // std::for_each(p.begin(), std::prev(p.end()), [i=0](Position& n)mutable{
+            //     n = MovingHead::getMovingHead(i++)->getPosition();
+            // });
+            int i = 0;
+            for(Position position : p) {
+                position = MovingHead::getMovingHead(i++)->getPosition();
+            }
             p.at(MOVING_HEADS_AMOUNT) = MovingHead::getPositionAll();
             presetPositions.push_back(p);
             if(eepromData.currentPosition<19)

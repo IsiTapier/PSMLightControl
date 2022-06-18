@@ -10,7 +10,7 @@ byte View::currentId = 0;
 View::View() {}
 
 
-View::View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content) : Container(properties, content), _viewProperties(viewProperties), id(currentId) {
+View::View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content) : Container(properties, {new NavBar(ContainerProperties(0, 0), {}), new Container(*ContainerProperties(Size(1., 1), Size(.8, 1)).setInvisible(true), {content})}), _viewProperties(viewProperties), id(currentId) {
   currentId++;
   ViewManager::addView(this);
 }

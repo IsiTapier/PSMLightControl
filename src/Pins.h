@@ -15,7 +15,7 @@
 #define BL          GPIO_NUM_4
 #define RST         -1
 #define DC          GPIO_NUM_16
-#define T_CS        GPIO_NUM_17
+#define T_CS        UNUSED
 
 //LED
 #define LED_RED     GPIO_NUM_21
@@ -28,7 +28,7 @@
 #define BUTTON      GPIO_NUM_32
 
 //DMX
-#define UNUSED      GPIO_NUM_12
+#define UNUSED      GPIO_NUM_15
 #define U1_IN       GPIO_NUM_13
 #define U1_OUT      UNUSED
 #define U1_EN       GPIO_NUM_14

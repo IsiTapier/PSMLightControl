@@ -16,7 +16,7 @@
 #define METER(p) ((p)*16.4/TFT_HEIGHT)
 #define STAGE_COLOR TFT_WHITE
 #define MV_RADIUS   5
-#define OFFSET  0
+#define OFFSET 64
 
 
 float lastX = 1000;
@@ -75,14 +75,16 @@ void updateBuehne(float lastX, float lastY, bool redraw = false) {
     xSemaphoreGive(sync_display);
 }
 
-Container movingHeadButtons(ContainerProperties(Size(480), Size(70), Spacing(0, 0, 320-70-8-60-15, 0), Spacing(0), Size(0), Size(0), true), {
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(0);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_GREEN), "MV 1")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(1);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_RED), "MV 2")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(2);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_YELLOW), "MV 3")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(3);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_PURPLE), "MV 4")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(4);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_ORANGE), "MV 5")}),
-        new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 10, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(5);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_DARKCYAN), "MV 6")})
-    });
+Button button5(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(4);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_ORANGE), "MV 5")});
+Button button6(ContainerProperties(Size(70), Size(70), Spacing(8, 10, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(5);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_DARKCYAN), "MV 6")});
+Container movingHeadButtons(ContainerProperties(Size(480), Size(70), Spacing(0, 0, 320-70-8-60-15-64, 0), Spacing(0), Size(0), Size(0), true), {
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(10, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(0);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_GREEN), "MV 1")}),
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(1);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_RED), "MV 2")}),
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(2);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_YELLOW), "MV 3")}),
+    new Button(ContainerProperties(Size(70), Size(70), Spacing(8, 8, 0, 0), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){MovingHead::setActiveMovingHead(3);return 0;}, {new Text(ContainerProperties(), TextProperties(TFT_PURPLE), "MV 4")}),
+    &button5,
+    &button6,
+});
 
 CustomView mhUi(ContainerProperties(0, 0), ViewProperties(),
     // setup
@@ -91,8 +93,8 @@ CustomView mhUi(ContainerProperties(0, 0), ViewProperties(),
     [](){ updateBuehne(0, 0); },
     // touch event
     [](TSPoint p){
-        if(p.x == (uint16_t)-1 || p.y == (uint16_t)-1)
-            return 0;
+        if(p.x == (uint16_t)-1 || p.y == (uint16_t)-1) return 0;
+
         lastX = MovingHead::getMovingHead()->getX();
         lastY = MovingHead::getMovingHead()->getY();
         MovingHead::getMovingHead()->setXY((METER(p.x)-16.4/2.)*100, (-METER(p.y-OFFSET)+6.6)*100, true);
@@ -103,28 +105,14 @@ CustomView mhUi(ContainerProperties(0, 0), ViewProperties(),
     {   
         // mode button
         new Button(ContainerProperties(Size(100), Size(60), Spacing(17, 15, 15, 15), Spacing(2), Size(2), Size(4)), ButtonProperties(), 
-            // touch event
-            [](){
-                ViewManager::setCurrentView(1);
-                return 0;
-            },
-            // content 
-            {
-                new Text(ContainerProperties(), TextProperties(), "Presets")
-            }
+            [](){ ViewManager::setCurrentView(1); return 0; },
+            { new Text(ContainerProperties(), TextProperties(), "Presets") }
         ),
 
         // home button
         new Button(ContainerProperties(Size(100), Size(60), Spacing(480-2*100-2*17, 15, 15, 15), Spacing(4), Size(2), Size(4)), ButtonProperties(),
-            // touch event
-            [](){
-                MovingHead::resetPositions();
-                return 0;
-            },
-            // content
-            {
-            new Text(ContainerProperties(), TextProperties(), "Home")
-            }
+            [](){ MovingHead::resetPositions(); return 0; },
+            { new Text(ContainerProperties(), TextProperties(), "Home") }
         ),
 
         // new Button(ContainerProperties(Size(70), Size(70), Spacing(480-70-10, 10, 10, 4), Spacing(0), Size(2), Size(4)), ButtonProperties(), [](){if(waterAnimationActive){waterAnimationActive=false;vTaskDelete(waterAnimationHandle);barsShip.setUpdate(true);}else{if(waveAnimationActive){vTaskDelete(waveAnimationHandle);waveAnimationActive=false;}waterAnimationActive=true;barsShip.setUpdate(false);xTaskCreate(waterAnimation, "Water Animation", 1*1024, &barsShip, 6, &waterAnimationHandle);}return 0;}, {new Text(ContainerProperties(), TextProperties(), "Water")}),

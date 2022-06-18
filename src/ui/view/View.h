@@ -8,6 +8,7 @@
 #include "Arduino.h"
 #include "../container/Container.h"
 #include "viewProperties/ViewProperties.h"
+#include "../navBar/NavBar.h"
 class View;
 #include "../viewManager/ViewManager.h"
 
