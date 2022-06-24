@@ -20,6 +20,8 @@
 #define SETMIN(x, value)    if((x) > (value)) (x) = (value);
 #define MIN(x, y)           min((int) x, (int) y)
 #define MAX(x, y)           max((int) x, (int) y)
+#define MIN4(a, b, c, d)    MIN(MIN(a, b), MIN(c, d))
+#define MAX4(a, b, c, d)    MAX(MAX(a, b), MAX(c, d))
 #define IFGREATER(x, y, value)  (((x)>(y))?(value):(x))
 #define IFSMALLER(x, y, value)  (((x)<(y))?(value):(x))
 #define IF(x, value, y)     (((x)==(value))?(x):(y))

@@ -7,7 +7,7 @@
 //temporary
 CustomView::CustomView() {}
 
-CustomView::CustomView(ContainerProperties properties, ViewProperties viewProperties, std::function<void()> init, std::function<void()> draw, std::function<uint16_t(TSPoint)> checkTouch, std::vector<Container*> content) : View(properties, viewProperties, content), _init(init), _draw(draw), _checkTouch(checkTouch) {
+CustomView::CustomView(ContainerProperties properties, ViewProperties viewProperties, std::function<void()> init, std::function<void()> draw, std::function<uint16_t(TSPoint)> checkTouch, std::vector<Container*> content, std::vector<Container*> navBarContent) : View(properties, viewProperties, content, navBarContent), _init(init), _draw(draw), _checkTouch(checkTouch) {
 }
 
 void CustomView::init() {

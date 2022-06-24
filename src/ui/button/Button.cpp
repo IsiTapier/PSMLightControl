@@ -11,8 +11,8 @@ void Button::init() {
   Container::init();
   if(_buttonProperties.getColor() == NO_COLOR)
     _buttonProperties.setColor(getColor());
-  _buttonProperties.setTouchExtension(*_buttonProperties.getTouchExtension().setReference(getPorperties().getLength(), getPorperties().getHeight(), false));
-  if(getPorperties().getDraw())
+  _buttonProperties.setTouchExtension(*_buttonProperties.getTouchExtension().setReference(getProperties().getLength(), getProperties().getHeight(), false));
+  if(getProperties().getDraw())
     if(_id==-1)
       ButtonManager::addButton(this);
 }
@@ -24,12 +24,12 @@ void Button::draw() {
   Container::draw();
 }
 
-ButtonProperties Button::getProperties() {
+ButtonProperties Button::getButtonProperties() {
   return _buttonProperties;
 }
 
 byte Button::checkTouch(TSPoint p) {
-  ContainerProperties cp = getPorperties();
+  ContainerProperties cp = getProperties();
   byte distance = 0;
   SETMAX(distance, MAX(IFGREATER(max(cp.getX()-p.x,0),_buttonProperties.getTouchExtension().get(LEFT), UINT8_MAX), IFGREATER(max(p.x-cp.getX()-cp.getLength(),0),_buttonProperties.getTouchExtension().get(RIGHT), UINT8_MAX)))
   SETMAX(distance, MAX(IFGREATER(max(cp.getY()-p.y,0),_buttonProperties.getTouchExtension().get(TOP), UINT8_MAX), IFGREATER(max(p.y-cp.getY()-cp.getHeight(),0),_buttonProperties.getTouchExtension().get(BOTTOM), UINT8_MAX)))

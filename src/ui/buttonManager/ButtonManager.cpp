@@ -3,6 +3,7 @@
 */
 
 #include "ButtonManager.h"
+#include "../viewManager/ViewManager.h"
 
 std::vector<Button*> ButtonManager::buttons = {};
 short ButtonManager::currentId = -1;
@@ -38,7 +39,7 @@ void ButtonManager::checkTouch(void*) {
     xSemaphoreGive(sync_display);
     bool isTouching = (p.x != (uint16_t)-1 && p.y != (uint16_t)-1);
     for(Button* button : buttons) {
-      if(button->getPorperties().getViewId()!=ViewManager::getCurrentView() || !button->getPorperties().getDraw())
+      if(button->getProperties().getViewId()!=ViewManager::getCurrentView() || !button->getProperties().getDraw())
         continue;
       if(!isTouching) {
         button->untrigger();
@@ -57,7 +58,7 @@ void ButtonManager::checkTouch(void*) {
     uint16_t delay = 0;
     if(nearestDistance != UINT8_MAX) {
       for(Button* button : buttons) {
-        if(button->getPorperties().getViewId()!=ViewManager::getCurrentView() || !button->getPorperties().getDraw())
+        if(button->getProperties().getViewId()!=ViewManager::getCurrentView() || !button->getProperties().getDraw())
           continue;
         if(std::find(nearestButton.begin(), nearestButton.end(), button) != nearestButton.end())
           delay = max(delay, button->trigger());

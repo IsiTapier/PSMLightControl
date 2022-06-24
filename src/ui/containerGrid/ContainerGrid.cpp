@@ -7,9 +7,9 @@
 ContainerGrid::ContainerGrid(ContainerProperties properties, ContainerProperties contentProperties, bool autoSize, std::vector<Container*> content) : Container(properties, content), _contentProperties(contentProperties), _autoSize(autoSize) {
 }
 
-#define PADDING(direction) (padding.get(direction).getMode()==ABSOLUTE?(short)padding.get(direction):(padding.get(direction).getProportion()*size))
-#define SIDE(x, y) (MAX(PADDING(x), margin.get(y)))
-#define MIDDLE(x, y) (MAX(PADDING(x), PADDING(y)))
+#define MARGIN(direction) (margin.get(direction).getMode()==ABSOLUTE?(short)margin.get(direction):(margin.get(direction).getProportion()*size))
+#define SIDE(x, y) (MAX(MARGIN(x), padding.get(y)))
+#define MIDDLE(x, y) (MAX(MARGIN(x), MARGIN(y)))
 #define LENGTH (size*columns+SIDE(LEFT, RIGHT)+SIDE(RIGHT, LEFT))
 #define HEIGHT (size*rows*_contentProperties.getFormat()+SIDE(TOP, BOTTOM)+SIDE(BOTTOM, TOP))
 #define EQUAL_AMOUNT (floor(columns)*floor(rows)>=getContentAmount())
@@ -19,15 +19,15 @@ void ContainerGrid::init() {
     return Container::init();
   if(_autoSize) {
     // get some sizes
-    ContainerProperties properties = getPorperties();
-    Spacing padding = _contentProperties.getPadding();
-    Spacing margin = properties.getMargin();
-    byte distanceHorizontal = MAX(padding.get(LEFT), padding.get(RIGHT));
-    byte distanceVertical = MAX(padding.get(TOP), padding.get(BOTTOM));
-    short length = properties.getContentLength() - MAX(margin.get(LEFT), padding.get(LEFT)) - MAX(margin.get(RIGHT), padding.get(RIGHT)) + distanceHorizontal;
-    short height = properties.getContentHeight() - MAX(margin.get(TOP), padding.get(TOP)) - MAX(margin.get(BOTTOM), padding.get(BOTTOM)) + distanceVertical;
-    short contentLength = _contentProperties.getLength() + MAX(padding.get(LEFT), padding.get(RIGHT));
-    short contentHeight = _contentProperties.getHeight() + MAX(padding.get(TOP), padding.get(BOTTOM));
+    ContainerProperties properties = getProperties();
+    Spacing margin = _contentProperties.getMargin();
+    Spacing padding = properties.getPadding();
+    byte distanceHorizontal = MAX(margin.get(LEFT), margin.get(RIGHT));
+    byte distanceVertical = MAX(margin.get(TOP), margin.get(BOTTOM));
+    short length = properties.getContentLength() - MAX(padding.get(LEFT), margin.get(LEFT)) - MAX(padding.get(RIGHT), margin.get(RIGHT)) + distanceHorizontal;
+    short height = properties.getContentHeight() - MAX(padding.get(TOP), margin.get(TOP)) - MAX(padding.get(BOTTOM), margin.get(BOTTOM)) + distanceVertical;
+    short contentLength = _contentProperties.getLength() + MAX(margin.get(LEFT), margin.get(RIGHT));
+    short contentHeight = _contentProperties.getHeight() + MAX(margin.get(TOP), margin.get(BOTTOM));
     float format = _contentProperties.getHeight().getMode()==RELATIVE?_contentProperties.getFormat():contentHeight/contentLength;
     // calculate rows and columns
     float columns = sqrt(getContentAmount()*(length/(double)height)*format);
@@ -57,14 +57,14 @@ void ContainerGrid::init() {
     Serial.println(height);
     float pProportionVertical = 0;
     float pProportionHorizontal = 0;
-    if(padding.get(LEFT).getMode() == ABSOLUTE || padding.get(RIGHT).getMode() == ABSOLUTE)
+    if(margin.get(LEFT).getMode() == ABSOLUTE || margin.get(RIGHT).getMode() == ABSOLUTE)
       length -= columns*distanceHorizontal;
     else
-      pProportionHorizontal += max(padding.get(LEFT).getProportion(), padding.get(RIGHT).getProportion());
-    if(padding.get(TOP).getMode() == ABSOLUTE ||padding.get(BOTTOM).getMode() == ABSOLUTE)
+      pProportionHorizontal += max(margin.get(LEFT).getProportion(), margin.get(RIGHT).getProportion());
+    if(margin.get(TOP).getMode() == ABSOLUTE ||margin.get(BOTTOM).getMode() == ABSOLUTE)
       height -= rows*distanceVertical;
     else
-      pProportionVertical += max(padding.get(TOP).getProportion(), padding.get(BOTTOM).getProportion());
+      pProportionVertical += max(margin.get(TOP).getProportion(), margin.get(BOTTOM).getProportion());
     short size = MIN(length/columns*(1-pProportionHorizontal)/(1+pProportionHorizontal), height/rows*(1-pProportionVertical)/(1+pProportionVertical));
     Serial.println(size);
     // correct size
@@ -79,8 +79,8 @@ void ContainerGrid::init() {
     // set size
     _contentProperties.setHeight(size*_contentProperties.getFormat());
     _contentProperties.setLength(size);
-    // _contentProperties.setPadding(*_contentProperties.getPadding().setReference(size, _contentProperties.getHeight()));
-    // _contentProperties.setMargin(*_contentProperties.getMargin().setReference(_contentProperties.getContentLength(),_contentProperties.getContentHeight()));
+    // _contentProperties.setMargin(*_contentProperties.getMargin().setReference(size, _contentProperties.getHeight()));
+    // _contentProperties.setPadding(*_contentProperties.getPadding().setReference(_contentProperties.getContentLength(),_contentProperties.getContentHeight()));
     // _contentProperties.setBorderThickness(*_contentProperties.getBorderThickness().setReference(size));
   }
   setContentProperties(_contentProperties);

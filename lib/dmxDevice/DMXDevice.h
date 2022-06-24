@@ -48,9 +48,9 @@
 
 #define ALL_DEVICES UINT8_MAX
 
-#define INPUT_FORMAT_TYPE ((input.format>>(i*4))%16)
+#define INPUT_FORMAT_TYPE ((input->format>>(i*4))%16)
 #define FORMAT_EQUALS(type) ((_format>>i*4)%16 == type)
-#define READ_UNIVERSE (DMX::getUniverse(input.universe))
+#define READ_UNIVERSE (DMX::getUniverse(input->universe))
 
 struct Input {
   DMXUniverse universe = UNIVERSE_1;
@@ -106,6 +106,8 @@ class DMXDevice {
     
     void updateChannels();
     static void startUpdateTask(void* _this);
+    void setupOutput();
+    void setupInputs();
 
 };
 

@@ -17,7 +17,7 @@
         properties.setPadding(*properties.getPadding().setReference(properties.getLength(), properties.getHeight(), false));\
         properties.setMargin(*properties.getMargin().setReference(properties.getLength(), properties.getHeight(), false));\
         properties.setBorderThickness(*properties.getBorderThickness().setReference(properties.getLength(), false));\
-        properties.setBorderRoundness(*properties.getBorderRoundness().setReference(properties.getBorderThickness(), false));\
+        properties.setBorderRoundness(*properties.getBorderRoundness().setReference(properties.getBorderThickness().getMax(), false));\
 
 #define NO_VIEW UINT8_MAX
 
@@ -32,13 +32,13 @@ class Container {
     virtual void draw();
     void drawBorder(bool erase = false);
 
-    ContainerProperties getPorperties();
+    ContainerProperties getProperties();
     void setProperties(ContainerProperties properties);
 
     void setBackground(uint16_t color);
     uint16_t getColor();
 
-    void addContent(Container* content);
+    void addContent(Container* content, bool atFront = false);
     void removeContent(byte id);
     uint8_t getContentAmount();
 

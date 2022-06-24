@@ -16,7 +16,7 @@
 class Size {
   public:
     Size();
-    Size(short length);
+    Size(int length);
     Size(float proportion, short reference);
     Size(short length, float proportion, short reference, bool mode = ABSOLUTE);
     Size* setLength(short length);

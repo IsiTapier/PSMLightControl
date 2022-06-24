@@ -23,7 +23,7 @@ class Button : public Container {
     void setId(short id);
     short getId();
 
-    ButtonProperties getProperties();
+    ButtonProperties getButtonProperties();
 
     byte checkTouch(TSPoint p);
     uint16_t trigger();

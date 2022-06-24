@@ -7,17 +7,17 @@
 Text::Text(ContainerProperties properties, TextProperties textProperties, String text) : Container(properties, {}), _textProperties(textProperties), _text(text) {
     //temporary
     //TODO
-    setProperties(*getPorperties().setInvisible(true));
+    setProperties(*getProperties().setInvisible(true));
 }
 
 void Text::init() {
-  ContainerProperties properties = getPorperties();
+  ContainerProperties properties = getProperties();
   short length = properties.getContentLength(true);
   short height = properties.getContentHeight(true);
   short size = MIN(_textProperties.getSize()==-1?MAX_TEXT_SIZE:(int)_textProperties.getSize(), SIZE(length, height, _text.length()));
   _textProperties.setSize(size);
-  short x = properties.getX()+properties.getBorderThickness()+properties.getMargin().get(LEFT);
-  short y = properties.getY()+properties.getBorderThickness()+properties.getMargin().get(TOP);
+  short x = properties.getContentX(true);
+  short y = properties.getContentY(true);
   switch(_textProperties.getDatum()) {
       case TL_DATUM: break;
       case TC_DATUM: x+=(size+length)/2; break;
@@ -48,14 +48,14 @@ void Text::init() {
 }
 
 void Text::draw() {
-    if(!getPorperties().getDraw())
+    if(!getProperties().getDraw())
       return;
-    if(!getPorperties().getInvisible())
+    if(!getProperties().getInvisible())
       drawBorder();
     if(_textProperties.getX() == -1 || _textProperties.getY() == -1)
       return;
     xSemaphoreTake(sync_display, portMAX_DELAY);
-    dPrint(_text, _textProperties.getX(), _textProperties.getY(), _textProperties.getSize(), IFNOT(_textProperties.getColor(), NO_COLOR, ColorManager::getTextColor()), _textProperties.getDatum()/*, getPorperties().getInvisible()?TFT_TRANSPARENT:getColor()*/);
+    dPrint(_text, _textProperties.getX(), _textProperties.getY(), _textProperties.getSize(), IFNOT(_textProperties.getColor(), NO_COLOR, ColorManager::getTextColor()), _textProperties.getDatum()/*, getProperties().getInvisible()?TFT_TRANSPARENT:getColor()*/);
     xSemaphoreGive(sync_display);
 }
 

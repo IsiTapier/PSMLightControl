@@ -17,12 +17,15 @@ class View : public Container {
     //temporary
     View();
     
-    View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content);
+    View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content, std::vector<Container*> navBarContent = {});
     
     byte getId();
     void init() override;
     void draw() override;
     virtual uint16_t checkTouch(TSPoint p);
+
+    ViewProperties getViewProperties();
+    View* setViewProperties(ViewProperties properties);
 
     static byte getCurrentId();
 

@@ -19,6 +19,7 @@ class ViewManager {
     static void setCurrentView(short view);
     static short getCurrentView();
     static View* getView(short view);
+    static std::vector<View*> getViews();
     
   private:
     static std::vector<View*> views;

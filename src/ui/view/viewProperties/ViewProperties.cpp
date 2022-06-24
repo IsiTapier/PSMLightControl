@@ -4,6 +4,10 @@
 
 #include "viewProperties.h"
 
-ViewProperties::ViewProperties()  {
+ViewProperties::ViewProperties(String name) : _name(name)  {
 
+}
+
+String ViewProperties::getName() {
+    return _name;
 }

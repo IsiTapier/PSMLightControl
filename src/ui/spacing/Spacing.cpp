@@ -111,6 +111,22 @@ bool Spacing::getEqual() {
     return _spacingEqual;
 }
 
+short Spacing::getMin() {
+    return MIN4(get(LEFT), get(RIGHT), get(TOP), get(BOTTOM));
+}
+
+short Spacing::getMax() {
+    return MAX4(get(LEFT), get(RIGHT), get(TOP), get(BOTTOM));
+}
+
+Spacing::operator int() {
+    return getMax();
+}
+
+Spacing::~Spacing() {
+
+}
+
 #undef EQUAL
 #undef SEPERATE
 #undef VALID_EQUAL

@@ -6,8 +6,8 @@
 
     Size::Size() : _length(-1), _reference(-1), _proportion(-1), _mode(ABSOLUTE) {}
 
-    Size::Size(short length) : _length(length), _reference(-1), _proportion(-1), _mode(ABSOLUTE) {
-        
+    Size::Size(int length) : _length(length), _reference(-1), _proportion(-1), _mode(ABSOLUTE) {
+       
     }
 
     Size::Size(float proportion, short reference) : _length(-1), _reference(reference), _proportion(proportion), _mode(RELATIVE) {

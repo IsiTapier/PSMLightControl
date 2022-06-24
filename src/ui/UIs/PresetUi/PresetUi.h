@@ -1,5 +1,5 @@
 /*
-  MovingHeadUi.h - MovingHeadUi-Library for Airduino.
+  PresetUi.h - PresetUi-Library for Airduino.
 */
 
 #ifndef PrestUi_h
@@ -15,6 +15,8 @@
 #include "array"
 #include "functional"
 #include "EEPROM.h"
+#include <algorithm>
+#include <iostream>
 
 std::array<Position, MOVING_HEADS_AMOUNT+1> getDefaultPositions() {
     std::array<Position, MOVING_HEADS_AMOUNT+1> defaultPositions;
@@ -23,7 +25,7 @@ std::array<Position, MOVING_HEADS_AMOUNT+1> getDefaultPositions() {
 }
 std::vector<std::array<Position, MOVING_HEADS_AMOUNT+1>> presetPositions = {getDefaultPositions()};
 
-Container presets(ContainerProperties(Size(480-24), Size(320-90), Spacing(Size(12), Size(12), Size(0), Size(0)), Spacing(5), 0, 0, true), {});
+Container presets(ContainerProperties(Size(480-24), Size(320-90-64), Spacing(Size(12), Size(12), Size(12), Size(0)), Spacing(5), 0, 0, true), {});
 
 struct EepromPosition {
     byte id;
@@ -60,15 +62,16 @@ void addPresetButton() {
                         }
                     }
                     storeEeprom();
+                    // delete newButton;
                 } else {
                     for(int i = 0; i < MOVING_HEADS_AMOUNT; i++) 
                         MovingHead::getMovingHead(i)->setPosition(presetPositions[id][i]);
                     MovingHead::setPositionAll(presetPositions[id][MOVING_HEADS_AMOUNT]);
                 }
                 return 0;
-            }, (presets.getPorperties().getCurrentId()+2)%256, ButtonManager::getCurrentId()+1),
+            }, (presets.getProperties().getCurrentId()+2), ButtonManager::getCurrentId()+1),
             // content
-            {new Text(ContainerProperties(), TextProperties(), "preset "+String((presets.getPorperties().getCurrentId()+2)%256))}
+            {new Text(ContainerProperties(), TextProperties(), "preset "+String((presets.getProperties().getCurrentId()+2)))}
         )
     );
 }
@@ -95,20 +98,25 @@ void readEeprom() {
         eepromData.currentPosition = 19;
     for(int i = 1; i < eepromData.currentPosition; i++) {
         presetPositions.push_back(eepromData.eepromPositions[i].positions);
-        eepromData.eepromPositions[i].id=(presets.getPorperties().getCurrentId()+2)%256;
+        eepromData.eepromPositions[i].id=(presets.getProperties().getCurrentId()+2);
         addPresetButton();
     }
     storeEeprom();
 }
-#include <algorithm>
-#include <iostream>
 
-View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0), 0, 0, 0), ViewProperties(), {
-    new Button(ContainerProperties(Size(100), Size(60), Spacing(17, 15, 15, 15), Spacing(2), Size(2), Size(4)), ButtonProperties(),
-        [](){ViewManager::setCurrentView(0); deletePreset=false; return 0;},
-        {new Text(ContainerProperties(), TextProperties(), "B"+ue+"hne")}),
+View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0), 0, 0, 0), ViewProperties("Presets"),
+    // content
+    {
 
-    new Button(ContainerProperties(Size(100), Size(60), Spacing(15), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
+    // new Button(ContainerProperties(Size(100), Size(60), Spacing(17, 15, 15, 15), Spacing(2), Size(2), Size(4)), ButtonProperties(),
+    //     [](){ViewManager::setCurrentView(0); deletePreset=false; return 0;},
+    //     {new Text(ContainerProperties(), TextProperties(), "B"+ue+"hne")}),
+
+    &presets
+    },
+    // navbar
+    {
+    new Button(ContainerProperties(Size(70), Size(60), Spacing(27, 8, 8, 8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
         [](){
             std::array<Position, MOVING_HEADS_AMOUNT+1> p;
             // std::for_each(p.begin(), std::prev(p.end()), [i=0](Position& n)mutable{
@@ -121,7 +129,7 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
             p.at(MOVING_HEADS_AMOUNT) = MovingHead::getPositionAll();
             presetPositions.push_back(p);
             if(eepromData.currentPosition<19)
-                eepromData.eepromPositions[eepromData.currentPosition] = {(byte)((presets.getPorperties().getCurrentId()+2)%256), p};
+                eepromData.eepromPositions[eepromData.currentPosition] = {(byte)((presets.getProperties().getCurrentId()+2)), p};
             eepromData.currentPosition++;
             addPresetButton();
             storeEeprom();
@@ -131,11 +139,11 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
         {new Text(ContainerProperties(), TextProperties(NO_COLOR, 3), "add")}
     ),
 
-    new Button(ContainerProperties(Size(100), Size(60), Spacing(15), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
+    new Button(ContainerProperties(Size(70), Size(60), Spacing(8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
         [](){if(presets.getContentAmount()>0) deletePreset=true; return 0;},
         {new Text(ContainerProperties(), TextProperties(), "delete")}),
 
-    new Button(ContainerProperties(Size(100), Size(60), Spacing(15), Spacing(2), Size(2), Size(4)), ButtonProperties(),
+    new Button(ContainerProperties(Size(70), Size(60), Spacing(8), Spacing(2), Size(2), Size(4)), ButtonProperties(),
         [](){
             for(int i=0;i<MOVING_HEADS_AMOUNT;i++) {
                 presetPositions[0][i] = MovingHead::getMovingHead(i)->getPosition();
@@ -148,8 +156,7 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
             return 0;
         },
         {new Text(ContainerProperties(), TextProperties(), "set home")}),
-
-    &presets}
+    }
 );
 
 #endif

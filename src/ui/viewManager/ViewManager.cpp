@@ -9,12 +9,13 @@ short ViewManager::currentView = 0;
 
 void ViewManager::addView(View* view) {
   views.push_back(view);
-  view->init();
+  // view->init();
 }
 
 void ViewManager::init() {
-  for(View* view : views)
+  for(View* view : views) {
     view->init();
+  }
   setCurrentView(DEFAULT_VIEW);
 }
 
@@ -33,4 +34,8 @@ View* ViewManager::getView(short view) {
   if(!VALID_VIEW(view))
     return NULL;
   return views[view];
+}
+
+std::vector<View*> ViewManager::getViews() {
+  return views;
 }

@@ -10,9 +10,12 @@
 
 class ViewProperties {
   public:
-    ViewProperties();
+    ViewProperties(String name = "");
+
+    String getName();
 
   private:
+    String _name;
     
 
 };

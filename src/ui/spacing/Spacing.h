@@ -7,6 +7,7 @@
 
 #include "Arduino.h"
 #include "../size/Size.h"
+#include "Util.h"
 
 #define EQUAL 1
 #define SEPERATE 0
@@ -22,6 +23,7 @@ class Spacing {
     Spacing(Size spacingAll);
     Spacing(Size spacingLeft, Size spacingRight, Size spacingTop, Size spacingBottom);
     Spacing(Size spacingAll, Size spacingLeft, Size spacingRight, Size spacingTop, Size spacingBottom, bool spacingEqual = EQUAL);
+    ~Spacing();
     Spacing* set(Orientation orientation, Size size);
     Spacing* setAll(Size size);
     Spacing* setLeft(Size size);
@@ -31,12 +33,16 @@ class Spacing {
     Spacing* setReference(short length, short height, bool changeMode = false);
     bool setEqual(bool Equal);
     Size get(Orientation orientation);
+
     Size getAll();
     Size getLeft();
     Size getRight();
     Size getTop();
     Size getBottom();
     bool getEqual();
+    short getMin();
+    short getMax();
+    operator int();
 
   private:
     Size _spacingAll;

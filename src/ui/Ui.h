@@ -21,7 +21,6 @@
 
 class Ui {
   public:
-    Ui();
 
     static void init();
 
