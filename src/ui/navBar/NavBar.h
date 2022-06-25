@@ -9,6 +9,8 @@
 #include "../container/Container.h"
 #include "../textField/Text.h"
 
+#define NAVBAR_HEIGHT 0.25
+
 class NavBar : public Container {
     public:
         NavBar(ContainerProperties properties, std::vector<Container*> content);

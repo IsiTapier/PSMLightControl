@@ -13,7 +13,7 @@ View::View() {}
 View::View(ContainerProperties properties, ViewProperties viewProperties, std::vector<Container*> content, std::vector<Container*> navBarContent) : 
   Container(properties, {
     new NavBar(ContainerProperties(0, 0), navBarContent),
-    new Container(*ContainerProperties(Size(1., 1), Size(.75, 1)).setInvisible(true), {content})}
+    new Container(*ContainerProperties(Size(1., 1), Size(1.-NAVBAR_HEIGHT, 1)).setInvisible(true), {content})}
   ), _viewProperties(viewProperties), id(currentId) {
   
   currentId++;
@@ -42,8 +42,9 @@ void View::init() {
   Container::init();
 }
 
-void View::draw() {
-  Container::draw();
+void View::draw(short startX, short startY, short endX, short endY, bool fill) {
+  CHECK_DRAW
+  Container::draw(startX, startY, endX, endY, fill);
 }
 
 uint16_t View::checkTouch(TSPoint p) {

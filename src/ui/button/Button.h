@@ -18,7 +18,7 @@ class Button : public Container {
     Button(ContainerProperties properties, ButtonProperties buttonProperties, std::function<uint16_t()> touchEvent, std::vector<Container*> content);
 
     void init() override;
-    void draw() override;
+    void draw(short startX=-1, short startY=-1, short endY=-1, short endX=-1, bool fill=true) override;
 
     void setId(short id);
     short getId();

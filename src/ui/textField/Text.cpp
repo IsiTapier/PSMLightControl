@@ -47,9 +47,10 @@ void Text::init() {
   setProperties(properties);
 }
 
-void Text::draw() {
-    if(!getProperties().getDraw())
-      return;
+void Text::draw(short startX, short startY, short endX, short endY, bool fill) {
+    if(!(CONDITIONAL_DRAWING&&fill)) {
+      CHECK_DRAW
+    }
     if(!getProperties().getInvisible())
       drawBorder();
     if(_textProperties.getX() == -1 || _textProperties.getY() == -1)

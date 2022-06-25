@@ -17,11 +17,13 @@ void Button::init() {
       ButtonManager::addButton(this);
 }
 
-void Button::draw() {
+void Button::draw(short startX, short startY, short endX, short endY, bool fill) {
+  CHECK_DRAW
+  Serial.println("buttontest");
   xSemaphoreTake(sync_display, portMAX_DELAY);
   setBackground(triggered?IFNOT(_buttonProperties.getPressedColor(), NO_COLOR, display.setBrightness(display.getBrightness(_buttonProperties.getColor())<128?-COLOR_SHIFT:1.5*COLOR_SHIFT, _buttonProperties.getColor())):_buttonProperties.getColor());
   xSemaphoreGive(sync_display);
-  Container::draw();
+  Container::draw(startX, startY, endX, endY, fill);
 }
 
 ButtonProperties Button::getButtonProperties() {

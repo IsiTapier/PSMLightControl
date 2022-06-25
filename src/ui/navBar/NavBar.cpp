@@ -7,7 +7,7 @@
 #include "../viewManager/ViewManager.h"
 
 NavBar::NavBar(ContainerProperties properties, std::vector<Container*> content) : Container(properties, content) {
-    setProperties(*getProperties().setLength(Size(1., 1))->setHeight(Size(.25, 1))->setInvisible(true)->setBorderThickness(Spacing(0, 0, 0, 4))->setBorderColor(TFT_WHITE));
+    setProperties(*getProperties().setLength(Size(1., 1))->setHeight(Size(NAVBAR_HEIGHT, 1))->setInvisible(true)->setBorderThickness(Spacing(0, 0, 0, 4))->setBorderColor(TFT_WHITE));
 }
 
 void NavBar::init() {

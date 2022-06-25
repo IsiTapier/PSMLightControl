@@ -21,7 +21,7 @@ class View : public Container {
     
     byte getId();
     void init() override;
-    void draw() override;
+    void draw(short startX=-1, short startY=-1, short endY=-1, short endX=-1, bool fill=true) override;
     virtual uint16_t checkTouch(TSPoint p);
 
     ViewProperties getViewProperties();

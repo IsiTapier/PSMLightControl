@@ -15,8 +15,9 @@ void CustomView::init() {
   _init();
 }
 
-void CustomView::draw() {
-  View::draw();
+void CustomView::draw(short startX, short startY, short endX, short endY, bool fill) {
+  CHECK_DRAW
+  View::draw(startX, startY, endX, endY, fill);
   _draw();
 }
 

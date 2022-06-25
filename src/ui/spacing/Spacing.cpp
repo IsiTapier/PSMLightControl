@@ -12,6 +12,10 @@ Spacing::Spacing(Size spacingAll) : _spacingAll(spacingAll), _spacingEqual(EQUAL
 
 }
 
+Spacing::Spacing(Size spacingX, Size spacingY) : _spacingLeft(spacingX), _spacingRight(spacingX), _spacingTop(spacingY), _spacingBottom(spacingY), _spacingEqual(SEPERATE) {
+    
+}
+
 Spacing::Spacing(Size spacingLeft, Size spacingRight, Size spacingTop, Size spacingBottom) : _spacingLeft(spacingLeft), _spacingRight(spacingRight), _spacingTop(spacingTop), _spacingBottom(spacingBottom), _spacingEqual(SEPERATE) {
 
 }

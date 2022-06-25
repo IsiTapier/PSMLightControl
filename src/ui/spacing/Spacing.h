@@ -21,6 +21,7 @@ class Spacing {
   public:
     Spacing(int spacingAll);
     Spacing(Size spacingAll);
+    Spacing(Size spacingX, Size spacingY);
     Spacing(Size spacingLeft, Size spacingRight, Size spacingTop, Size spacingBottom);
     Spacing(Size spacingAll, Size spacingLeft, Size spacingRight, Size spacingTop, Size spacingBottom, bool spacingEqual = EQUAL);
     ~Spacing();
