@@ -13,7 +13,7 @@ DMXDevice::DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, 
     setupInputs();
     
     // DMXDevice::devices.push_back(device);
-    xTaskCreate(startUpdateTask, "updateChannels", 1024, device, 7, NULL);
+    xTaskCreate(startUpdateTask, "updateChannels", 2*1024, device, 7, NULL);
 }
 
 DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, std::vector<Input> inputs, byte repeat, byte devices, byte distance) : _universe(universe), _address(address), _format(format), _repeat(repeat), _devices(devices), _distance(distance), _inputs(inputs), writeUniverse(DMX::getUniverse(universe)) {
@@ -21,7 +21,7 @@ DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, st
     setupInputs();
 
     // DMXDevice::devices.push_back(device);
-    xTaskCreate(startUpdateTask, "updateChannels", 1024, this, 9, NULL);
+    xTaskCreate(startUpdateTask, "updateChannels", 2*1024, this, 9, NULL);
 }
 
 DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DMXUniverse inputUniverse, uint16_t inputAddress, uint64_t inputFormat, byte repeat, byte devices, byte distance) : _universe(universe), _address(address), _format(format), _repeat(repeat), _devices(devices), _distance(distance), writeUniverse(DMX::getUniverse(universe)) {
@@ -31,7 +31,7 @@ DMXDevice::DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, DM
     setupInputs();
     // _inputs = __inputs;
     // DMXDevice::devices.push_back(device);
-    xTaskCreate(startUpdateTask, "updateChannels", 1024, this, 9, NULL);
+    xTaskCreate(startUpdateTask, "updateChannels", 2*1024, this, 9, NULL);
 }
 
 // DMXDevice::DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, byte repeat, Input input, byte devices, byte distance) : _universe(universe), _address(address), _format(format), _repeat(repeat), _inputs({input}), _devices(devices), _distance(distance), writeUniverse(DMX::getUniverse(universe)) {
@@ -127,8 +127,9 @@ void DMXDevice::writeChannel(byte channel, byte value, byte device) {
     if(channel >= formatSize*_repeat)
         return;
     if(device != UINT8_MAX) return writeUniverse->write(_address+channel+(min(device, _devices)-1)*(_repeat*formatSize+_distance), value);
-    for(int i = 0; i < _devices; i++)
-        writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), value);
+    for(byte i = 0; i < _devices; i++)
+        // if(std::find(_overrideDevices.begin(), _overrideDevices.end(), i) == _overrideDevices.end())
+            writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), _outputCalculation(channel, i, value));
 }
 
 // void DMXDevice::writeChannels(int channel, byte value) {
@@ -137,7 +138,7 @@ void DMXDevice::writeChannel(byte channel, byte value, byte device) {
 //     writeUniverse->write(_address+channel, value);
 // }
 
-void DMXDevice::writeType(byte type, byte value) {
+void DMXDevice::writeType(byte type, byte value, byte device) {
     if(type == X)
         return;
     if(virtualMaster >= 0) {
@@ -149,37 +150,37 @@ void DMXDevice::writeType(byte type, byte value) {
     for(int i = 0; i < formatSize; i++)
         if(FORMAT_EQUALS(type))
             for(int j = 1; j <= _repeat; j++)
-                writeChannel(j*formatSize-1-i, value, ALL_DEVICES);
+                writeChannel(j*formatSize-1-i, value, device);
 }
 
-void DMXDevice::writeMaster(byte value) {
+void DMXDevice::writeMaster(byte value, byte device) {
     writeType(M, value);
     if(virtualMaster < 0) return;
-    virtualMasterUniverse->write(virtualMaster, value);
+    virtualMasterUniverse->write(virtualMaster, value, device);
 }
 
-void DMXDevice::writeRed(byte value) {
-    writeType(R, value);
+void DMXDevice::writeRed(byte value, byte device) {
+    writeType(R, value, device);
 }
 
-void DMXDevice::writeGreen(byte value) {
-    writeType(G, value);
+void DMXDevice::writeGreen(byte value, byte device) {
+    writeType(G, value, device);
 }
 
-void DMXDevice::writeBlue(byte value) {
-    writeType(B, value);
+void DMXDevice::writeBlue(byte value, byte device) {
+    writeType(B, value, device);
 }
 
-void DMXDevice::writeWhite(byte value) {
-    writeType(W, value);
+void DMXDevice::writeWhite(byte value, byte device) {
+    writeType(W, value, device);
 }
 
-void DMXDevice::writeStrobe(byte value) {
-    writeType(S, value);
+void DMXDevice::writeStrobe(byte value, byte device) {
+    writeType(S, value, device);
 }
 
-void DMXDevice::writeEffect(byte value) {
-    writeType(E, value);
+void DMXDevice::writeEffect(byte value, byte device) {
+    writeType(E, value, device);
 }
 
 void DMXDevice::blackOut() {
@@ -188,6 +189,14 @@ void DMXDevice::blackOut() {
     writeGreen(0);
     writeBlue(0);
     writeWhite(0);  
+}
+
+void DMXDevice::setOverrideDevices(std::vector<byte> overrideDevices) {
+    _overrideDevices = overrideDevices;
+}
+
+void DMXDevice::setOutputCalculation(std::function<byte(byte, byte, byte)> outputCalculation) {
+    _outputCalculation = outputCalculation;
 }
 
 void DMXDevice::setUpdate(bool update) {
@@ -200,6 +209,27 @@ bool DMXDevice::getUpdate() {
 
 byte DMXDevice::getChannels() {
     return formatSize;
+}
+
+byte DMXDevice::getDevices(bool includeRepeat) {
+    if(includeRepeat) return _devices*_repeat;
+    return _devices;
+}
+
+byte DMXDevice::getRepeat() {
+    return _repeat;
+}
+
+uint64_t DMXDevice::getFormat() {
+    return _format;
+}
+
+byte DMXDevice::getFormatSize() {
+    return formatSize;
+}
+
+byte DMXDevice::getDistance() {
+    return _distance;
 }
 
 void DMXDevice::updateChannels() {

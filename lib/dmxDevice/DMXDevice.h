@@ -70,19 +70,26 @@ class DMXDevice {
     // DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, Input input = none, byte devices = 1, byte distance = 0);
     void writeChannel(byte channel, byte value, byte device = ALL_DEVICES);
     // void writeChannels(int channel, byte value);
-    void writeType(byte type, byte value);
-    void writeMaster(byte valuee);
-    void writeRed(byte value);
-    void writeGreen(byte value);
-    void writeBlue(byte value);
-    void writeWhite(byte value);
-    void writeStrobe(byte value);
-    void writeEffect(byte value);
+    void writeType(byte type, byte value, byte device = ALL_DEVICES);
+    void writeMaster(byte value, byte device = ALL_DEVICES);
+    void writeRed(byte value, byte device = ALL_DEVICES);
+    void writeGreen(byte value, byte device = ALL_DEVICES);
+    void writeBlue(byte value, byte device = ALL_DEVICES);
+    void writeWhite(byte value, byte device = ALL_DEVICES);
+    void writeStrobe(byte value, byte device = ALL_DEVICES);
+    void writeEffect(byte value, byte device = ALL_DEVICES);
     void blackOut();
     static void init();
+    void setOverrideDevices(std::vector<byte> overrideDevices);
     void setUpdate(bool update);
+    void setOutputCalculation(std::function<byte(byte, byte, byte)>);
     bool getUpdate();
     byte getChannels();
+    byte getDevices(bool includeRepeat = false);
+    byte getRepeat();
+    uint64_t getFormat();
+    byte getFormatSize();
+    byte getDistance();
 
   private:
     DMXUniverse _universe;
@@ -100,6 +107,8 @@ class DMXDevice {
     byte formatSize;
     byte vMasterValue;
     boolean _update = true;
+    std::vector<byte> _overrideDevices;
+    std::function<byte(byte, byte, byte)> _outputCalculation = [](byte channel, byte device, byte value){return value;};
     unsigned long readcycle = millis();
 
     static std::vector<DMXDevice*> devices;
