@@ -17,20 +17,22 @@ void Effect::toggle() {
         DMXDevice* d = parms->_device;
         uint64_t _format = d->getFormat();
         for(;;) {
-            for(float j = 0; j < d->getDevices(true); j+=parms->_increase) {
+            for(float j = parms->_direction==LEFT?d->getDevices(true)-1:0; j < d->getDevices(true) && j >= 0; j+=(parms->_direction==LEFT?-1:1)*parms->_increase) {
                 d->setOutputCalculation([j, _format, parms, d](byte channel, byte device, byte value) {
                     // check channel type
                     byte i = d->getFormatSize()-channel-1;
-                    if(!FORMAT_EQUALS(R) && !FORMAT_EQUALS(G) && !FORMAT_EQUALS(B) && !FORMAT_EQUALS(W)) return value;
+                    // if(!FORMAT_EQUALS(R) && !FORMAT_EQUALS(G) && !FORMAT_EQUALS(B) && !FORMAT_EQUALS(W)) return value;
 
                     // get device position
                     byte x = floor(channel/(d->getFormatSize()+d->getDistance()))+d->getRepeat()*device;
+                    // Serial.print(floor(channel/(d->getFormatSize()+d->getDistance()))); Serial.print(" "); Serial.println(channel);
                     float distance = x-j;
 
                     // check overlap
+                    // isssue if spread > device count
                     if(parms->_doOverlap) {
-                        if(distance <= -d->getDevices(true)+parms->_spread) distance += d->getDevices(true);
-                        if(distance >= d->getDevices(true)-parms->_spread) distance += -d->getDevices(true);
+                        if(distance<0 && distance <= -d->getDevices(true)+parms->_spread) distance += d->getDevices(true);
+                        if(distance>0 && distance >= d->getDevices(true)-parms->_spread) distance += -d->getDevices(true);
                     }
                     
                     // prevent false spread
@@ -40,7 +42,7 @@ void Effect::toggle() {
 
                     // calculate new brightness
                     float percentage = 1-abs(distance/parms->_spread);
-                    return (byte) MAX(percentage*255, (1-percentage)*value);
+                    return (byte) MAX(percentage*parms->_overrideValue, (1-percentage)*value);
                 });
                 vTaskDelay(parms->_speed);
             }

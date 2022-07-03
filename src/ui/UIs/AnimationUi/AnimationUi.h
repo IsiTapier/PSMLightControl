@@ -69,7 +69,7 @@ View animationUi(ContainerProperties(-1, -1), ViewProperties("Animation"),
             [](){
                 streifen1.toggle();
                 streifen2.toggle();
-                streifen3.toggle();
+                // streifen3.toggle();
                 return 0;
             },
             {
