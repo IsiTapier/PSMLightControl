@@ -46,6 +46,8 @@
 #define Y_MIN               0
 #define Y_MAX               255
 
+#define MH_TURNS            1.5
+#define PAN_RANGE           255/MH_TURNS 
 #define TILT_OFFSET         20.5
 #define TILT_OFFSET_MV1     21-2
 #define TILT_OFFSET_MV2     23.5

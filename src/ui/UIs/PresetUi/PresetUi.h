@@ -123,8 +123,8 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
             //     n = MovingHead::getMovingHead(i++)->getPosition();
             // });
             int i = 0;
-            for(Position position : p) {
-                position = MovingHead::getMovingHead(i++)->getPosition();
+            for(auto position = p.begin(); position != p.end(); position++) {
+                (*position) = MovingHead::getMovingHead(i++)->getPosition();
             }
             p.at(MOVING_HEADS_AMOUNT) = MovingHead::getPositionAll();
             presetPositions.push_back(p);

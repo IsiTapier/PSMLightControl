@@ -267,6 +267,7 @@ void DMX::uart_event_task() {
     bool state = false;
     for(;;) {
          // wait for data in the dmx_queue
+         
         if(xQueueReceive(dmx_rx_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
             bzero(dtmp, BUF_SIZE);
             switch(event.type) {

@@ -219,17 +219,24 @@ void MovingHead::setUpdate(std::function<void(float, float, bool)> update) {
 byte MovingHead::calculatePan(float x, float y) {
     x-=_xOffset;
     y-=_yOffset;
-    float yPan = y==0?90:abs(atan(x/y)*180/PI);
-    uint8_t pan = round(170-170*(y<0?(x>0?(360-yPan):(yPan)):(x>0?(180+yPan):(180-yPan)))/360.-_panOffset);
+    // float yPan = y==0?90:abs(atan(x/y)*180/PI);
+    // uint8_t pan = round(170-170*(y<0?(x>0?(360-yPan):(yPan)):(x>0?(180+yPan):(180-yPan)))/360.-_panOffset);
+    float yPan = y==0?PI/2:atan(x/y);
+    yPan = y>0 || (y==0 && x>0) ? PI+yPan : fmod(2*PI+yPan, 2*PI);
+    yPan = 2*PI-yPan;
+    uint8_t pan = round(PAN_RANGE*yPan/2./PI)-_panOffset;
     return pan;
 }
 
-#define alpha atan(sqrt(pow(y,2)+pow(x,2))/(double)(_height-_lastHeight*2-(y>STAGE_Y-_yOffset&&abs(x+_xOffset)<STAGE_X?STAGE_HIGHT:0)))*180/PI
+// #define alpha atan(sqrt(pow(y,2)+pow(x,2))/(double)(_height-_lastHeight*2-(y>STAGE_Y-_yOffset&&abs(x+_xOffset)<STAGE_X?STAGE_HIGHT:0)))*180/PI
 
 byte MovingHead::calculateTilt(float x, float y) {
     x-=_xOffset;
     y-=_yOffset;
-    uint8_t tilt = round(127.5+_tiltOffset-TILT_OFFSET-(127.5-TILT_OFFSET)*alpha/90.);
+    // uint8_t tilt = round(127.5+_tiltOffset-TILT_OFFSET-(127.5<-TILT_OFFSET)*alpha/90.);
+    float height = _height-_lastHeight*2-(y>STAGE_Y-_yOffset&&abs(x+_xOffset)<STAGE_X?STAGE_HIGHT:0);
+    float radius = sqrt(pow(y,2)+pow(x,2));
+    uint8_t tilt = round((127.5-_tiltOffset)*atan(height/radius)*2/PI+_tiltOffset);
     return tilt;
 }
 

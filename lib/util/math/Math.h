@@ -16,9 +16,9 @@
     @returns            logn(x)
 */
 /**************************************************************************/
-double logns(double base, double x) {
+// double logn(double base, double x);
+double logn(double base, double x) {
     return log(x) / log(base);
 }
-//double logn(double base, double x);
 
 #endif

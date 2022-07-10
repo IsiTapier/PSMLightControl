@@ -24,6 +24,10 @@
 #define MAX4(a, b, c, d)    MAX(MAX(a, b), MAX(c, d))
 #define IFGREATER(x, y, value)  (((x)>(y))?(value):(x))
 #define IFSMALLER(x, y, value)  (((x)<(y))?(value):(x))
+#define ABSOLUTEGREATER(x, y)   (abs(x)>abs(y)?(x):(y))
+#define ABSOLUTESMALLER(x, y)   (abs(x)<abs(y)?(x):(y))
+#define SETABSOLUTEGREATER(x, y)   (x=ABSOLUTEGREATER(x,y))
+#define SETABSOLUTESMALLER(x, y)   (x=ABSOLUTESMALLER(x,y))
 #define IF(x, value, y)     (((x)==(value))?(x):(y))
 #define IFNOT(x, value, y)  (((x)!=(value))?(x):(y))
 

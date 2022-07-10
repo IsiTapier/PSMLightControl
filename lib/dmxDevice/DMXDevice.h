@@ -88,7 +88,7 @@ class DMXDevice {
     byte getDevices(bool includeRepeat = false);
     byte getRepeat();
     uint64_t getFormat();
-    byte getFormatSize();
+    byte getFormatSize(bool includeDistance = false);
     byte getDistance();
 
   private:

@@ -224,8 +224,8 @@ uint64_t DMXDevice::getFormat() {
     return _format;
 }
 
-byte DMXDevice::getFormatSize() {
-    return formatSize;
+byte DMXDevice::getFormatSize(bool includeDistance) {
+    return formatSize + (includeDistance ? _distance : 0);
 }
 
 byte DMXDevice::getDistance() {
