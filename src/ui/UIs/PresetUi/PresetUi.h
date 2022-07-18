@@ -17,30 +17,16 @@
 #include "EEPROM.h"
 #include <algorithm>
 #include <iostream>
-
-std::array<Position, MOVING_HEADS_AMOUNT+1> getDefaultPositions() {
-    std::array<Position, MOVING_HEADS_AMOUNT+1> defaultPositions;
-    std::fill(defaultPositions.begin(), std::prev(defaultPositions.end()), Position(X_DEFAULT, Y_DEFAULT));
-    return defaultPositions;
-}
-std::vector<std::array<Position, MOVING_HEADS_AMOUNT+1>> presetPositions = {getDefaultPositions()};
+#include "Preset.h"
 
 Container presets(ContainerProperties(Size(480-24), Size(320-90-64), Spacing(Size(12), Size(12), Size(12), Size(0)), Spacing(5), 0, 0, true), {});
 
-struct EepromPosition {
-    byte id;
-    std::array<Position, MOVING_HEADS_AMOUNT+1> positions;
-};
-
-struct EepromData {
-    byte currentPosition = 1;
-    EepromPosition eepromPositions[20] = {{0, getDefaultPositions()}};
-} eepromData;
+PresetData presetData;
 
 bool deletePreset = false;
 
-void storeEeprom() {
-    EEPROM.put(0, eepromData);
+void storePresets() {
+    EEPROM.put(0, presetData);
     EEPROM.commit();
 }
 
@@ -49,24 +35,22 @@ void addPresetButton() {
         new Button(ContainerProperties(Size(70), Size(70), Spacing(5), 0, 2, 3), ButtonProperties(), 
             // touch event
             std::bind([](byte id, short buttonId) {
-                if(deletePreset) {
-                    deletePreset = false;
-                    presets.removeContent(id-1);
-                    ButtonManager::removeButton(buttonId);
-                    for(int i = 1; i < eepromData.currentPosition; i++) {
-                        if(eepromData.eepromPositions[i].id==id) {
-                            if(eepromData.currentPosition > 0) eepromData.currentPosition--;
-                            for(int j = i; j < eepromData.currentPosition; j++) {
-                                eepromData.eepromPositions[j] = eepromData.eepromPositions[j+1];
+                for(int i = 1; i < presetData.currentPosition; i++) {
+                    if(presetData.presetObjs[i].id==id) {
+                        if(deletePreset) {
+                            deletePreset = false;
+                            presets.removeContent(id-1);
+                            ButtonManager::removeButton(buttonId);
+                            if(presetData.currentPosition > 0) presetData.currentPosition--;
+                            for(int j = i; j < presetData.currentPosition; j++) {
+                                presetData.presetObjs[j] = presetData.presetObjs[j+1];
                             }
+                            storePresets();
+                            // delete newButton;
+                        } else {
+                            presetData.presetObjs[i].preset.activate();
                         }
                     }
-                    storeEeprom();
-                    // delete newButton;
-                } else {
-                    for(int i = 0; i < MOVING_HEADS_AMOUNT; i++) 
-                        MovingHead::getMovingHead(i)->setPosition(presetPositions[id][i]);
-                    MovingHead::setPositionAll(presetPositions[id][MOVING_HEADS_AMOUNT]);
                 }
                 return 0;
             }, (presets.getProperties().getCurrentId()+2), ButtonManager::getCurrentId()+1),
@@ -76,32 +60,26 @@ void addPresetButton() {
     );
 }
 
-void readEeprom() {
+void readPresets() {
     // for (int i = 0; i < 512; i++) {
     //     EEPROM.write(i, 0);
     // }
     // EEPROM.commit();
-    EepromData temp;
-    if(EEPROM.get(0, temp).currentPosition == 0) storeEeprom();
-    EEPROM.get(0, eepromData);
-    for(Position p : eepromData.eepromPositions[0].positions)
-        if(p.getX()!=0||p.getY()!=0) {
-            presetPositions.at(0) = eepromData.eepromPositions[0].positions;
-            break;
-        }
-    for(int i=0;i<MOVING_HEADS_AMOUNT;i++) MovingHead::getMovingHead(i)->setHome(presetPositions[0][i]);
-    MovingHead::setHomeAll(presetPositions[0][MOVING_HEADS_AMOUNT]);
+    PresetData temp;
+    if(EEPROM.get(0, temp).currentPosition == 0) storePresets();
+    EEPROM.get(0, presetData);
+    for(int i=0;i<MOVING_HEADS_AMOUNT;i++) MovingHead::getMovingHead(i)->setHome(presetData.presetObjs[0].preset.getPositions()[i]);
+    MovingHead::setHomeAll(presetData.presetObjs[0].preset.getPositionAll());
     MovingHead::resetPositions();
-    if(eepromData.currentPosition == 1)
+    if(presetData.currentPosition == 1)
         return;
-    if(eepromData.currentPosition>=20)
-        eepromData.currentPosition = 19;
-    for(int i = 1; i < eepromData.currentPosition; i++) {
-        presetPositions.push_back(eepromData.eepromPositions[i].positions);
-        eepromData.eepromPositions[i].id=(presets.getProperties().getCurrentId()+2);
+    if(presetData.currentPosition>=20)
+        presetData.currentPosition = 19;
+    for(int i = 1; i < presetData.currentPosition; i++) {
+        presetData.presetObjs[i].id=(presets.getProperties().getCurrentId()+2);
         addPresetButton();
     }
-    storeEeprom();
+    storePresets();
 }
 
 View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0), 0, 0, 0), ViewProperties("Presets"),
@@ -116,43 +94,30 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
     },
     // navbar
     {
-    new Button(ContainerProperties(Size(70), Size(60), Spacing(27, 8, 8, 8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
+    new Button(ContainerProperties(Size(58), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
         [](){
-            std::array<Position, MOVING_HEADS_AMOUNT+1> p;
-            // std::for_each(p.begin(), std::prev(p.end()), [i=0](Position& n)mutable{
-            //     n = MovingHead::getMovingHead(i++)->getPosition();
-            // });
-            int i = 0;
-            for(auto position = p.begin(); position != p.end(); position++) {
-                (*position) = MovingHead::getMovingHead(i++)->getPosition();
-            }
-            p.at(MOVING_HEADS_AMOUNT) = MovingHead::getPositionAll();
-            presetPositions.push_back(p);
-            if(eepromData.currentPosition<19)
-                eepromData.eepromPositions[eepromData.currentPosition] = {(byte)((presets.getProperties().getCurrentId()+2)), p};
-            eepromData.currentPosition++;
+            if(presetData.currentPosition<19)
+                presetData.presetObjs[presetData.currentPosition] = {(byte)((presets.getProperties().getCurrentId()+2)), Preset()};
+            presetData.currentPosition++;
             addPresetButton();
-            storeEeprom();
+            storePresets();
             deletePreset = false;
             return 0;
         },
         {new Text(ContainerProperties(), TextProperties(NO_COLOR, 3), "add")}
     ),
 
-    new Button(ContainerProperties(Size(70), Size(60), Spacing(8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
+    new Button(ContainerProperties(Size(58), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
         [](){if(presets.getContentAmount()>0) deletePreset=true; return 0;},
         {new Text(ContainerProperties(), TextProperties(), "delete")}),
 
-    new Button(ContainerProperties(Size(70), Size(60), Spacing(8), Spacing(2), Size(2), Size(4)), ButtonProperties(),
+    new Button(ContainerProperties(Size(58), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4)), ButtonProperties(),
         [](){
-            for(int i=0;i<MOVING_HEADS_AMOUNT;i++) {
-                presetPositions[0][i] = MovingHead::getMovingHead(i)->getPosition();
-                MovingHead::getMovingHead(i)->setHome(presetPositions[0][i]);
-            }
-            presetPositions[0][MOVING_HEADS_AMOUNT] = MovingHead::getPositionAll();
-            MovingHead::setHomeAll(presetPositions[0][MOVING_HEADS_AMOUNT]);
-            eepromData.eepromPositions[0] = { 0, presetPositions[0]};
-            storeEeprom();
+            presetData.presetObjs[0].preset = Preset();
+            for(int i=0;i<MOVING_HEADS_AMOUNT;i++)
+                MovingHead::getMovingHead(i)->setHome(presetData.presetObjs[0].preset.getPositions()[i]);
+            MovingHead::setHomeAll(presetData.presetObjs[0].preset.getPositionAll());
+            storePresets();
             return 0;
         },
         {new Text(ContainerProperties(), TextProperties(), "set home")}),

@@ -117,7 +117,7 @@ uint8_t DMX::read(uint16_t channel) {
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreTake(sync_dmx, portMAX_DELAY);
 #endif
-    uint8_t tmp_dmx = dmx_data[2][channel];
+    uint8_t tmp_dmx = dmx_data[0][channel];
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreGive(sync_dmx);
 #endif

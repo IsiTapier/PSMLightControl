@@ -132,6 +132,11 @@ void DMXDevice::writeChannel(byte channel, byte value, byte device) {
             writeUniverse->write(_address+channel+i*(_repeat*formatSize+_distance), _outputCalculation(channel, i, value));
 }
 
+uint8_t DMXDevice::readChannel(Input input, byte channel) {
+    if(channel >= input.formatSize*_repeat) return 0;
+    return DMX::getUniverse(input.universe)->read(input.address+channel);
+}
+
 // void DMXDevice::writeChannels(int channel, byte value) {
 //     if(channel >= (formatSize*_repeat+_distance)*_devices)
 //         return;
@@ -151,6 +156,14 @@ void DMXDevice::writeType(byte type, byte value, byte device) {
         if(FORMAT_EQUALS(type))
             for(int j = 1; j <= _repeat; j++)
                 writeChannel(j*formatSize-1-i, value, device);
+}
+
+uint8_t DMXDevice::readType(byte type) {
+    if(type == X) return 0;
+    for(Input input : _inputs)
+        for(int i = 0; i < input.formatSize; i++)
+            if((input.format>>(i*4))%16 == type) return readChannel(input, input.formatSize-1-i);
+    return 0;
 }
 
 void DMXDevice::writeMaster(byte value, byte device) {
@@ -181,6 +194,12 @@ void DMXDevice::writeStrobe(byte value, byte device) {
 
 void DMXDevice::writeEffect(byte value, byte device) {
     writeType(E, value, device);
+}
+
+void DMXDevice::writeColor(Color color) {
+    writeRed(color.r);
+    writeGreen(color.g);
+    writeBlue(color.b);
 }
 
 void DMXDevice::blackOut() {
@@ -230,6 +249,15 @@ byte DMXDevice::getFormatSize(bool includeDistance) {
 
 byte DMXDevice::getDistance() {
     return _distance;
+}
+
+Color DMXDevice::getColor() {
+    return {readType(R), readType(G), readType(B)};
+}
+
+void DMXDevice::setValueCalculation(std::vector<std::function<byte(byte)>> valueCalculation) {
+    for(auto it = _inputs.begin(); it != _inputs.end(); it++)
+        it->valueCalculation = valueCalculation;
 }
 
 void DMXDevice::updateChannels() {

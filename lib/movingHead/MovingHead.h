@@ -115,7 +115,7 @@
 #define ACTIVE_MOVINGHEAD   (getMovingHead(activeMovingHead))//(activeMovingHead==0?movingHead1:movingHead2)
 #define INACTIVE_MOVINGHEAD (activeMovingHead!=0?movingHead1:movingHead2)
 
-#define VALID_MOVINGHEAD(mv) (mv<_movingHeads.size()?mv:mv%_movingHeads.size())
+#define VALID_MOVINGHEAD(mv) (_movingHeads.size()==0?-1:mv<_movingHeads.size()?mv:mv%_movingHeads.size())
 
 class MovingHead {
   public:
@@ -132,7 +132,9 @@ class MovingHead {
     float getX(bool trueX = false);
     float getY(bool trueY = false);
     Position getPosition(bool trueVal = false);
+    static Position getPosition(byte movingHead = activeMovingHead, bool trueVal = false);
     void setPosition(Position position);
+    static void setPosition(byte movingHead, Position position);
     static Position getPositionAll();
     static void setPositionAll(Position position);
     static void setHomeAll(Position homeAll);

@@ -7,7 +7,7 @@
 
 #include "../../view/View.h"
 #include "Effect/Effect.h"
-#include "../../../Devices.h"
+#include "Devices.h"
 
 MultiEffect bubbles("bubbles", {&bars}, 250, {new MultiEffect::EffectPoint((byte)0, bars.getDevices(true), (float).2, (byte)40, 3, 3), new MultiEffect::EffectPoint((byte)0, bars.getDevices(true), (float)-.4, (byte)100, 3, 3), new MultiEffect::EffectPoint((byte)0, bars.getDevices(true), (float).1, (byte)80), new MultiEffect::EffectPoint((byte)0, bars.getDevices(true), (float)-.7, (byte)10, 3, 3), new MultiEffect::EffectPoint((byte)0, bars.getDevices(true), (float).1, (byte)40, 3, 3), new MultiEffect::EffectPoint((byte)0, bars.getDevices(true), (float).3, (byte)120, 3, 3), new MultiEffect::EffectPoint((byte)0, bars.getDevices(true), (float)-.2, (byte)60, 3, 3)}, 2);
 MultiEffect lauflicht("lauf", &strahler, 250, {new MultiEffect::EffectPoint(0, strahler.getDevices(true), 1., 0)});

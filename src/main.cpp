@@ -15,8 +15,6 @@ DMX* universe3 = DMX::initUniverse(UNIVERSE_3, output, U3_IN, U3_OUT, U3_EN);
 #endif
 
 // #include "Devices.h"
-#include "ui/Ui.h"
-
 
 #if UNIVERSE_3_ACTIVE && UNIVERSE_1_ACTIVE
 #include "MovingHead.h"
@@ -28,6 +26,8 @@ MovingHead movingHead5(HEIGHT_MV5, X_OFFSET_MV5, Y_OFFSET, TILT_OFFSET_MV5, PAN_
 MovingHead movingHead6(HEIGHT_MV6, X_OFFSET_MV6, Y_OFFSET, TILT_OFFSET_MV6, PAN_OFFSET_MV6, UNIVERSE_3, 66, INPUT_UNIVERSE_ALL, INPUT_ADDRESS_MV6, HEIGHT_ADDRESS_MV6, Position(X_DEFAULT_MV6, Y_DEFAULT));
 // DMXDevice strahlerNeu2(UNIVERSE_3, 68, RGBW, 1, UNIVERSE_1, 68, RGBW, 2);
 #endif
+
+#include "ui/Ui.h"
 
 void setup() {
   #if DEBUG

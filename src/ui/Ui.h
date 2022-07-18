@@ -12,7 +12,6 @@
 #include "viewManager/ViewManager.h"
 #include "containerGrid/ContainerGrid.h"
 #include "customView/CustomView.h"
-#include "MovingHead.h"
 #include "EEPROM.h"
 
 #define ROTATION 3

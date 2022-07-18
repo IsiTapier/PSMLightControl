@@ -127,8 +127,17 @@ Position MovingHead::getPosition(bool trueVal) {
     return Position(getX(trueVal), getY(trueVal));
 }
 
+Position MovingHead::getPosition(byte movingHead, bool trueVal) {
+    if(VALID_MOVINGHEAD(movingHead)==-1) return Position(X_DEFAULT, Y_DEFAULT);
+    return getMovingHead(movingHead)->getPosition(trueVal);
+}
+
 void MovingHead::setPosition(Position position) {
     setXY(position.getX(), position.getY(), true);
+}
+
+void MovingHead::setPosition(byte movingHead, Position position) {
+    return getMovingHead(movingHead)->setPosition(position);
 }
 
 Position MovingHead::getPositionAll() {

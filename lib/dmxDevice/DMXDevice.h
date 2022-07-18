@@ -52,6 +52,10 @@
 #define FORMAT_EQUALS(type) ((_format>>i*4)%16 == type)
 #define READ_UNIVERSE (DMX::getUniverse(input->universe))
 
+struct Color {
+  uint8_t r, g, b;
+};
+
 struct Input {
   DMXUniverse universe = UNIVERSE_1;
   uint16_t address = 0;
@@ -69,8 +73,10 @@ class DMXDevice {
     // DMXDevice(DMXDevice *device, DMXUniverse universe, uint16_t address, uint64_t format, Input input = none, byte repeat = 1, byte devices = 1, byte distance = 0);
     // DMXDevice(DMXUniverse universe, uint16_t address, uint64_t format, byte repeat = 1, Input input = none, byte devices = 1, byte distance = 0);
     void writeChannel(byte channel, byte value, byte device = ALL_DEVICES);
+    uint8_t readChannel(Input input, byte channel);
     // void writeChannels(int channel, byte value);
     void writeType(byte type, byte value, byte device = ALL_DEVICES);
+    uint8_t readType(byte type);
     void writeMaster(byte value, byte device = ALL_DEVICES);
     void writeRed(byte value, byte device = ALL_DEVICES);
     void writeGreen(byte value, byte device = ALL_DEVICES);
@@ -78,6 +84,7 @@ class DMXDevice {
     void writeWhite(byte value, byte device = ALL_DEVICES);
     void writeStrobe(byte value, byte device = ALL_DEVICES);
     void writeEffect(byte value, byte device = ALL_DEVICES);
+    void writeColor(Color color);
     void blackOut();
     static void init();
     void setOverrideDevices(std::vector<byte> overrideDevices);
@@ -90,6 +97,9 @@ class DMXDevice {
     uint64_t getFormat();
     byte getFormatSize(bool includeDistance = false);
     byte getDistance();
+    Color getColor();
+    //temp
+    void setValueCalculation(std::vector<std::function<byte(byte)>> valueCalculation);
 
   private:
     DMXUniverse _universe;

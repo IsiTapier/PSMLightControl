@@ -40,14 +40,12 @@ void Container::init() {
         if(_properties.getContentLength()-currentX < properties.getLength() + MAX(marginLeft, margin.get(LEFT)) + MAX(margin.get(RIGHT), padding.get(RIGHT))) {
             //check if available length in new line is enough
             if(_properties.getContentLength() < properties.getLength() + MAX(padding.get(LEFT), margin.get(LEFT)) + MAX(margin.get(RIGHT), padding.get(RIGHT))) {
-                if(DEBUG)
-                    Serial.println("WARNING:\tContainer skipped, because it was longer than its parent-container");
+                if(DEBUG) Serial.println("WARNING:\tContainer skipped, because it was longer than its parent-container");
                 goto exitError;
             }
             //check if available height is enough
             if(_properties.getContentHeight()-currentY-nextY < properties.getHeight() + MAX(margin.get(TOP), marginBottom) + MAX(margin.get(BOTTOM), padding.get(BOTTOM))) {
-                if(DEBUG)
-                    Serial.println("WARNING:\tContainer skipped, because there wasn't enough height in the next line available");
+                if(DEBUG) Serial.println("WARNING:\tContainer skipped, because there wasn't enough height in the next line available");
                 goto exitError;
             }
             //set new line
@@ -60,8 +58,7 @@ void Container::init() {
         }
         //check if available height is enough
         if(_properties.getContentHeight()-currentY < properties.getHeight() + MAX(margin.get(TOP), marginTop) + MAX(margin.get(BOTTOM), padding.get(BOTTOM))) {
-            if(DEBUG)
-                Serial.println("WARNING:\tContainer skipped, because there wasn't enough height available.");
+            if(DEBUG) Serial.println("WARNING:\tContainer skipped, because there wasn't enough height available.");
             exitError:
                 properties.setDraw(false);
                 content->setProperties(properties);
@@ -84,7 +81,7 @@ void Container::init() {
 //TODO fill available heights
 void Container::draw(short startX, short startY, short endX, short endY, bool fill) {
     CHECK_DRAW
-    Serial.println("test container");
+    // Serial.println("test container");
     //draw border
     drawBorder(false, fill);
     //draw contents
