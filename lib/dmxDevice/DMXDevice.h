@@ -60,7 +60,7 @@ struct Input {
   DMXUniverse universe = UNIVERSE_1;
   uint16_t address = 0;
   uint64_t format = 0x0;
-  std::vector<std::function<byte(byte)>> valueCalculation = {};
+  std::vector<std::function<short(byte)>> valueCalculation = {};
   byte formatSize = 0;
 };
 
@@ -99,7 +99,7 @@ class DMXDevice {
     byte getDistance();
     Color getColor();
     //temp
-    void setValueCalculation(std::vector<std::function<byte(byte)>> valueCalculation);
+    void setValueCalculation(std::vector<std::function<short(byte)>> valueCalculation);
 
   private:
     DMXUniverse _universe;

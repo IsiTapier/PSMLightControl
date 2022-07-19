@@ -255,7 +255,7 @@ Color DMXDevice::getColor() {
     return {readType(R), readType(G), readType(B)};
 }
 
-void DMXDevice::setValueCalculation(std::vector<std::function<byte(byte)>> valueCalculation) {
+void DMXDevice::setValueCalculation(std::vector<std::function<short(byte)>> valueCalculation) {
     for(auto it = _inputs.begin(); it != _inputs.end(); it++)
         it->valueCalculation = valueCalculation;
 }
@@ -275,7 +275,14 @@ void DMXDevice::updateChannels() {
                 byte iterator = input->formatSize-1-i;
                 byte value = READ_UNIVERSE->read(input->address+iterator);
                 vTaskDelay(1/portTICK_PERIOD_MS);
-                writeType(INPUT_FORMAT_TYPE, input->valueCalculation.size()<=iterator||input->valueCalculation[iterator]==NULL?value:(input->valueCalculation[iterator])(value));
+                short newVal = input->valueCalculation.size()<=iterator||input->valueCalculation[iterator]==NULL?value:(input->valueCalculation[iterator])(value);
+                if(newVal < 0) {
+                    input->valueCalculation = {};
+                    newVal = value;
+                }
+                if(newVal > 255) newVal = 255;
+        
+                writeType(INPUT_FORMAT_TYPE, newVal);
             }
         }
     }

@@ -16,25 +16,31 @@ void Scene::activate() {
 
     bars.setValueCalculation({
         [currentBarColor, this](byte value){
-            return value == currentBarColor.r ? barsColor.r : value;
+            if(abs(value-currentBarColor.r) > 10) return (short) -1;
+            return (short) (value == currentBarColor.r ? barsColor.r : value);
         },
         [currentBarColor, this](byte value){
-            return value == currentBarColor.g ? barsColor.g : value;
+            if(abs(value-currentBarColor.g) > 10) return (short) -1;
+            return (short) (value == currentBarColor.g ? barsColor.g : value);
         },
         [currentBarColor, this](byte value){
-            return value == currentBarColor.b ? barsColor.b : value;
+            if(abs(value-currentBarColor.b) > 10) return (short) -1;
+            return (short) (value == currentBarColor.b ? barsColor.b : value);
         }
     });
     strahler.setValueCalculation({
         [](byte value){return value;},
         [currentSpotColor, this](byte value){
-            return value == currentSpotColor.r ? spotColor.r : value;
+            if(abs(value-currentSpotColor.r) > 10) return (short) -1;
+            return (short) (value == currentSpotColor.r ? spotColor.r : value);
         },
         [currentSpotColor, this](byte value){
-            return value == currentSpotColor.g ? spotColor.g : value;
+            if(abs(value-currentSpotColor.g) > 10) return (short) -1;
+            return (short) (value == currentSpotColor.g ? spotColor.g : value);
         },
         [currentSpotColor, this](byte value){
-            return value == currentSpotColor.b ? spotColor.b : value;
+            if(abs(value-currentSpotColor.b) > 10) return (short) -1;
+            return (short) (value == currentSpotColor.b ? spotColor.b : value);
         }
     });
 
