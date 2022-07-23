@@ -152,9 +152,9 @@ void DMXDevice::writeType(byte type, byte value, byte device) {
         else if(type == R || type == G || type == B || type == W)
             value = value*vMasterValue/UINT8_MAX;
     }
-    for(int i = 0; i < formatSize; i++)
-        if(FORMAT_EQUALS(type))
-            for(int j = 1; j <= _repeat; j++)
+    for(int j = 1; j <= _repeat; j++)
+        for(int i = 0; i < formatSize; i++)
+            if(FORMAT_EQUALS(type))
                 writeChannel(j*formatSize-1-i, value, device);
 }
 

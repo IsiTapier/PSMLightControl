@@ -94,7 +94,7 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
     },
     // navbar
     {
-    new Button(ContainerProperties(Size(58), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
+    new Button(ContainerProperties(Size(57), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
         [](){
             if(presetData.currentPosition<19)
                 presetData.presetObjs[presetData.currentPosition] = {(byte)((presets.getProperties().getCurrentId()+2)), Preset()};
@@ -107,11 +107,11 @@ View presetView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0
         {new Text(ContainerProperties(), TextProperties(NO_COLOR, 3), "add")}
     ),
 
-    new Button(ContainerProperties(Size(58), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
+    new Button(ContainerProperties(Size(57), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
         [](){if(presets.getContentAmount()>0) deletePreset=true; return 0;},
         {new Text(ContainerProperties(), TextProperties(), "delete")}),
 
-    new Button(ContainerProperties(Size(58), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4)), ButtonProperties(),
+    new Button(ContainerProperties(Size(57), Size(60), Spacing(4,8), Spacing(2), Size(2), Size(4)), ButtonProperties(),
         [](){
             presetData.presetObjs[0].preset = Preset();
             for(int i=0;i<MOVING_HEADS_AMOUNT;i++)

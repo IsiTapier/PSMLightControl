@@ -258,8 +258,11 @@ void MovingHead::setDriveRandom(bool value) {
     driveRandom = value;
     if(driveRandom)
          driveTo(Position(_xOffset<0?random(_xOffset+1, 800):random(-700, _xOffset-1), random(-1500, 1000)), _randomSpeed*random(5, 7));
-     else
+     else {
         vTaskDelete(driveToHandle);
+        goToHome();
+        _device.writeType(E, 255);
+     }
 }
 
 void MovingHead::setDriveRandomAll(bool value) {

@@ -18,19 +18,20 @@ class Effect {
             RIGHT = 1,
             OUT = 2,
             IN = 3,
-            UP = 0,
-            DOWN = 1, 
+            UP = 1,
+            DOWN = 0, 
         };
         Effect(const char* name, DMXDevice* device, short speed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Direction direction = RIGHT, byte overrideValue = 255, bool doOverlap = true);
         void toggle();
         bool getActive();
         DMXDevice* getDevice();
+        static void addEffect(Effect* effect);
         static std::vector<Effect*> getEffects();
 
     private:
         static std::vector<Effect*> effects;
         bool active = false;
-        TaskHandle_t handle;
+        TaskHandle_t handle = NULL;
         const char* name;
 
         struct Parameter {
@@ -93,19 +94,19 @@ class MultiEffect {
         static std::vector<MultiEffect*> getEffects();
 
     private:
-        static std::vector<MultiEffect*> effects;
+        static std::vector<MultiEffect*> meffects;
         bool active = false;
         TaskHandle_t handle;
         const char* name;
 
-        struct Parameter {
-            Parameter(DMXDevice* device, short speed, std::vector<EffectPoint*> effectPoints, byte overrideValue, bool doOverlap) : device(device), speed(speed), effectPoints(effectPoints), overrideValue(overrideValue), doOverlap(doOverlap) {}
+        struct MParameter {
+            MParameter(DMXDevice* device, short speed, std::vector<EffectPoint*> effectPoints, byte overrideValue, bool doOverlap) : device(device), speed(speed), effectPoints(effectPoints), overrideValue(overrideValue), doOverlap(doOverlap) {}
             DMXDevice* device;
             short speed;
             std::vector<EffectPoint*> effectPoints;
             byte overrideValue;
             bool doOverlap;
-        } parameter;
+        } mparameter;
 };
 
 class EffectButton: public Button {

@@ -95,7 +95,7 @@ void DMX::initialize(DMXDirection direction) {
         // create send task
         xTaskCreatePinnedToCore(startSendTask, "uart_send_task", 1024, getUniverse(_universe), 12, NULL, DMX_CORE);
         // create update task
-        xTaskCreatePinnedToCore(startUpdateTask, "dmx_update_task", 1024, getUniverse(_universe), 10, NULL, DMX_CORE);
+        xTaskCreatePinnedToCore(startUpdateTask, "dmx_update_task", 1024, getUniverse(_universe), 10, NULL, !DMX_CORE);
     } else {
         gpio_set_level(_enablePin, 0);
         dmx_state = DMX_IDLE;
@@ -117,7 +117,7 @@ uint8_t DMX::read(uint16_t channel) {
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreTake(sync_dmx, portMAX_DELAY);
 #endif
-    uint8_t tmp_dmx = dmx_data[0][channel];
+    uint8_t tmp_dmx = dmx_data[2][channel];
 #if !DMX_IGNORE_THREADSAFETY
     xSemaphoreGive(sync_dmx);
 #endif
@@ -250,7 +250,7 @@ void DMX::uart_send_task() {
 // #endif
 //     memcpy((uint8_t *)dmx_temp_copy+1, (uint8_t *)dmx_data[0]+1, 512);
 // #if !DMX_IGNORE_THREADSAFETY
-//     xSemaphoreGive(sync_dmx);
+// xSemaphoreGive(sync_dmx);
 // #endif
         // write start code
         uart_write_bytes(uart, (const char*) &start_code, 1);

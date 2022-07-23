@@ -14,7 +14,7 @@ DMX* universe2 = DMX::initUniverse(UNIVERSE_2, output, U2_IN, U2_OUT, U2_EN);
 DMX* universe3 = DMX::initUniverse(UNIVERSE_3, output, U3_IN, U3_OUT, U3_EN);
 #endif
 
-// #include "Devices.h"
+#include "Devices.h"
 
 #if UNIVERSE_3_ACTIVE && UNIVERSE_1_ACTIVE
 #include "MovingHead.h"

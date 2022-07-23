@@ -162,7 +162,7 @@ CustomView *mhUi = new CustomView(ContainerProperties(0, 0), ViewProperties("B"+
     // NavBar
     {
         // home button
-        new Button(ContainerProperties(Size(100), Size(60), Spacing(480-100-8-60-8-3*(70+3), 8, 8, 8), Spacing(4), Size(2), Size(4)), ButtonProperties(),
+        new Button(ContainerProperties(Size(100), Size(60), Spacing(480-100-8-60-8-4*(70+3), 8, 8, 8), Spacing(4), Size(2), Size(4)), ButtonProperties(),
             [](){ MovingHead::resetPositions(); return 0; },
             { new Text(ContainerProperties(), TextProperties(), "Home") }
         ),

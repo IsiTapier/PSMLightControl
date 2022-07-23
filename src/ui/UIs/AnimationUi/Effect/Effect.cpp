@@ -1,9 +1,16 @@
 #include "Effect.h"
+#include "Devices.h"
 
-std::vector<Effect*> Effect::effects;
+std::vector<Effect*> Effect::effects = {};
 
 Effect::Effect(const char* name, DMXDevice* device, short speed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap) : name(name), parameter({device, speed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap}) {
+    // NOT WORKING
     effects.push_back(this);
+}
+
+// NOT WORKING
+void Effect::addEffect(Effect* effect) {
+    effects.push_back(effect);
 }
 
 std::vector<Effect*> Effect::getEffects() {
@@ -22,14 +29,24 @@ void Effect::toggle() {
     active = !active;
     if(!active) {
         parameter.device->setOutputCalculation([](byte channel, byte device, byte value){return value;});
-        vTaskDelete(handle);
+        if(handle!=NULL) vTaskDelete(handle);
+        handle = NULL;
         return;
     }
 
+    bool isAdded = false;
+
     // turn of all other effects for same device
-    for(Effect* effect : getEffects())
+    for(Effect* effect : getEffects()) {
+        if(effect == this) {
+            isAdded = true;
+            continue;
+        }
         if(effect->getActive() && effect->getDevice() == getDevice())
             effect->toggle();
+    }
+
+    if(!isAdded) effects.push_back(this);
 
     xTaskCreate([](void* parm){
         Parameter* p = (Parameter*) parm;
@@ -40,12 +57,13 @@ void Effect::toggle() {
             for(float j = 0; j < devices; j+=p->increase) {
                 float current;
                 switch(p->direction) {
-                    case RIGHT: current = devices-j;   break;
+                    case LEFT: current = devices-j;   break;
                     case OUT:   current = devices-j;   break;
                     default:    current = j;           break;
                 }
                 d->setOutputCalculation([p, d, current, devices](byte channel, byte device, byte value) {
                     // check channel type
+                    // Serial.println();
 
                     // TODO
 
@@ -53,25 +71,42 @@ void Effect::toggle() {
                     // if(!FORMATEQUALS(R) && !FORMATEQUALS(G) && !FORMATEQUALS(B) && !FORMATEQUALS(W)) return value;
 
                     // get device position
+                    // Serial.print(" channel: ");
+                    // Serial.print(channel);
+                    // Serial.print(" device: ");
+                    // Serial.print(device);
+                    // Serial.print(" formatsize: ");
+                    // Serial.print(d->getFormatSize(true));
                     byte x = floor(channel/d->getFormatSize(true))+d->getRepeat()*device;
                     // Serial.print(floor(channel/(d->getFormatSize()+d->getDistance()))); Serial.print(" "); Serial.println(channel);
-                    
+                    // Serial.print(" current: ");
+                    // Serial.print(current);
+                    // Serial.print(" x: ");
+                    // Serial.print(x);
                     if((p->direction == OUT || p->direction == IN) && x > devices) x = 2*devices-x;
                     float distance = x-current;
+                    // Serial.print(" distance: ");
+                    // Serial.print(distance);
                     
                     // check overlap
                     if(p->doOverlap) {
                         if(distance <= -devices+p->spreadRight) SETABSOLUTESMALLER(distance, distance+devices);
                         if(distance >=  devices-p->spreadLeft)  SETABSOLUTESMALLER(distance, distance-devices);
                     }
-                    
+                    // Serial.print(" ");
+                    // Serial.print(bars.getDevices(true)/4.);
+                    // Serial.print(" spreadl: ");
+                    // Serial.print(p->spreadLeft);
+                    // Serial.print(" spreadr: ");
+                    // Serial.print(p->spreadRight);
                     // prevent false spread
                     if(distance < -p->spreadLeft) return value;
                     if(distance > p->spreadRight) return value;
                     if(x>devices && ((p->direction == IN && distance < 0) || (p->direction == OUT && distance > 0))) return value;
-
+                    // Serial.print(" percentage: ");
                     // calculate new brightness
-                    float percentage = 1-(distance<0 ? abs(distance/(float)p->spreadLeft) : distance/(float)p->spreadRight);
+                    float percentage = 1-(distance<0 ? abs(distance)/((float)p->spreadLeft) : distance/((float)p->spreadRight));
+                    // Serial.print(percentage);
                     return (byte) MAX(percentage*p->overrideValue, (1-percentage)*value);
                 });
                 vTaskDelay(p->speed);
@@ -80,14 +115,14 @@ void Effect::toggle() {
     }, name, 1024, &parameter, 6, &handle);
 }
 
-std::vector<MultiEffect*> MultiEffect::effects;
+std::vector<MultiEffect*> MultiEffect::meffects;
 
-MultiEffect::MultiEffect(const char* name, DMXDevice* device, short speed, std::vector<EffectPoint*> effectPoints, byte overrideValue, bool doOverlap) : name(name), parameter({device, speed, effectPoints, overrideValue, doOverlap}) {
-    effects.push_back(this);
+MultiEffect::MultiEffect(const char* name, DMXDevice* device, short speed, std::vector<EffectPoint*> effectPoints, byte overrideValue, bool doOverlap) : name(name), mparameter({device, speed, effectPoints, overrideValue, doOverlap}) {
+    meffects.push_back(this);
 }
 
 std::vector<MultiEffect*> MultiEffect::getEffects() {
-    return effects;
+    return meffects;
 }
 
 bool MultiEffect::getActive() {
@@ -95,13 +130,13 @@ bool MultiEffect::getActive() {
 }
 
 DMXDevice* MultiEffect::getDevice() {
-    return parameter.device;
+    return mparameter.device;
 }
 
 void MultiEffect::toggle() {
     active = !active;
     if(!active) {
-        parameter.device->setOutputCalculation([](byte channel, byte device, byte value){return value;});
+        mparameter.device->setOutputCalculation([](byte channel, byte device, byte value){return value;});
         vTaskDelete(handle);
         return;
     }
@@ -112,7 +147,7 @@ void MultiEffect::toggle() {
             effect->toggle();
 
     xTaskCreate([](void* parm){
-        Parameter* p = (Parameter*) parm;
+        MParameter* p = (MParameter*) parm;
         DMXDevice* d = p->device;
         for(;;) {
             for(EffectPoint* effect : p->effectPoints) {
@@ -146,7 +181,7 @@ void MultiEffect::toggle() {
             });
             vTaskDelay(p->speed);
         }
-    }, name, 1024, &parameter, 6, &handle);
+    }, name, 1024, &mparameter, 6, &handle);
 }
 
 EffectButton::EffectButton(const char* name, std::vector<DMXDevice*> devices, short speed, float increase, byte spreadLeft, byte spreadRight, Effect::Direction direction, byte overrideValue, bool doOverlap) : Button(ContainerProperties(Size(60), Size(60), Spacing(15, 7), Spacing(0), Spacing(2)), ButtonProperties(),
@@ -157,8 +192,11 @@ EffectButton::EffectButton(const char* name, std::vector<DMXDevice*> devices, sh
     {
         new Text(ContainerProperties(), TextProperties(), name)
     }), name(name) {
-    for(DMXDevice* device : devices)
-        effects.push_back(new Effect(name, device, speed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap));
+    for(DMXDevice* device : devices) {
+        Effect* effect = new Effect(name, device, speed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap);
+        Effect::addEffect(effect);
+        effects.push_back(effect);
+    }
 }
 
 void EffectButton::toggle() {
