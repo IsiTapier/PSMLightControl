@@ -10,6 +10,7 @@
 #include "../../../textField/Text.h"
 
 #define EQUAL_SPREAD UINT8_MAX
+#define DEFAULT_TAB_SPEED 1*1000
 
 class Effect {
     public:
@@ -21,29 +22,38 @@ class Effect {
             UP = 1,
             DOWN = 0, 
         };
-        Effect(const char* name, DMXDevice* device, short speed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Direction direction = RIGHT, byte overrideValue = 255, bool doOverlap = true);
+        Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Direction direction = RIGHT, byte overrideValue = 255, bool doOverlap = true);
         void toggle();
         bool getActive();
         DMXDevice* getDevice();
+        void setSpeedMultiplier(float multiplier);
+
         static void addEffect(Effect* effect);
         static std::vector<Effect*> getEffects();
+        static void setSpeed(uint16_t speed);
+        static uint16_t getSpeed();
 
     private:
         static std::vector<Effect*> effects;
+        static uint16_t speed;
+
+        float speedMultiplier;
         bool active = false;
         TaskHandle_t handle = NULL;
         const char* name;
 
         struct Parameter {
-            Parameter(DMXDevice* device, short speed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap) : device(device), speed(speed), increase(increase), spreadLeft(spreadLeft), spreadRight(spreadRight==EQUAL_SPREAD?spreadLeft:spreadRight), direction(direction), overrideValue(overrideValue), doOverlap(doOverlap) {}
+            Parameter(DMXDevice* device, byte defaultSpeed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap) : device(device), defaultSpeed(defaultSpeed), increase(increase), spreadLeft(spreadLeft), spreadRight(spreadRight==EQUAL_SPREAD?spreadLeft:spreadRight), direction(direction), overrideValue(overrideValue), doOverlap(doOverlap) {}
+            void setSpeedMultiplier(float newSpeedMultiplier) {speedMultiplier = newSpeedMultiplier;}
             DMXDevice* device;
-            short speed;
+            byte defaultSpeed;
             float increase;
             byte spreadLeft;
             byte spreadRight;
             Direction direction;
             byte overrideValue;
             bool doOverlap;
+            float speedMultiplier = 1.;
         } parameter;
 };
 

@@ -2,8 +2,9 @@
 #include "Devices.h"
 
 std::vector<Effect*> Effect::effects = {};
+uint16_t Effect::speed = DEFAULT_TAB_SPEED;
 
-Effect::Effect(const char* name, DMXDevice* device, short speed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap) : name(name), parameter({device, speed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap}) {
+Effect::Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap) : name(name), parameter({device, defaultSpeed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap}) {
     // NOT WORKING
     effects.push_back(this);
 }
@@ -23,6 +24,18 @@ bool Effect::getActive() {
 
 DMXDevice* Effect::getDevice() {
     return parameter.device;
+}
+
+void Effect::setSpeed(uint16_t speed) {
+    Effect::speed = speed;
+}
+
+uint16_t Effect::getSpeed() {
+    return speed;
+}
+
+void Effect::setSpeedMultiplier(float multiplier) {
+    parameter.speedMultiplier = multiplier;
 }
 
 void Effect::toggle() {
@@ -109,7 +122,7 @@ void Effect::toggle() {
                     // Serial.print(percentage);
                     return (byte) MAX(percentage*p->overrideValue, (1-percentage)*value);
                 });
-                vTaskDelay(p->speed);
+                vTaskDelay(Effect::getSpeed()/p->defaultSpeed*p->increase*p->speedMultiplier);
             }
         }
     }, name, 1024, &parameter, 6, &handle);
