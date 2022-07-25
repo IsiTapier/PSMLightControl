@@ -4,7 +4,7 @@
 std::vector<Effect*> Effect::effects = {};
 uint16_t Effect::speed = DEFAULT_TAB_SPEED;
 
-Effect::Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap) : name(name), parameter({device, defaultSpeed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap}) {
+Effect::Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap, bool rainbow) : name(name), parameter({device, defaultSpeed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap, rainbow}) {
     // NOT WORKING
     effects.push_back(this);
 }
@@ -68,6 +68,7 @@ void Effect::toggle() {
         if(p->direction == OUT || p->direction == IN) devices/=2;
         for(;;) {
             for(float j = 0; j < devices; j+=p->increase) {
+                if(p->increase == RANDOM) j = random(0, devices);
                 float current;
                 switch(p->direction) {
                     case LEFT: current = devices-j;   break;
@@ -98,6 +99,8 @@ void Effect::toggle() {
                     // Serial.print(x);
                     if((p->direction == OUT || p->direction == IN) && x > devices) x = 2*devices-x;
                     float distance = x-current;
+
+                    if(p->increase == 0) if(random(0, 4) == 0) distance = 0; else distance = 1;
                     // Serial.print(" distance: ");
                     // Serial.print(distance);
                     
@@ -113,16 +116,21 @@ void Effect::toggle() {
                     // Serial.print(" spreadr: ");
                     // Serial.print(p->spreadRight);
                     // prevent false spread
+                    if(p->rainbow) vTaskDelay(2);
+                    if(p->increase==0) vTaskDelay(4);
                     if(distance < -p->spreadLeft) return value;
                     if(distance > p->spreadRight) return value;
                     if(x>devices && ((p->direction == IN && distance < 0) || (p->direction == OUT && distance > 0))) return value;
                     // Serial.print(" percentage: ");
                     // calculate new brightness
-                    float percentage = 1-(distance<0 ? abs(distance)/((float)p->spreadLeft) : distance/((float)p->spreadRight));
-                    // Serial.print(percentage);
-                    return (byte) MAX(percentage*p->overrideValue, (1-percentage)*value);
+                    float percentage;
+                    if(distance == 0) percentage = 1;
+                    else percentage = 1-(distance<0 ? abs(distance)/((float)p->spreadLeft) : distance/((float)p->spreadRight));
+                    uint8_t outval = MAX(percentage*p->overrideValue, (1-percentage)*value);
+                    return outval;
                 });
-                vTaskDelay(Effect::getSpeed()/p->defaultSpeed*p->increase*p->speedMultiplier);
+                if(p->increase == RANDOM) vTaskDelete(NULL); 
+                vTaskDelay(Effect::getSpeed()/p->defaultSpeed*p->increase/p->speedMultiplier);
             }
         }
     }, name, 1024, &parameter, 6, &handle);
@@ -197,7 +205,7 @@ void MultiEffect::toggle() {
     }, name, 1024, &mparameter, 6, &handle);
 }
 
-EffectButton::EffectButton(const char* name, std::vector<DMXDevice*> devices, short speed, float increase, byte spreadLeft, byte spreadRight, Effect::Direction direction, byte overrideValue, bool doOverlap) : Button(ContainerProperties(Size(60), Size(60), Spacing(15, 7), Spacing(0), Spacing(2)), ButtonProperties(),
+EffectButton::EffectButton(const char* name, std::vector<DMXDevice*> devices, short speed, float increase, byte spreadLeft, byte spreadRight, Effect::Direction direction, byte overrideValue, bool doOverlap, bool rainbow) : Button(ContainerProperties(Size(60), Size(60), Spacing(7, 7), Spacing(0), Spacing(2)), ButtonProperties(),
     [this](){
         toggle();
         return 0;
@@ -206,7 +214,7 @@ EffectButton::EffectButton(const char* name, std::vector<DMXDevice*> devices, sh
         new Text(ContainerProperties(), TextProperties(), name)
     }), name(name) {
     for(DMXDevice* device : devices) {
-        Effect* effect = new Effect(name, device, speed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap);
+        Effect* effect = new Effect(name, device, speed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap, rainbow);
         Effect::addEffect(effect);
         effects.push_back(effect);
     }
@@ -216,3 +224,21 @@ void EffectButton::toggle() {
     for(Effect* effect : effects)
         effect->toggle();
 }
+
+void EffectButton::setMultiplier(float multiplier) {
+    for(Effect* effect : effects)
+        effect->setSpeedMultiplier(multiplier);
+}
+
+EffectGroup::EffectGroup(const char* name, std::vector<float> multipliers, std::vector<EffectButton*> effectButtons) : Container(*ContainerProperties(Size(15+(60+15)*effectButtons.size()), Size(74+30), Spacing(0, 10)).setInvisible(true), {}), effectButtons(effectButtons) {
+    Container* header = new Container(*ContainerProperties(Size(1., -1), Size(30)).setInvisible(true), {});
+    header->addContent(new Container(*ContainerProperties(Size(50), Size(30-2*2), Spacing(7, 2)).setInvisible(true), {new Text(ContainerProperties(), TextProperties(), name)}));
+    for(float multiplier : multipliers)
+        header->addContent(new Button(ContainerProperties(Size(30), Size(30-2*2), Spacing(7, 2), Spacing(0), Spacing(1)), ButtonProperties(), [effectButtons, multiplier](){for(EffectButton* button : effectButtons) button->setMultiplier(multiplier); return 0;}, {new Text(ContainerProperties(), TextProperties(), String(multiplier, 1)+"x")}));
+    addContent(header);
+    for(EffectButton* button : effectButtons)
+        addContent((Container*) button);
+    
+}
+
+

@@ -5,12 +5,13 @@
 #ifndef Effecth
 #define Effecth
 
-#include "../../dmxDevice/DMXDevice.h"
+#include "DMXDevice.h"
 #include "../../../button/Button.h"
 #include "../../../textField/Text.h"
 
 #define EQUAL_SPREAD UINT8_MAX
 #define DEFAULT_TAB_SPEED 1*1000
+#define RANDOM 0
 
 class Effect {
     public:
@@ -22,7 +23,7 @@ class Effect {
             UP = 1,
             DOWN = 0, 
         };
-        Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Direction direction = RIGHT, byte overrideValue = 255, bool doOverlap = true);
+        Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Direction direction = RIGHT, byte overrideValue = 255, bool doOverlap = true, bool rainbow = false);
         void toggle();
         bool getActive();
         DMXDevice* getDevice();
@@ -43,7 +44,7 @@ class Effect {
         const char* name;
 
         struct Parameter {
-            Parameter(DMXDevice* device, byte defaultSpeed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap) : device(device), defaultSpeed(defaultSpeed), increase(increase), spreadLeft(spreadLeft), spreadRight(spreadRight==EQUAL_SPREAD?spreadLeft:spreadRight), direction(direction), overrideValue(overrideValue), doOverlap(doOverlap) {}
+            Parameter(DMXDevice* device, byte defaultSpeed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap, bool rainbow = false) : device(device), defaultSpeed(defaultSpeed), increase(increase), spreadLeft(spreadLeft), spreadRight(spreadRight==EQUAL_SPREAD?spreadLeft:spreadRight), direction(direction), overrideValue(overrideValue), doOverlap(doOverlap), rainbow(rainbow) {}
             void setSpeedMultiplier(float newSpeedMultiplier) {speedMultiplier = newSpeedMultiplier;}
             DMXDevice* device;
             byte defaultSpeed;
@@ -53,6 +54,7 @@ class Effect {
             Direction direction;
             byte overrideValue;
             bool doOverlap;
+            bool rainbow;
             float speedMultiplier = 1.;
         } parameter;
 };
@@ -121,12 +123,22 @@ class MultiEffect {
 
 class EffectButton: public Button {
     public:
-        EffectButton(const char* name, std::vector<DMXDevice*> devices, short speed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Effect::Direction direction = Effect::RIGHT, byte overrideValue = 255, bool doOverlap = true);
+        EffectButton(const char* name, std::vector<DMXDevice*> devices, short speed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Effect::Direction direction = Effect::RIGHT, byte overrideValue = 255, bool doOverlap = true, bool rainbow = false);
         void toggle();
+        void setMultiplier(float multiplier);
 
     private:
         const char* name;
         std::vector<Effect*> effects;
+};
+
+
+class EffectGroup: public Container {
+    public: 
+        EffectGroup(const char* name, std::vector<float> multipliers, std::vector<EffectButton*> effectButtons);
+    
+    private:
+        std::vector<EffectButton*> effectButtons;
 };
 
 #endif
