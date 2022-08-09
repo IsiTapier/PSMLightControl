@@ -66,6 +66,8 @@ void readScenes() {
     storeScenes();
 }
 
+Text* toggleIncludeText = new Text(ContainerProperties(), TextProperties(), "with");
+
 View sceneView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0), 0, 0, 0), ViewProperties("scenes"),
     // content
     {
@@ -77,7 +79,7 @@ View sceneView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0)
     },
     // navbar
     {
-    new Button(ContainerProperties(Size(70), Size(60), Spacing(27, 8, 8, 8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
+    new Button(ContainerProperties(Size(55), Size(60), Spacing(4, 8), Spacing(2), Spacing(2), Size(4), false, NO_COLOR, TFT_DARKGREEN), ButtonProperties(),
         [](){
             if(sceneData.currentPosition<20)
                 sceneData.scenes[sceneData.currentPosition] = {(byte)((scenes.getProperties().getCurrentId()+1)), Scene()};
@@ -90,9 +92,20 @@ View sceneView(ContainerProperties(Size(TFT_HEIGHT), Size(TFT_WIDTH), Spacing(0)
         {new Text(ContainerProperties(), TextProperties(NO_COLOR, 3), "add")}
     ),
 
-    new Button(ContainerProperties(Size(70), Size(60), Spacing(8), Spacing(2), Size(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
+    new Button(ContainerProperties(Size(55), Size(60), Spacing(4, 8), Spacing(2), Spacing(2), Size(4), false, NO_COLOR, TFT_RED), ButtonProperties(),
         [](){if(scenes.getContentAmount()>0) deletescene=true; return 0;},
         {new Text(ContainerProperties(), TextProperties(), "delete")}),
+    
+    new Button(ContainerProperties(Size(55), Size(60), Spacing(4, 8), Spacing(2), Spacing(2), Size(4)), ButtonProperties(),
+        [](){
+            Scene::setIncludeMHs();
+            toggleIncludeText->setText(Scene::getIncludeMhs()?"with":"without");
+            return 0;
+        },
+        {
+            (Container*) toggleIncludeText
+        }
+    )
     }
 );
 

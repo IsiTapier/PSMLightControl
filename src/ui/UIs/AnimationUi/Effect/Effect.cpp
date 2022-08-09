@@ -7,6 +7,7 @@ uint16_t Effect::speed = DEFAULT_TAB_SPEED;
 Effect::Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase, byte spreadLeft, byte spreadRight, Direction direction, byte overrideValue, bool doOverlap, bool rainbow) : name(name), parameter({device, defaultSpeed, increase, spreadLeft, spreadRight, direction, overrideValue, doOverlap, rainbow}) {
     // NOT WORKING
     effects.push_back(this);
+    addEffect(this);
 }
 
 // NOT WORKING
@@ -38,8 +39,8 @@ void Effect::setSpeedMultiplier(float multiplier) {
     parameter.speedMultiplier = multiplier;
 }
 
-void Effect::toggle() {
-    active = !active;
+void Effect::toggle(bool value) {
+    active = value;
     if(!active) {
         parameter.device->setOutputCalculation([](byte channel, byte device, byte value){return value;});
         if(handle!=NULL) vTaskDelete(handle);
@@ -56,7 +57,7 @@ void Effect::toggle() {
             continue;
         }
         if(effect->getActive() && effect->getDevice() == getDevice())
-            effect->toggle();
+            effect->toggle(false);
     }
 
     if(!isAdded) effects.push_back(this);
@@ -100,7 +101,11 @@ void Effect::toggle() {
                     if((p->direction == OUT || p->direction == IN) && x > devices) x = 2*devices-x;
                     float distance = x-current;
 
-                    if(p->increase == 0) if(random(0, 4) == 0) distance = 0; else distance = 1;
+                    if(p->increase == RANDOM) {
+                        if(random(0, 4) == 0) distance = 0;
+                        else distance = 1;
+                    }
+
                     // Serial.print(" distance: ");
                     // Serial.print(distance);
                     
@@ -117,7 +122,7 @@ void Effect::toggle() {
                     // Serial.print(p->spreadRight);
                     // prevent false spread
                     if(p->rainbow) vTaskDelay(2);
-                    if(p->increase==0) vTaskDelay(4);
+                    // if(p->increase==0) vTaskDelay(1);
                     if(distance < -p->spreadLeft) return value;
                     if(distance > p->spreadRight) return value;
                     if(x>devices && ((p->direction == IN && distance < 0) || (p->direction == OUT && distance > 0))) return value;
@@ -129,8 +134,9 @@ void Effect::toggle() {
                     uint8_t outval = MAX(percentage*p->overrideValue, (1-percentage)*value);
                     return outval;
                 });
-                if(p->increase == RANDOM) vTaskDelete(NULL); 
-                vTaskDelay(Effect::getSpeed()/p->defaultSpeed*p->increase/p->speedMultiplier);
+                // if(p->increase == RANDOM) vTaskDelete(NULL); 
+                if(p->increase == RANDOM) vTaskDelay(1000);
+                else vTaskDelay(Effect::getSpeed()/p->defaultSpeed*p->increase/p->speedMultiplier);
             }
         }
     }, name, 1024, &parameter, 6, &handle);
@@ -207,7 +213,7 @@ void MultiEffect::toggle() {
 
 EffectButton::EffectButton(const char* name, std::vector<DMXDevice*> devices, short speed, float increase, byte spreadLeft, byte spreadRight, Effect::Direction direction, byte overrideValue, bool doOverlap, bool rainbow) : Button(ContainerProperties(Size(60), Size(60), Spacing(7, 7), Spacing(0), Spacing(2)), ButtonProperties(),
     [this](){
-        toggle();
+        toggle(!getActive());
         return 0;
     },
     {
@@ -220,14 +226,18 @@ EffectButton::EffectButton(const char* name, std::vector<DMXDevice*> devices, sh
     }
 }
 
-void EffectButton::toggle() {
+void EffectButton::toggle(bool value) {
     for(Effect* effect : effects)
-        effect->toggle();
+        effect->toggle(value);
 }
 
 void EffectButton::setMultiplier(float multiplier) {
     for(Effect* effect : effects)
         effect->setSpeedMultiplier(multiplier);
+}
+
+bool EffectButton::getActive() {
+    return effects[0]->getActive();
 }
 
 EffectGroup::EffectGroup(const char* name, std::vector<float> multipliers, std::vector<EffectButton*> effectButtons) : Container(*ContainerProperties(Size(15+(60+15)*effectButtons.size()), Size(74+30), Spacing(0, 10)).setInvisible(true), {}), effectButtons(effectButtons) {

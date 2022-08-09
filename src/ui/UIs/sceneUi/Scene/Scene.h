@@ -10,19 +10,21 @@
 class Scene {
     public: 
         Scene();
-        Scene(Color barsColor, Color spotColor, Preset preset);
+        Scene(Color barsColor, Color spotColor, Preset preset, bool includeMovings);
         void activate();
+        static void setIncludeMHs(bool value = !includeMHs);
+        static bool getIncludeMhs();
     
     private:
         Color barsColor;
         Color spotColor;
         Preset preset;
-    
+        // std::array<byte, MOVING_HEADS_AMOUNT> mhBrightnesses;
+        // std::array<byte, MOVING_HEADS_AMOUNT> mhZooms;
+        bool includeMovings;
+        // std::array<bool, 12> effects;
 
-    // Scene();
-    // Scene(SceneData sceneData);
-
-    // void getSceeneData();
+        static bool includeMHs;   
 };
 
 struct sceneObj {

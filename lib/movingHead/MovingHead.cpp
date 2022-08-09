@@ -313,7 +313,7 @@ void MovingHead::driveTo(Position position, byte speed) {
                     mv->setDriveRandom(true);
                 vTaskDelete(NULL);     
             }
-            vTaskDelay(23/portTICK_PERIOD_MS);
+            vTaskDelay(25/portTICK_PERIOD_MS);
         }
     }, "DriveToLoop", 1*1024, this, 8, &driveToHandle);
 }

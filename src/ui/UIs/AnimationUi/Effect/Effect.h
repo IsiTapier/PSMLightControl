@@ -24,7 +24,7 @@ class Effect {
             DOWN = 0, 
         };
         Effect(const char* name, DMXDevice* device, byte defaultSpeed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Direction direction = RIGHT, byte overrideValue = 255, bool doOverlap = true, bool rainbow = false);
-        void toggle();
+        void toggle(bool value);
         bool getActive();
         DMXDevice* getDevice();
         void setSpeedMultiplier(float multiplier);
@@ -124,8 +124,9 @@ class MultiEffect {
 class EffectButton: public Button {
     public:
         EffectButton(const char* name, std::vector<DMXDevice*> devices, short speed, float increase = 1, byte spreadLeft = 0, byte spreadRight = EQUAL_SPREAD, Effect::Direction direction = Effect::RIGHT, byte overrideValue = 255, bool doOverlap = true, bool rainbow = false);
-        void toggle();
+        void toggle(bool value);
         void setMultiplier(float multiplier);
+        bool getActive();
 
     private:
         const char* name;

@@ -45,7 +45,7 @@ enum DMXUniverse { UNIVERSE_1 = 1, UNIVERSE_2 = 2, UNIVERSE_3 = 3, UNIVERSE_4 = 
 #define BUF_SIZE                1024        // buffer size for rx events
 #define DMX_CORE                1           // select the core the rx/tx thread should run on
 #define DMX_IGNORE_THREADSAFETY 0           // set to 1 to disable all threadsafe mechanisms
-#define DMX_UPDATE_CYCLE        50
+#define DMX_UPDATE_CYCLE        25
 #define DMX_READCYCLE           50
 #define DMX_CHECKCYCLE          1*1000
 

@@ -42,6 +42,8 @@
 #define MXS 0x106
 #define PTsZMEwcCXXXX 0x89AB17CDF0000
 #define PTsZMEwcC 0x89AB17CDF
+// #define PXTXRGBWEMCsX 0x8090234571FA0
+// #define RGBWC 0x2345F
 #define ZMwc 0xB1CD
 #define ZMC 0xB1F
 #define MZ 0x1B

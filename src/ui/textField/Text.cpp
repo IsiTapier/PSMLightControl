@@ -10,6 +10,12 @@ Text::Text(ContainerProperties properties, TextProperties textProperties, String
     setProperties(*getProperties().setInvisible(true));
 }
 
+void Text::setText(String text) {
+  _text = text;
+  init();
+  draw();
+}
+
 void Text::init() {
   ContainerProperties properties = getProperties();
   short length = properties.getContentLength(true);

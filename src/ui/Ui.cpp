@@ -5,7 +5,7 @@
 #include "Ui.h"
 #include "UIs/MovingHeadUi/MovingHeadUi.h"
 #include "UIs/PresetUi/PresetUi.h"
-#include "UIs/AnimationUi/AnimationUi.h"
+// #include "UIs/AnimationUi/AnimationUi.h"
 #include "UIs/sceneUi/SceneUi.h"
 
 

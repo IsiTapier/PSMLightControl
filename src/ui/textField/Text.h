@@ -17,6 +17,8 @@ class Text : public Container {
   public:
     Text(ContainerProperties properties, TextProperties textProperties, String text);
 
+    void setText(String text);
+
     void init() override;
     void draw(short startX=-1, short startY=-1, short endY=-1, short endX=-1, bool fill=true) override;
 

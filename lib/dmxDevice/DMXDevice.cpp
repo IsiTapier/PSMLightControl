@@ -103,11 +103,14 @@ void DMXDevice::setupOutput() {
 }
 
 void DMXDevice::setupInputs() {
+    bool hasMasterInput = false;
     for(auto input = _inputs.begin(); input != _inputs.end(); input++) {
         input->formatSize = floor(logn((double)16, (double)input->format)+1);
-        if(!hasMaster)
+        // if(!hasMaster)
             for(int i = 0; i < input->formatSize; i++)
                 if(INPUT_FORMAT_TYPE == M) {
+                    hasMasterInput = true;
+                    if(hasMaster) break;
                     virtualMaster = input->address+input->formatSize-i-1;
                     virtualMasterUniverse = READ_UNIVERSE;
                     break;
@@ -117,6 +120,7 @@ void DMXDevice::setupInputs() {
         if(input->address < 1)
             input->address = 1;
     }
+    if(hasMaster && !hasMasterInput) writeType(M, 255);
 }
 
 void DMXDevice::init() {

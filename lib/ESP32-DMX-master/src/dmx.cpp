@@ -82,11 +82,10 @@ void DMX::initialize(DMXDirection direction) {
 
     // set gpio for direction
     gpio_pad_select_gpio(_enablePin);
-    gpio_set_direction(_enablePin, GPIO_MODE_OUTPUT);
+    gpio_set_direction(_enablePin, GPIO_MODE_OUTPUT);    
 
     // depending on parameter set gpio for direction change and start rx or tx thread
     if(direction == output) {
-        gpio_set_level(_enablePin, 1);
         dmx_state = DMX_OUTPUT;
 
         //clear data
@@ -231,8 +230,10 @@ uint8_t DMX::isHealthy() {
 }
 
 void DMX::uart_send_task() {
-    vTaskDelay((DMX_CHECKCYCLE+DMX_READCYCLE)/portTICK_PERIOD_MS);
-    uint8_t start_code = 0x00;
+    vTaskDelay((2*DMX_CHECKCYCLE+DMX_READCYCLE)/portTICK_PERIOD_MS);
+    gpio_set_level(_enablePin, 1);
+    const uint8_t start_code = 0x00;
+    
     for(;;) {
         vTaskDelay(1);
         // wait till uart is ready
@@ -266,8 +267,7 @@ void DMX::uart_event_task() {
     uint8_t* dtmp = (uint8_t*) malloc(BUF_SIZE);
     bool state = false;
     for(;;) {
-         // wait for data in the dmx_queue
-         
+        // wait for data in the dmx_queue
         if(xQueueReceive(dmx_rx_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
             bzero(dtmp, BUF_SIZE);
             switch(event.type) {
@@ -288,11 +288,12 @@ void DMX::uart_event_task() {
 #endif
                             byte jumps = 0;
                             for(int i = 1; i < 513 && jumps < 2; i++)
-                                if(dmx_data[0][i]!=dmx_data[1][i]&&(dmx_data[0][i]==0||dmx_data[1][i]==0||dmx_data[0][i]==230||dmx_data[1][i]==230))
+                                // if(dmx_data[state][i] == dmx_data[!state][i] || abs(dmx_data[!state][i] - dmx_data[!state][i]) < 200)
+                                //     dmx_data[2][i] = dmx_data[!state][i];
+                                if(dmx_data[0][i]!=dmx_data[1][i]&&(dmx_data[0][i]==0||dmx_data[1][i]==0))
                                     jumps++;
                             if(jumps < 1)
                                 memcpy((uint8_t *)dmx_data[2]+1, (uint8_t *)dmx_data[!state]+1, 512);
-
 #if !DMX_IGNORE_THREADSAFETY
                             xSemaphoreGive(sync_dmx);
 #endif
@@ -353,20 +354,20 @@ void DMX::uart_event_task() {
 
 void DMX::uart_check_task() {
     for(;;) {
-        vTaskDelay(DMX_CHECKCYCLE/portTICK_PERIOD_MS);
         if(isHealthy())
             stateLed.writeRGB(0, 255, 0);
         else
             stateLed.writeRGB(255, 0, 0);
+        vTaskDelay(DMX_CHECKCYCLE/portTICK_PERIOD_MS);
     }
 }
 
 void DMX::dmx_update_task() {
     for(;;) {
-        vTaskDelay(DMX_UPDATE_CYCLE);
         xSemaphoreTake(sync_health, 1000);
         writeAll(dmx_temp_data);
         xSemaphoreGive(sync_health);
+        vTaskDelay(DMX_UPDATE_CYCLE);
     }
 }
 
